@@ -99,6 +99,28 @@
         transform: rotate(360deg);
       }
     }
+
+    .drop-active {
+      border-color: #0f172a !important;
+      background: #f8fafc !important;
+      transform: scale(1.01);
+    }
+
+    .photo-option {
+      transition: all .2s ease;
+    }
+
+    .photo-option:hover {
+      transform: translateY(-1px);
+    }
+
+    .editing-banner {
+      display: none;
+    }
+
+    .editing-banner.show {
+      display: flex;
+    }
   </style>
 
 </head>
@@ -122,7 +144,7 @@
     <div class="bg-white rounded-3xl p-7 shadow-2xl text-center">
       <div class="spinner mx-auto mb-4"></div>
 
-
+```
   <p id="loadingText" class="font-bold text-sm">
     Memproses data...
   </p>
@@ -131,6 +153,7 @@
     Mohon tunggu sebentar
   </p>
 </div>
+```
 
   </div>
 
@@ -140,19 +163,16 @@
 
   <header class="sticky top-0 z-40 glass">
 
-
+```
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
 
   <div class="flex items-center gap-3">
 
     <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
-
       <i data-lucide="truck" class="w-5 h-5"></i>
-
     </div>
 
     <div>
-
       <h1 class="font-extrabold text-lg sm:text-xl tracking-tight">
         ArmadaTrack
       </h1>
@@ -160,7 +180,6 @@
       <p class="text-[11px] sm:text-xs text-slate-500">
         Monitoring Armada Operasional
       </p>
-
     </div>
 
   </div>
@@ -185,13 +204,13 @@
   </div>
 
 </div>
-
+```
 
   </header>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-
+```
 <!-- =====================================================
      NAVIGATION
 ====================================================== -->
@@ -289,7 +308,7 @@
 
 
       <button
-        onclick="showView('input')"
+        onclick="startNewRecord()"
         class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
 
         <i data-lucide="plus" class="w-4 h-4"></i>
@@ -561,21 +580,53 @@
 
 
 <!-- =====================================================
-     INPUT
+     INPUT / EDIT
 ====================================================== -->
 
 <section id="view-input" class="view">
 
   <div class="max-w-2xl mx-auto">
 
+    <!-- EDITING BANNER -->
+
+    <div
+      id="editingBanner"
+      class="editing-banner items-center gap-3 mb-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl px-4 py-3">
+
+      <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+
+        <i data-lucide="pencil" class="w-4 h-4"></i>
+
+      </div>
+
+      <div class="flex-1">
+
+        <p class="text-xs font-bold uppercase tracking-wide">
+          Mode Edit
+        </p>
+
+        <p class="text-xs mt-0.5 text-blue-700">
+          Kamu sedang mengubah data armada yang sudah tersimpan.
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        onclick="cancelEdit()"
+        class="text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-100">
+
+        Batal
+
+      </button>
+
+    </div>
+
+
     <div class="mb-6">
 
-      <p
-        id="inputEyebrow"
-        class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-
+      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
         Pencatatan Armada
-
       </p>
 
       <h2
@@ -600,6 +651,14 @@
     <form
       id="armadaForm"
       class="card rounded-3xl p-5 sm:p-7 space-y-5">
+
+
+      <!-- HIDDEN EDIT ID -->
+
+      <input
+        type="hidden"
+        id="editRecordId"
+        value="">
 
 
       <!-- DATE -->
@@ -690,74 +749,223 @@
       </div>
 
 
-      <!-- PHOTO -->
+      <!-- =================================================
+           PHOTO
+      ================================================== -->
 
       <div>
 
-        <label class="text-sm font-bold block mb-2">
-          Foto Lokasi
-        </label>
+        <div class="flex items-center justify-between gap-3 mb-2">
+
+          <label class="text-sm font-bold">
+            Foto Lokasi
+          </label>
+
+          <span
+            id="photoStatus"
+            class="text-[11px] font-semibold text-slate-400">
+            Wajib
+          </span>
+
+        </div>
+
+
+        <!-- OLD PHOTO WHEN EDIT -->
+
+        <div
+          id="existingPhotoWrap"
+          class="hidden mb-3">
+
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3">
+
+            <div class="flex items-center justify-between mb-2">
+
+              <p class="text-xs font-bold text-slate-600">
+                Foto saat ini
+              </p>
+
+              <a
+                id="existingPhotoLink"
+                href="#"
+                target="_blank"
+                class="text-[11px] font-bold text-blue-600 hover:underline">
+
+                Buka foto
+
+              </a>
+
+            </div>
+
+            <img
+              id="existingPhotoPreview"
+              src=""
+              class="w-full max-h-48 object-cover rounded-xl border border-slate-200"
+              alt="Foto lokasi saat ini">
+
+          </div>
+
+        </div>
+
+
+        <!-- DROP ZONE -->
 
         <div
           id="photoDrop"
           class="border-2 border-dashed border-slate-200 rounded-2xl p-5 hover:border-slate-400 transition cursor-pointer">
 
+          <!-- CAMERA INPUT -->
+
           <input
-            id="locationPhoto"
+            id="cameraInput"
             type="file"
             accept="image/*"
             capture="environment"
             class="hidden">
 
-          <label
-            for="locationPhoto"
-            class="cursor-pointer flex flex-col items-center justify-center text-center">
 
-            <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+          <!-- FILE / GALLERY INPUT -->
+
+          <input
+            id="galleryInput"
+            type="file"
+            accept="image/*"
+            class="hidden">
+
+
+          <div class="text-center">
+
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
 
               <i
-                data-lucide="camera"
-                class="w-6 h-6 text-slate-500">
+                data-lucide="image-plus"
+                class="w-7 h-7 text-slate-500">
               </i>
 
             </div>
 
+
             <p class="font-bold text-sm">
-              Ambil / pilih foto lokasi
+              Tambahkan Foto Lokasi
             </p>
 
             <p class="text-xs text-slate-400 mt-1">
-              Foto akan masuk otomatis ke folder area di Google Drive
+              Ambil foto dengan kamera atau pilih dari galeri
             </p>
 
-          </label>
 
+            <!-- PHOTO ACTIONS -->
+
+            <div class="grid grid-cols-2 gap-3 mt-5 max-w-md mx-auto">
+
+              <button
+                type="button"
+                id="cameraButton"
+                class="photo-option border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+                <i data-lucide="camera" class="w-4 h-4"></i>
+
+                Kamera
+
+              </button>
+
+
+              <button
+                type="button"
+                id="galleryButton"
+                class="photo-option border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+                <i data-lucide="image" class="w-4 h-4"></i>
+
+                Galeri / File
+
+              </button>
+
+            </div>
+
+
+            <div class="flex items-center gap-3 max-w-md mx-auto my-4">
+
+              <div class="h-px bg-slate-200 flex-1"></div>
+
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+                atau
+              </span>
+
+              <div class="h-px bg-slate-200 flex-1"></div>
+
+            </div>
+
+
+            <div class="text-xs text-slate-400">
+
+              <i data-lucide="upload-cloud" class="w-4 h-4 inline-block align-middle mr-1"></i>
+
+              Tarik & lepas foto di area ini
+
+            </div>
+
+          </div>
+
+
+          <!-- PHOTO PREVIEW -->
 
           <div
             id="photoPreviewWrap"
-            class="hidden mt-4">
+            class="hidden mt-5">
 
-            <img
-              id="photoPreview"
-              class="w-full max-h-64 object-cover rounded-2xl border border-slate-200">
+            <div class="relative">
 
-            <p
-              id="photoStatus"
-              class="text-xs text-slate-400 mt-2">
-            </p>
+              <img
+                id="photoPreview"
+                src=""
+                class="w-full max-h-72 object-cover rounded-2xl border border-slate-200"
+                alt="Preview foto lokasi">
 
-            <button
-              type="button"
-              onclick="removePhoto()"
-              class="mt-2 text-xs font-bold text-red-600 hover:underline">
 
-              Hapus foto
+              <button
+                type="button"
+                onclick="removePhoto()"
+                class="absolute top-3 right-3 w-9 h-9 rounded-xl bg-white/95 shadow-lg text-red-600 flex items-center justify-center hover:bg-red-50"
+                title="Hapus foto">
 
-            </button>
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+
+              </button>
+
+            </div>
+
+
+            <div class="flex items-center justify-between gap-3 mt-2">
+
+              <p
+                id="photoFileName"
+                class="text-xs text-slate-500 truncate">
+                Foto dipilih
+              </p>
+
+              <button
+                type="button"
+                onclick="replacePhoto()"
+                class="text-xs font-bold text-blue-600 hover:underline shrink-0">
+
+                Ganti foto
+
+              </button>
+
+            </div>
 
           </div>
 
         </div>
+
+
+        <p
+          id="photoHelpText"
+          class="text-xs text-slate-400 mt-2">
+
+          Maksimal 4 MB. Foto akan masuk otomatis ke folder area di Google Drive.
+
+        </p>
 
       </div>
 
@@ -899,7 +1107,11 @@
           type="submit"
           class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2">
 
-          <i data-lucide="save" class="w-4 h-4"></i>
+          <i
+            id="saveButtonIcon"
+            data-lucide="save"
+            class="w-4 h-4">
+          </i>
 
           <span id="saveButtonText">
             Simpan Data
@@ -909,18 +1121,6 @@
 
 
         <button
-          id="cancelEditButton"
-          type="button"
-          onclick="cancelEdit()"
-          class="hidden px-5 py-3.5 border border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50">
-
-          Batal Edit
-
-        </button>
-
-
-        <button
-          id="resetButton"
           type="button"
           onclick="resetForm()"
           class="px-5 py-3.5 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50">
@@ -1167,7 +1367,7 @@
 
     <div class="overflow-x-auto">
 
-      <table class="w-full min-w-[900px]">
+      <table class="w-full min-w-[950px]">
 
         <thead class="bg-slate-50 text-left">
 
@@ -1243,7 +1443,7 @@
   </div>
 
 </section>
-
+```
 
   </div>
 
@@ -1253,12 +1453,12 @@
 
   <div
     id="toast"
-    class="fixed bottom-5 right-5 z-50 translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+    class="fixed bottom-5 right-5 left-5 sm:left-auto z-50 translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
 
-
+```
 <i
   data-lucide="check-circle-2"
-  class="w-5 h-5">
+  class="w-5 h-5 shrink-0">
 </i>
 
 <p
@@ -1266,7 +1466,7 @@
   class="text-sm font-semibold">
   Data berhasil disimpan
 </p>
-
+```
 
   </div>
 
@@ -1276,6 +1476,10 @@
 
   <script>
 
+    /* =====================================================
+       GLOBAL STATE
+    ====================================================== */
+
     let records = [];
 
     let weeklyChart = null;
@@ -1284,18 +1488,11 @@
 
     let selectedPhotoData = "";
 
-    /*
-     * ID data yang sedang diedit.
-     *
-     * null = mode tambah
-     * ada ID = mode edit
-     */
-    let editingRecordId = null;
+    let selectedPhotoFileName = "";
 
-    /*
-     * Menyimpan URL foto lama.
-     */
-    let editingOldPhoto = "";
+    let existingPhotoUrl = "";
+
+    let editingRecordId = "";
 
 
     /* =====================================================
@@ -1604,11 +1801,6 @@
         renderTable();
 
 
-        showToast(
-          "Data berhasil diperbarui."
-        );
-
-
       } catch (error) {
 
         console.error(
@@ -1672,17 +1864,17 @@
           ),
 
         truckType:
-          r.truckType === "green"
+          String(r.truckType).toLowerCase() === "green"
             ? "green"
             : "yellow",
 
         yellow:
-          r.truckType === "green"
+          String(r.truckType).toLowerCase() === "green"
             ? 0
             : total,
 
         green:
-          r.truckType === "green"
+          String(r.truckType).toLowerCase() === "green"
             ? total
             : 0,
 
@@ -1812,6 +2004,19 @@
 
 
     /* =====================================================
+       NEW RECORD
+    ====================================================== */
+
+    function startNewRecord() {
+
+      resetForm();
+
+      showView("input");
+
+    }
+
+
+    /* =====================================================
        TRUCK SELECTION
     ====================================================== */
 
@@ -1928,110 +2133,314 @@
 
 
     /* =====================================================
-       PHOTO
+       PHOTO INPUT
     ====================================================== */
 
-    document
-      .getElementById(
-        "locationPhoto"
-      )
-      .addEventListener(
-        "change",
-        function(e) {
-
-          const file =
-            e.target.files[0];
+    const cameraInput =
+      document.getElementById(
+        "cameraInput"
+      );
 
 
-          if (!file)
-            return;
+    const galleryInput =
+      document.getElementById(
+        "galleryInput"
+      );
 
 
-          if (
-            file.size >
-            4 * 1024 * 1024
-          ) {
+    const photoDrop =
+      document.getElementById(
+        "photoDrop"
+      );
 
-            showToast(
-              "Ukuran foto maksimal 4 MB."
+
+    const cameraButton =
+      document.getElementById(
+        "cameraButton"
+      );
+
+
+    const galleryButton =
+      document.getElementById(
+        "galleryButton"
+      );
+
+
+    cameraButton.addEventListener(
+      "click",
+      function(e) {
+
+        e.stopPropagation();
+
+        cameraInput.click();
+
+      }
+    );
+
+
+    galleryButton.addEventListener(
+      "click",
+      function(e) {
+
+        e.stopPropagation();
+
+        galleryInput.click();
+
+      }
+    );
+
+
+    cameraInput.addEventListener(
+      "change",
+      function(e) {
+
+        handlePhotoFile(
+          e.target.files[0]
+        );
+
+      }
+    );
+
+
+    galleryInput.addEventListener(
+      "change",
+      function(e) {
+
+        handlePhotoFile(
+          e.target.files[0]
+        );
+
+      }
+    );
+
+
+    /* =====================================================
+       DROP ZONE
+    ====================================================== */
+
+    [
+      "dragenter",
+      "dragover"
+    ]
+    .forEach(
+      eventName => {
+
+        photoDrop.addEventListener(
+          eventName,
+          function(e) {
+
+            e.preventDefault();
+
+            e.stopPropagation();
+
+            photoDrop.classList.add(
+              "drop-active"
             );
 
-
-            this.value =
-              "";
-
-
-            return;
-
           }
+        );
+
+      }
+    );
 
 
-          if (
-            !file.type.startsWith(
-              "image/"
-            )
-          ) {
+    [
+      "dragleave",
+      "drop"
+    ]
+    .forEach(
+      eventName => {
 
-            showToast(
-              "File harus berupa foto."
+        photoDrop.addEventListener(
+          eventName,
+          function(e) {
+
+            e.preventDefault();
+
+            e.stopPropagation();
+
+            photoDrop.classList.remove(
+              "drop-active"
             );
 
-
-            this.value =
-              "";
-
-
-            return;
-
           }
+        );
+
+      }
+    );
 
 
-          const reader =
-            new FileReader();
+    photoDrop.addEventListener(
+      "drop",
+      function(e) {
+
+        const files =
+          e.dataTransfer.files;
 
 
-          reader.onload =
-            function(ev) {
+        if (
+          files &&
+          files.length
+        ) {
 
-              selectedPhotoData =
-                ev.target.result;
-
-
-              document
-                .getElementById(
-                  "photoPreview"
-                )
-                .src =
-                selectedPhotoData;
-
-
-              document
-                .getElementById(
-                  "photoStatus"
-                )
-                .textContent =
-                editingRecordId
-                  ? "Foto baru dipilih. Foto ini akan menggantikan foto lama saat disimpan."
-                  : "Foto siap diupload.";
-
-
-              document
-                .getElementById(
-                  "photoPreviewWrap"
-                )
-                .classList.remove(
-                  "hidden"
-                );
-
-            };
-
-
-          reader.readAsDataURL(
-            file
+          handlePhotoFile(
+            files[0]
           );
 
         }
+
+      }
+    );
+
+
+    /*
+     * Klik area kosong untuk memilih
+     * dari galeri/file.
+     *
+     * Tombol Kamera dan Galeri tetap
+     * mempunyai handler masing-masing.
+     */
+
+    photoDrop.addEventListener(
+      "click",
+      function(e) {
+
+        if (
+          e.target.closest(
+            "button"
+          )
+        )
+          return;
+
+
+        galleryInput.click();
+
+      }
+    );
+
+
+    /* =====================================================
+       HANDLE PHOTO
+    ====================================================== */
+
+    function handlePhotoFile(
+      file
+    ) {
+
+      if (!file)
+        return;
+
+
+      if (
+        !file.type ||
+        !file.type.startsWith(
+          "image/"
+        )
+      ) {
+
+        showToast(
+          "File harus berupa foto."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        file.size >
+        4 * 1024 * 1024
+      ) {
+
+        showToast(
+          "Ukuran foto maksimal 4 MB."
+        );
+
+        return;
+
+      }
+
+
+      selectedPhotoFileName =
+        file.name;
+
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        function(ev) {
+
+          selectedPhotoData =
+            ev.target.result;
+
+
+          document
+            .getElementById(
+              "photoPreview"
+            )
+            .src =
+            selectedPhotoData;
+
+
+          document
+            .getElementById(
+              "photoFileName"
+            )
+            .textContent =
+            selectedPhotoFileName;
+
+
+          document
+            .getElementById(
+              "photoPreviewWrap"
+            )
+            .classList.remove(
+              "hidden"
+            );
+
+
+          document
+            .getElementById(
+              "photoStatus"
+            )
+            .textContent =
+            "Foto baru dipilih";
+
+
+          document
+            .getElementById(
+              "photoStatus"
+            )
+            .className =
+            "text-[11px] font-bold text-emerald-600";
+
+        };
+
+
+      reader.onerror =
+        function() {
+
+          showToast(
+            "Gagal membaca foto."
+          );
+
+        };
+
+
+      reader.readAsDataURL(
+        file
       );
+
+    }
+
+
+    function replacePhoto() {
+
+      galleryInput.click();
+
+    }
 
 
     function removePhoto() {
@@ -2040,42 +2449,16 @@
         "";
 
 
-      document
-        .getElementById(
-          "locationPhoto"
-        )
-        .value =
+      selectedPhotoFileName =
         "";
 
 
-      /*
-       * Jika sedang edit dan ada foto lama,
-       * kembalikan preview ke foto lama.
-       */
-
-      if (
-        editingRecordId &&
-        editingOldPhoto
-      ) {
-
-        document
-          .getElementById(
-            "photoPreview"
-          )
-          .src =
-          editingOldPhoto;
+      cameraInput.value =
+        "";
 
 
-        document
-          .getElementById(
-            "photoStatus"
-          )
-          .textContent =
-          "Foto lama tetap digunakan.";
-
-        return;
-
-      }
+      galleryInput.value =
+        "";
 
 
       document
@@ -2088,247 +2471,59 @@
 
       document
         .getElementById(
+          "photoFileName"
+        )
+        .textContent =
+        "";
+
+
+      document
+        .getElementById(
           "photoPreviewWrap"
         )
         .classList.add(
           "hidden"
         );
 
-    }
-
-
-    /* =====================================================
-       EDIT RECORD
-    ====================================================== */
-
-    function editRecord(id) {
-
-      const record =
-        records.find(
-          r =>
-            String(r.id) ===
-            String(id)
-        );
-
-
-      if (!record) {
-
-        showToast(
-          "Data yang ingin diedit tidak ditemukan."
-        );
-
-        return;
-
-      }
-
-
-      /*
-       * Aktifkan mode edit
-       */
-
-      editingRecordId =
-        String(record.id);
-
-
-      editingOldPhoto =
-        record.photo || "";
-
-
-      /*
-       * Isi form
-       */
-
-      document
-        .getElementById("date")
-        .value =
-        record.date || "";
-
-
-      document
-        .getElementById("time")
-        .value =
-        record.time || "";
-
-
-      document
-        .getElementById("location")
-        .value =
-        record.location || "";
-
-
-      document
-        .getElementById("area")
-        .value =
-        record.area || "";
-
-
-      document
-        .getElementById("truckCount")
-        .value =
-        record.total || 1;
-
-
-      /*
-       * Jenis truk
-       */
-
-      const radio =
-        document.querySelector(
-          `input[name="truckType"][value="${record.truckType}"]`
-        );
-
-
-      if (radio) {
-
-        radio.checked =
-          true;
-
-      }
-
-
-      updateTruckChoice();
-
-
-      /*
-       * Reset file input.
-       *
-       * Foto lama hanya ditampilkan.
-       * Foto baru hanya dikirim jika
-       * user memilih foto baru.
-       */
-
-      selectedPhotoData =
-        "";
-
-
-      document
-        .getElementById(
-          "locationPhoto"
-        )
-        .value =
-        "";
-
 
       if (
-        record.photo
+        editingRecordId &&
+        existingPhotoUrl
       ) {
-
-        document
-          .getElementById(
-            "photoPreview"
-          )
-          .src =
-          record.photo;
-
 
         document
           .getElementById(
             "photoStatus"
           )
           .textContent =
-          "Foto lama. Pilih foto baru jika ingin menggantinya.";
+          "Foto lama akan dipertahankan";
 
 
         document
           .getElementById(
-            "photoPreviewWrap"
+            "photoStatus"
           )
-          .classList.remove(
-            "hidden"
-          );
+          .className =
+          "text-[11px] font-semibold text-slate-400";
 
       } else {
 
         document
           .getElementById(
-            "photoPreview"
+            "photoStatus"
           )
-          .src =
-          "";
+          .textContent =
+          "Wajib";
 
 
         document
           .getElementById(
             "photoStatus"
           )
-          .textContent =
-          "";
-
-
-        document
-          .getElementById(
-            "photoPreviewWrap"
-          )
-          .classList.add(
-            "hidden"
-          );
+          .className =
+          "text-[11px] font-semibold text-slate-400";
 
       }
-
-
-      /*
-       * Ubah tampilan form
-       */
-
-      document
-        .getElementById(
-          "inputEyebrow"
-        )
-        .textContent =
-        "Edit Data Armada";
-
-
-      document
-        .getElementById(
-          "inputTitle"
-        )
-        .textContent =
-        "Edit Armada Beroperasi";
-
-
-      document
-        .getElementById(
-          "inputSubtitle"
-        )
-        .textContent =
-        "Perbarui data armada yang sudah tersimpan.";
-
-
-      document
-        .getElementById(
-          "saveButtonText"
-        )
-        .textContent =
-        "Simpan Perubahan";
-
-
-      document
-        .getElementById(
-          "cancelEditButton"
-        )
-        .classList.remove(
-          "hidden"
-        );
-
-
-      /*
-       * Pindah ke form input
-       */
-
-      showView(
-        "input"
-      );
-
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-
-
-      showToast(
-        "Mode edit aktif."
-      );
 
     }
 
@@ -2399,52 +2594,18 @@
               ?.value;
 
 
-          /*
-           * VALIDASI
-           */
+          const id =
+            document
+              .getElementById(
+                "editRecordId"
+              )
+              .value;
 
-          if (!date) {
 
-            showToast(
-              "Tanggal wajib diisi."
+          const isEditing =
+            Boolean(
+              id
             );
-
-            return;
-
-          }
-
-
-          if (!time) {
-
-            showToast(
-              "Jam wajib diisi."
-            );
-
-            return;
-
-          }
-
-
-          if (!location) {
-
-            showToast(
-              "Lokasi wajib diisi."
-            );
-
-            return;
-
-          }
-
-
-          if (!area) {
-
-            showToast(
-              "Pilih area terlebih dahulu."
-            );
-
-            return;
-
-          }
 
 
           if (!type) {
@@ -2469,16 +2630,26 @@
           }
 
 
+          if (!area) {
+
+            showToast(
+              "Pilih area terlebih dahulu."
+            );
+
+            return;
+
+          }
+
+
           /*
-           * Saat tambah data,
-           * foto wajib.
+           * Saat tambah data, foto wajib.
            *
-           * Saat edit,
-           * foto lama boleh tetap digunakan.
+           * Saat edit, foto lama boleh
+           * dipertahankan.
            */
 
           if (
-            !editingRecordId &&
+            !isEditing &&
             !selectedPhotoData
           ) {
 
@@ -2495,8 +2666,8 @@
 
             setLoading(
               true,
-              editingRecordId
-                ? "Memperbarui data armada..."
+              isEditing
+                ? "Memperbarui data..."
                 : "Menyimpan data dan foto..."
             );
 
@@ -2504,12 +2675,8 @@
             let payload;
 
 
-            /*
-             * MODE EDIT
-             */
-
             if (
-              editingRecordId
+              isEditing
             ) {
 
               payload = {
@@ -2517,63 +2684,54 @@
                 action:
                   "updateRecord",
 
-                id:
-                  editingRecordId,
+                id,
 
-                date:
-                  date,
+                date,
 
-                time:
-                  time,
+                time,
 
-                location:
-                  location,
+                location,
 
-                area:
-                  area,
+                area,
 
                 truckType:
                   type,
 
                 total:
-                  count,
-
-                /*
-                 * Jika kosong:
-                 * foto lama tetap digunakan.
-                 *
-                 * Jika ada:
-                 * foto baru dikirim ke backend.
-                 */
-
-                photoData:
-                  selectedPhotoData || ""
+                  count
 
               };
 
 
-            } else {
-
               /*
-               * MODE TAMBAH
+               * Hanya kirim photoData kalau
+               * user memilih foto baru.
                */
+
+              if (
+                selectedPhotoData
+              ) {
+
+                payload.photoData =
+                  selectedPhotoData;
+
+              }
+
+
+            } else {
 
               payload = {
 
                 action:
                   "saveRecord",
 
-                date:
-                  date,
+                date,
 
-                time:
-                  time,
+                time,
 
-                location:
-                  location,
+                location,
 
-                area:
-                  area,
+                area,
 
                 truckType:
                   type,
@@ -2589,12 +2747,6 @@
             }
 
 
-            console.log(
-              "Payload:",
-              payload
-            );
-
-
             const result =
               await apiPost(
                 payload
@@ -2606,37 +2758,17 @@
             ) {
 
               showToast(
-                editingRecordId
+                isEditing
                   ? "Data berhasil diperbarui."
-                  : "Data berhasil disimpan."
+                  : "Data tersimpan. Foto masuk ke folder " + area + "."
               );
-
-
-              /*
-               * Reset state edit
-               */
-
-              editingRecordId =
-                null;
-
-
-              editingOldPhoto =
-                "";
 
 
               resetForm();
 
 
-              /*
-               * Ambil data terbaru
-               */
-
               await loadData();
 
-
-              /*
-               * Kembali ke dashboard
-               */
 
               showView(
                 "dashboard"
@@ -2669,7 +2801,284 @@
 
 
     /* =====================================================
-       RESET FORM
+       EDIT RECORD
+    ====================================================== */
+
+    function editRecord(
+      id
+    ) {
+
+      const record =
+        records.find(
+          r =>
+            String(r.id) ===
+            String(id)
+        );
+
+
+      if (!record) {
+
+        showToast(
+          "Data yang akan diedit tidak ditemukan."
+        );
+
+        return;
+
+      }
+
+
+      editingRecordId =
+        String(
+          record.id
+        );
+
+
+      existingPhotoUrl =
+        record.photo || "";
+
+
+      document
+        .getElementById(
+          "editRecordId"
+        )
+        .value =
+        editingRecordId;
+
+
+      document
+        .getElementById(
+          "date"
+        )
+        .value =
+        record.date || "";
+
+
+      document
+        .getElementById(
+          "time"
+        )
+        .value =
+        record.time || "";
+
+
+      document
+        .getElementById(
+          "location"
+        )
+        .value =
+        record.location || "";
+
+
+      document
+        .getElementById(
+          "area"
+        )
+        .value =
+        record.area || "";
+
+
+      document
+        .getElementById(
+          "truckCount"
+        )
+        .value =
+        record.total || 1;
+
+
+      const radio =
+        document.querySelector(
+          `input[name="truckType"][value="${record.truckType}"]`
+        );
+
+
+      if (
+        radio
+      ) {
+
+        radio.checked =
+          true;
+
+      }
+
+
+      updateTruckChoice();
+
+
+      /*
+       * Reset foto baru.
+       */
+
+      selectedPhotoData =
+        "";
+
+      selectedPhotoFileName =
+        "";
+
+
+      cameraInput.value =
+        "";
+
+      galleryInput.value =
+        "";
+
+
+      document
+        .getElementById(
+          "photoPreview"
+        )
+        .src =
+        "";
+
+
+      document
+        .getElementById(
+          "photoPreviewWrap"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+
+      /*
+       * Tampilkan foto lama.
+       */
+
+      const existingWrap =
+        document.getElementById(
+          "existingPhotoWrap"
+        );
+
+
+      const existingImage =
+        document.getElementById(
+          "existingPhotoPreview"
+        );
+
+
+      const existingLink =
+        document.getElementById(
+          "existingPhotoLink"
+        );
+
+
+      if (
+        record.photo
+      ) {
+
+        existingImage.src =
+          record.photo;
+
+
+        existingLink.href =
+          record.photo;
+
+
+        existingWrap.classList.remove(
+          "hidden"
+        );
+
+
+        document
+          .getElementById(
+            "photoStatus"
+          )
+          .textContent =
+          "Foto lama akan dipertahankan";
+
+
+        document
+          .getElementById(
+            "photoStatus"
+          )
+          .className =
+          "text-[11px] font-semibold text-slate-400";
+
+      } else {
+
+        existingWrap.classList.add(
+          "hidden"
+        );
+
+
+        document
+          .getElementById(
+            "photoStatus"
+          )
+          .textContent =
+          "Wajib";
+
+
+        document
+          .getElementById(
+            "photoStatus"
+          )
+          .className =
+          "text-[11px] font-semibold text-slate-400";
+
+      }
+
+
+      /*
+       * Ubah UI menjadi mode edit.
+       */
+
+      document
+        .getElementById(
+          "editingBanner"
+        )
+        .classList.add(
+          "show"
+        );
+
+
+      document
+        .getElementById(
+          "inputTitle"
+        )
+        .textContent =
+        "Edit Data Armada";
+
+
+      document
+        .getElementById(
+          "inputSubtitle"
+        )
+        .textContent =
+        "Perbarui informasi armada yang sudah tersimpan.";
+
+
+      document
+        .getElementById(
+          "saveButtonText"
+        )
+        .textContent =
+        "Simpan Perubahan";
+
+
+      showView(
+        "input"
+      );
+
+    }
+
+
+    /* =====================================================
+       CANCEL EDIT
+    ====================================================== */
+
+    function cancelEdit() {
+
+      resetForm();
+
+      showView(
+        "data"
+      );
+
+    }
+
+
+    /* =====================================================
+       RESET
     ====================================================== */
 
     function resetForm() {
@@ -2692,19 +3101,35 @@
         1;
 
 
-      selectedPhotoData =
+      editingRecordId =
         "";
 
 
-      editingOldPhoto =
+      existingPhotoUrl =
         "";
 
 
       document
         .getElementById(
-          "locationPhoto"
+          "editRecordId"
         )
         .value =
+        "";
+
+
+      selectedPhotoData =
+        "";
+
+
+      selectedPhotoFileName =
+        "";
+
+
+      cameraInput.value =
+        "";
+
+
+      galleryInput.value =
         "";
 
 
@@ -2718,14 +3143,6 @@
 
       document
         .getElementById(
-          "photoStatus"
-        )
-        .textContent =
-        "";
-
-
-      document
-        .getElementById(
           "photoPreviewWrap"
         )
         .classList.add(
@@ -2733,39 +3150,54 @@
         );
 
 
-      /*
-       * Kembali ke mode tambah
-       */
-
-      editingRecordId =
-        null;
-
-
-      /*
-       * Kembalikan truk kuning
-       */
-
       document
-        .querySelector(
-          'input[name="truckType"][value="yellow"]'
+        .getElementById(
+          "existingPhotoWrap"
         )
-        .checked =
-        true;
+        .classList.add(
+          "hidden"
+        );
 
-
-      updateTruckChoice();
-
-
-      /*
-       * Kembalikan judul form
-       */
 
       document
         .getElementById(
-          "inputEyebrow"
+          "existingPhotoPreview"
+        )
+        .src =
+        "";
+
+
+      document
+        .getElementById(
+          "existingPhotoLink"
+        )
+        .href =
+        "#";
+
+
+      document
+        .getElementById(
+          "photoStatus"
         )
         .textContent =
-        "Pencatatan Armada";
+        "Wajib";
+
+
+      document
+        .getElementById(
+          "photoStatus"
+        )
+        .className =
+        "text-[11px] font-semibold text-slate-400";
+
+
+      document
+        .getElementById(
+          "editingBanner"
+        )
+        .classList.remove(
+          "show"
+        );
 
 
       document
@@ -2784,10 +3216,6 @@
         "Masukkan data aktivitas armada pada form berikut.";
 
 
-      /*
-       * Kembalikan tombol
-       */
-
       document
         .getElementById(
           "saveButtonText"
@@ -2797,49 +3225,14 @@
 
 
       document
-        .getElementById(
-          "cancelEditButton"
+        .querySelector(
+          'input[name="truckType"][value="yellow"]'
         )
-        .classList.add(
-          "hidden"
-        );
-
-    }
+        .checked =
+        true;
 
 
-    /* =====================================================
-       CANCEL EDIT
-    ====================================================== */
-
-    function cancelEdit() {
-
-      if (
-        editingRecordId
-      ) {
-
-        const confirmed =
-          confirm(
-            "Batalkan perubahan data?"
-          );
-
-
-        if (!confirmed)
-          return;
-
-      }
-
-
-      resetForm();
-
-
-      showToast(
-        "Edit dibatalkan."
-      );
-
-
-      showView(
-        "data"
-      );
+      updateTruckChoice();
 
     }
 
@@ -2872,17 +3265,23 @@
       );
 
 
-      setTimeout(
-        () => {
-
-          toast.classList.add(
-            "translate-y-24",
-            "opacity-0"
-          );
-
-        },
-        3000
+      clearTimeout(
+        window.toastTimer
       );
+
+
+      window.toastTimer =
+        setTimeout(
+          () => {
+
+            toast.classList.add(
+              "translate-y-24",
+              "opacity-0"
+            );
+
+          },
+          3000
+        );
 
     }
 
@@ -3931,11 +4330,13 @@
           .filter(
             r =>
               `
+                ${r.id}
                 ${r.date}
                 ${r.time}
                 ${r.location}
                 ${r.area}
                 ${r.truckType}
+                ${r.total}
               `
               .toLowerCase()
               .includes(
@@ -3997,7 +4398,7 @@
 
                 <td class="px-5 py-4 text-sm">
 
-                  ${r.time}
+                  ${escapeHtml(r.time)}
 
                 </td>
 
@@ -4027,13 +4428,13 @@
                       ? `
 
                         <a
-                          href="${escapeJsUrl(r.photo)}"
+                          href="${escapeAttr(r.photo)}"
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="noopener"
                           title="Buka foto">
 
                           <img
-                            src="${escapeJsUrl(r.photo)}"
+                            src="${escapeAttr(r.photo)}"
                             class="w-12 h-12 object-cover rounded-xl border border-slate-200 hover:scale-105 transition"
                             alt="Foto lokasi">
 
@@ -4131,9 +4532,27 @@
       id
     ) {
 
+      const record =
+        records.find(
+          r =>
+            String(r.id) ===
+            String(id)
+        );
+
+
+      const location =
+        record
+          ? record.location
+          : "data ini";
+
+
       if (
         !confirm(
-          "Hapus data armada ini?\n\nFoto di Google Drive juga akan dipindahkan ke sampah."
+          "Hapus data armada ini?\n\n" +
+          "Lokasi: " +
+          location +
+          "\n\n" +
+          "Foto di Google Drive juga akan dipindahkan ke sampah."
         )
       )
         return;
@@ -4611,7 +5030,7 @@
 
 
       div.textContent =
-        text;
+        text ?? "";
 
 
       return div.innerHTML;
@@ -4646,7 +5065,7 @@
     }
 
 
-    function escapeJsUrl(
+    function escapeAttr(
       text
     ) {
 
