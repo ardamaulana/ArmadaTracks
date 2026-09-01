@@ -4457,13 +4457,21 @@
 
                 <td class="px-5 py-4">
 
-                  <span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold">
+  <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
+    r.area === "Karawang"
+      ? "bg-blue-50 text-blue-700"
+      : r.area === "Purwakarta"
+        ? "bg-purple-50 text-purple-700"
+        : r.area === "Subang"
+          ? "bg-orange-50 text-orange-700"
+          : "bg-slate-50 text-slate-700"
+  }">
 
-                    ${escapeHtml(r.area)}
+    ${escapeHtml(r.area)}
 
-                  </span>
+  </span>
 
-                </td>
+</td>
 
                 <td class="px-5 py-4">
 
