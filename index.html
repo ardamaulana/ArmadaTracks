@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -6,7 +7,9 @@
   <title>ArmadaTrack — Monitoring Armada</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -97,6 +100,7 @@
       }
     }
   </style>
+
 </head>
 
 <body class="text-slate-800">
@@ -106,21 +110,9 @@
   ====================================================== -->
 
   <script>
-    /*
-     * =====================================================
-     * WAJIB GANTI URL INI
-     *
-     * Masukkan URL Web App Google Apps Script kamu.
-     *
-     * Contoh:
-     * https://script.google.com/macros/s/XXXXXXXX/exec
-     * =====================================================
-     */
-
     const API_URL =
       "https://script.google.com/macros/s/AKfycbz6wf_jAiSlITjpQLKR65RFmIsKP2iBNZlCm3mv4QoOwns5UpEbFZns53uMwIJtnQFaEQ/exec";
   </script>
-
 
   <!-- =====================================================
        LOADING
@@ -129,115 +121,955 @@
   <div id="loadingOverlay" class="loading-overlay">
     <div class="bg-white rounded-3xl p-7 shadow-2xl text-center">
       <div class="spinner mx-auto mb-4"></div>
-      <p id="loadingText" class="font-bold text-sm">
-        Memproses data...
-      </p>
-      <p class="text-xs text-slate-400 mt-1">
-        Mohon tunggu sebentar
-      </p>
-    </div>
-  </div>
 
+
+  <p id="loadingText" class="font-bold text-sm">
+    Memproses data...
+  </p>
+
+  <p class="text-xs text-slate-400 mt-1">
+    Mohon tunggu sebentar
+  </p>
+</div>
+
+  </div>
 
   <!-- =====================================================
        HEADER
   ====================================================== -->
 
   <header class="sticky top-0 z-40 glass">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-
-      <div class="flex items-center gap-3">
-
-        <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
-          <i data-lucide="truck" class="w-5 h-5"></i>
-        </div>
-
-        <div>
-          <h1 class="font-extrabold text-lg sm:text-xl tracking-tight">
-            ArmadaTrack
-          </h1>
-
-          <p class="text-[11px] sm:text-xs text-slate-500">
-            Monitoring Armada Operasional
-          </p>
-        </div>
-
-      </div>
 
 
-      <div class="hidden sm:flex text-right">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
 
-        <div>
+  <div class="flex items-center gap-3">
 
-          <p
-            id="headerDate"
-            class="font-bold text-sm text-slate-800">
-          </p>
+    <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
 
-          <p
-            id="headerTime"
-            class="text-xs text-slate-500">
-          </p>
-
-        </div>
-
-      </div>
+      <i data-lucide="truck" class="w-5 h-5"></i>
 
     </div>
-  </header>
 
+    <div>
+
+      <h1 class="font-extrabold text-lg sm:text-xl tracking-tight">
+        ArmadaTrack
+      </h1>
+
+      <p class="text-[11px] sm:text-xs text-slate-500">
+        Monitoring Armada Operasional
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="hidden sm:flex text-right">
+
+    <div>
+
+      <p
+        id="headerDate"
+        class="font-bold text-sm text-slate-800">
+      </p>
+
+      <p
+        id="headerTime"
+        class="text-xs text-slate-500">
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  </header>
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
 
-    <!-- =====================================================
-         NAVIGATION
-    ====================================================== -->
+<!-- =====================================================
+     NAVIGATION
+====================================================== -->
 
-    <div class="mb-6 overflow-x-auto">
+<div class="mb-6 overflow-x-auto">
 
-      <div class="inline-flex min-w-max gap-2 p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
+  <div class="inline-flex min-w-max gap-2 p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
+
+    <button
+      class="nav-btn active px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"
+      data-view="dashboard">
+
+      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+
+      Dashboard
+
+    </button>
+
+
+    <button
+      class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+      data-view="input">
+
+      <i data-lucide="plus-circle" class="w-4 h-4"></i>
+
+      Input Armada
+
+    </button>
+
+
+    <button
+      class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+      data-view="rekap">
+
+      <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+
+      Rekap
+
+    </button>
+
+
+    <button
+      class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+      data-view="data">
+
+      <i data-lucide="database" class="w-4 h-4"></i>
+
+      Data
+
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     DASHBOARD
+====================================================== -->
+
+<section
+  id="view-dashboard"
+  class="view active space-y-6">
+
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+
+    <div>
+
+      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+        Ringkasan Operasional
+      </p>
+
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+        Dashboard Armada
+      </h2>
+
+      <p class="text-sm text-slate-500 mt-1">
+        Pantau jumlah armada yang beroperasi berdasarkan data yang dicatat.
+      </p>
+
+    </div>
+
+
+    <div class="flex gap-2">
+
+      <button
+        onclick="loadData()"
+        class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+
+        Refresh
+
+      </button>
+
+
+      <button
+        onclick="showView('input')"
+        class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+
+        <i data-lucide="plus" class="w-4 h-4"></i>
+
+        Tambah Data
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- STATISTICS -->
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+    <div class="card rounded-3xl p-5">
+
+      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
+
+        <i data-lucide="truck" class="w-5 h-5"></i>
+
+      </div>
+
+      <p class="text-xs text-slate-500 font-semibold">
+        Armada Hari Ini
+      </p>
+
+      <p
+        id="todayTotal"
+        class="text-3xl font-extrabold mt-1">
+        0
+      </p>
+
+    </div>
+
+
+    <div class="card rounded-3xl p-5">
+
+      <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
+
+        <i data-lucide="truck" class="w-5 h-5"></i>
+
+      </div>
+
+      <p class="text-xs text-slate-500 font-semibold">
+        Truk Kuning
+      </p>
+
+      <p
+        id="todayYellow"
+        class="text-3xl font-extrabold mt-1">
+        0
+      </p>
+
+    </div>
+
+
+    <div class="card rounded-3xl p-5">
+
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+
+        <i data-lucide="truck" class="w-5 h-5"></i>
+
+      </div>
+
+      <p class="text-xs text-slate-500 font-semibold">
+        Truk Hijau
+      </p>
+
+      <p
+        id="todayGreen"
+        class="text-3xl font-extrabold mt-1">
+        0
+      </p>
+
+    </div>
+
+
+    <div class="card rounded-3xl p-5">
+
+      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+
+        <i data-lucide="map-pin" class="w-5 h-5"></i>
+
+      </div>
+
+      <p class="text-xs text-slate-500 font-semibold">
+        Area Teraktif
+      </p>
+
+      <p
+        id="topAreaToday"
+        class="text-xl font-extrabold mt-2 truncate">
+        -
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- CHARTS -->
+
+  <div class="grid lg:grid-cols-3 gap-6">
+
+    <div class="lg:col-span-2 card rounded-3xl p-5 sm:p-6">
+
+      <div class="flex items-center justify-between gap-3 mb-5">
+
+        <div>
+
+          <h3 class="font-extrabold">
+            Aktivitas 7 Hari Terakhir
+          </h3>
+
+          <p class="text-xs text-slate-500 mt-1">
+            Jumlah armada per hari
+          </p>
+
+        </div>
+
+        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+
+          <i data-lucide="activity" class="w-5 h-5"></i>
+
+        </div>
+
+      </div>
+
+      <div class="h-[280px]">
+
+        <canvas id="weeklyChart"></canvas>
+
+      </div>
+
+    </div>
+
+
+    <div class="card rounded-3xl p-5 sm:p-6">
+
+      <div class="mb-5">
+
+        <h3 class="font-extrabold">
+          Komposisi Truk
+        </h3>
+
+        <p class="text-xs text-slate-500 mt-1">
+          Seluruh data operasional
+        </p>
+
+      </div>
+
+      <div class="h-[220px]">
+
+        <canvas id="truckChart"></canvas>
+
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-4">
+
+        <div class="bg-yellow-50 rounded-2xl p-3 text-center">
+
+          <p class="text-[11px] text-yellow-700 font-bold">
+            KUNING
+          </p>
+
+          <p
+            id="allYellow"
+            class="font-extrabold text-xl">
+            0
+          </p>
+
+        </div>
+
+
+        <div class="bg-emerald-50 rounded-2xl p-3 text-center">
+
+          <p class="text-[11px] text-emerald-700 font-bold">
+            HIJAU
+          </p>
+
+          <p
+            id="allGreen"
+            class="font-extrabold text-xl">
+            0
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- RANKING -->
+
+  <div class="grid lg:grid-cols-2 gap-6">
+
+    <div class="card rounded-3xl p-5 sm:p-6">
+
+      <div class="flex items-center gap-3 mb-5">
+
+        <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center">
+
+          <i data-lucide="trophy" class="w-5 h-5"></i>
+
+        </div>
+
+        <div>
+
+          <h3 class="font-extrabold">
+            Top Score Truk
+          </h3>
+
+          <p class="text-xs text-slate-500">
+            Jenis truk dengan total operasi terbanyak
+          </p>
+
+        </div>
+
+      </div>
+
+      <div
+        id="truckRanking"
+        class="space-y-3">
+      </div>
+
+    </div>
+
+
+    <div class="card rounded-3xl p-5 sm:p-6">
+
+      <div class="flex items-center gap-3 mb-5">
+
+        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center">
+
+          <i data-lucide="map" class="w-5 h-5"></i>
+
+        </div>
+
+        <div>
+
+          <h3 class="font-extrabold">
+            Top Score Area
+          </h3>
+
+          <p class="text-xs text-slate-500">
+            Area dengan total operasi terbanyak
+          </p>
+
+        </div>
+
+      </div>
+
+      <div
+        id="areaRanking"
+        class="space-y-3">
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     INPUT
+====================================================== -->
+
+<section id="view-input" class="view">
+
+  <div class="max-w-2xl mx-auto">
+
+    <div class="mb-6">
+
+      <p
+        id="inputEyebrow"
+        class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+
+        Pencatatan Armada
+
+      </p>
+
+      <h2
+        id="inputTitle"
+        class="text-2xl sm:text-3xl font-extrabold">
+
+        Input Armada Beroperasi
+
+      </h2>
+
+      <p
+        id="inputSubtitle"
+        class="text-sm text-slate-500 mt-1">
+
+        Masukkan data aktivitas armada pada form berikut.
+
+      </p>
+
+    </div>
+
+
+    <form
+      id="armadaForm"
+      class="card rounded-3xl p-5 sm:p-7 space-y-5">
+
+
+      <!-- DATE -->
+
+      <div class="grid sm:grid-cols-2 gap-4">
+
+        <div>
+
+          <label class="text-sm font-bold block mb-2">
+            Tanggal
+          </label>
+
+          <input
+            id="date"
+            type="date"
+            required
+            class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+        </div>
+
+
+        <div>
+
+          <label class="text-sm font-bold block mb-2">
+            Jam (24 Jam)
+          </label>
+
+          <input
+            id="time"
+            type="time"
+            required
+            class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+        </div>
+
+      </div>
+
+
+      <!-- LOCATION -->
+
+      <div>
+
+        <label class="text-sm font-bold block mb-2">
+          Keterangan Lokasi
+        </label>
+
+        <input
+          id="location"
+          type="text"
+          required
+          placeholder="Contoh: Gudang A, KIIC, Site Tambang..."
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+      </div>
+
+
+      <!-- AREA -->
+
+      <div>
+
+        <label class="text-sm font-bold block mb-2">
+          Area
+        </label>
+
+        <select
+          id="area"
+          required
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:border-slate-400">
+
+          <option value="">
+            Pilih Area
+          </option>
+
+          <option value="Karawang">
+            Karawang
+          </option>
+
+          <option value="Purwakarta">
+            Purwakarta
+          </option>
+
+          <option value="Subang">
+            Subang
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- PHOTO -->
+
+      <div>
+
+        <label class="text-sm font-bold block mb-2">
+          Foto Lokasi
+        </label>
+
+        <div
+          id="photoDrop"
+          class="border-2 border-dashed border-slate-200 rounded-2xl p-5 hover:border-slate-400 transition cursor-pointer">
+
+          <input
+            id="locationPhoto"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            class="hidden">
+
+          <label
+            for="locationPhoto"
+            class="cursor-pointer flex flex-col items-center justify-center text-center">
+
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+
+              <i
+                data-lucide="camera"
+                class="w-6 h-6 text-slate-500">
+              </i>
+
+            </div>
+
+            <p class="font-bold text-sm">
+              Ambil / pilih foto lokasi
+            </p>
+
+            <p class="text-xs text-slate-400 mt-1">
+              Foto akan masuk otomatis ke folder area di Google Drive
+            </p>
+
+          </label>
+
+
+          <div
+            id="photoPreviewWrap"
+            class="hidden mt-4">
+
+            <img
+              id="photoPreview"
+              class="w-full max-h-64 object-cover rounded-2xl border border-slate-200">
+
+            <p
+              id="photoStatus"
+              class="text-xs text-slate-400 mt-2">
+            </p>
+
+            <button
+              type="button"
+              onclick="removePhoto()"
+              class="mt-2 text-xs font-bold text-red-600 hover:underline">
+
+              Hapus foto
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- TRUCK -->
+
+      <div>
+
+        <label class="text-sm font-bold block mb-3">
+          Truk yang Beroperasi
+        </label>
+
+        <p class="text-xs text-slate-500 mb-3">
+          Pilih <b>satu jenis truk saja</b> untuk setiap catatan lokasi.
+        </p>
+
+
+        <div class="grid sm:grid-cols-2 gap-4">
+
+
+          <!-- YELLOW -->
+
+          <label
+            id="yellowOption"
+            class="border-2 border-yellow-200 bg-yellow-50 rounded-2xl p-4 cursor-pointer transition">
+
+            <input
+              type="radio"
+              name="truckType"
+              value="yellow"
+              class="sr-only"
+              checked>
+
+            <div class="flex items-center gap-3">
+
+              <div class="w-10 h-10 rounded-xl bg-yellow-200 text-yellow-800 flex items-center justify-center">
+
+                <i data-lucide="truck" class="w-5 h-5"></i>
+
+              </div>
+
+              <div>
+
+                <p class="font-bold">
+                  Truk Kuning
+                </p>
+
+                <p class="text-[11px] text-slate-500">
+                  Jenis truk yang beroperasi
+                </p>
+
+              </div>
+
+              <i
+                data-lucide="check-circle-2"
+                class="truck-check-yellow ml-auto w-5 h-5 text-yellow-700">
+              </i>
+
+            </div>
+
+          </label>
+
+
+          <!-- GREEN -->
+
+          <label
+            id="greenOption"
+            class="border-2 border-slate-200 bg-slate-50 rounded-2xl p-4 cursor-pointer transition">
+
+            <input
+              type="radio"
+              name="truckType"
+              value="green"
+              class="sr-only">
+
+            <div class="flex items-center gap-3">
+
+              <div class="w-10 h-10 rounded-xl bg-emerald-200 text-emerald-800 flex items-center justify-center">
+
+                <i data-lucide="truck" class="w-5 h-5"></i>
+
+              </div>
+
+              <div>
+
+                <p class="font-bold">
+                  Truk Hijau
+                </p>
+
+                <p class="text-[11px] text-slate-500">
+                  Jenis truk yang beroperasi
+                </p>
+
+              </div>
+
+              <i
+                data-lucide="check-circle-2"
+                class="truck-check-green ml-auto w-5 h-5 text-slate-300">
+              </i>
+
+            </div>
+
+          </label>
+
+        </div>
+
+      </div>
+
+
+      <!-- COUNT -->
+
+      <div>
+
+        <label class="text-sm font-bold block mb-2">
+          Jumlah Armada
+        </label>
+
+        <input
+          id="truckCount"
+          type="number"
+          min="1"
+          value="1"
+          required
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-slate-400">
+
+        <p class="text-xs text-slate-400 mt-2">
+          Jumlah unit dari jenis truk yang dipilih pada lokasi tersebut.
+        </p>
+
+      </div>
+
+
+      <!-- BUTTON -->
+
+      <div class="pt-2 flex flex-col sm:flex-row gap-3">
 
         <button
-          class="nav-btn active px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"
-          data-view="dashboard">
+          id="saveButton"
+          type="submit"
+          class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2">
 
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <i data-lucide="save" class="w-4 h-4"></i>
 
-          Dashboard
+          <span id="saveButtonText">
+            Simpan Data
+          </span>
 
         </button>
 
 
         <button
-          class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
-          data-view="input">
+          id="cancelEditButton"
+          type="button"
+          onclick="cancelEdit()"
+          class="hidden px-5 py-3.5 border border-red-200 text-red-600 rounded-xl text-sm font-bold hover:bg-red-50">
 
-          <i data-lucide="plus-circle" class="w-4 h-4"></i>
-
-          Input Armada
-
-        </button>
-
-
-        <button
-          class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
-          data-view="rekap">
-
-          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
-
-          Rekap
+          Batal Edit
 
         </button>
 
 
         <button
-          class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
-          data-view="data">
+          id="resetButton"
+          type="button"
+          onclick="resetForm()"
+          class="px-5 py-3.5 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50">
 
-          <i data-lucide="database" class="w-4 h-4"></i>
+          Reset
 
-          Data
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     REKAP
+====================================================== -->
+
+<section
+  id="view-rekap"
+  class="view space-y-6">
+
+  <div>
+
+    <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+      Analisis Data
+    </p>
+
+    <h2 class="text-2xl sm:text-3xl font-extrabold">
+      Rekap Operasional
+    </h2>
+
+    <p class="text-sm text-slate-500 mt-1">
+      Lihat dan download total armada berdasarkan periode.
+    </p>
+
+  </div>
+
+
+  <!-- FILTER -->
+
+  <div class="card rounded-3xl p-5">
+
+    <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+
+      <div class="flex-1">
+
+        <label class="text-xs font-bold text-slate-500 block mb-2">
+          PERIODE REKAP
+        </label>
+
+        <select
+          id="rekapType"
+          onchange="renderRekap()"
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+          <option value="daily">
+            Harian
+          </option>
+
+          <option value="weekly">
+            Mingguan
+          </option>
+
+          <option value="monthly">
+            Bulanan
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="flex-1">
+
+        <label class="text-xs font-bold text-slate-500 block mb-2">
+          AREA
+        </label>
+
+        <select
+          id="rekapArea"
+          onchange="renderRekap()"
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+          <option value="all">
+            Semua Area
+          </option>
+
+          <option value="Karawang">
+            Karawang
+          </option>
+
+          <option value="Purwakarta">
+            Purwakarta
+          </option>
+
+          <option value="Subang">
+            Subang
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <!-- DOWNLOAD -->
+
+    <div class="border-t border-slate-100 mt-5 pt-5">
+
+      <p class="text-xs font-bold text-slate-500 mb-3">
+        DOWNLOAD LAPORAN
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+        <button
+          onclick="downloadReport('daily')"
+          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+          <i data-lucide="download" class="w-4 h-4"></i>
+
+          Rekap Harian
+
+        </button>
+
+
+        <button
+          onclick="downloadReport('weekly')"
+          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+          <i data-lucide="download" class="w-4 h-4"></i>
+
+          Rekap Mingguan
+
+        </button>
+
+
+        <button
+          onclick="downloadReport('monthly')"
+          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+          <i data-lucide="download" class="w-4 h-4"></i>
+
+          Rekap Bulanan
 
         </button>
 
@@ -245,974 +1077,175 @@
 
     </div>
 
+  </div>
 
-    <!-- =====================================================
-         DASHBOARD
-    ====================================================== -->
 
-    <section
-      id="view-dashboard"
-      class="view active space-y-6">
+  <div
+    id="rekapCards"
+    class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+  </div>
 
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+</section>
 
-        <div>
 
-          <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-            Ringkasan Operasional
-          </p>
+<!-- =====================================================
+     DATA
+====================================================== -->
 
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Dashboard Armada
-          </h2>
+<section
+  id="view-data"
+  class="view space-y-6">
 
-          <p class="text-sm text-slate-500 mt-1">
-            Pantau jumlah armada yang beroperasi berdasarkan data yang dicatat.
-          </p>
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
 
-        </div>
+    <div>
 
+      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+        Google Sheets
+      </p>
 
-        <div class="flex gap-2">
+      <h2 class="text-2xl sm:text-3xl font-extrabold">
+        Data Armada
+      </h2>
 
-          <button
-            onclick="loadData()"
-            class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+      <p class="text-sm text-slate-500 mt-1">
+        Semua catatan armada tersimpan di Google Sheets.
+      </p>
 
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+    </div>
 
-            Refresh
 
-          </button>
+    <div class="flex gap-2">
 
+      <button
+        onclick="loadData()"
+        class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
 
-          <button
-            onclick="showView('input')"
-            class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
 
-            <i data-lucide="plus" class="w-4 h-4"></i>
+        Refresh
 
-            Tambah Data
+      </button>
 
-          </button>
 
-        </div>
+      <button
+        onclick="exportCSV()"
+        class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
 
-      </div>
+        <i data-lucide="download" class="w-4 h-4"></i>
 
+        Export CSV
 
-      <!-- STATISTICS -->
+      </button>
 
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
-        <div class="card rounded-3xl p-5">
-
-          <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
-
-            <i data-lucide="truck" class="w-5 h-5"></i>
-
-          </div>
-
-          <p class="text-xs text-slate-500 font-semibold">
-            Armada Hari Ini
-          </p>
-
-          <p
-            id="todayTotal"
-            class="text-3xl font-extrabold mt-1">
-            0
-          </p>
-
-        </div>
-
-
-        <div class="card rounded-3xl p-5">
-
-          <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
-
-            <i data-lucide="truck" class="w-5 h-5"></i>
-
-          </div>
-
-          <p class="text-xs text-slate-500 font-semibold">
-            Truk Kuning
-          </p>
-
-          <p
-            id="todayYellow"
-            class="text-3xl font-extrabold mt-1">
-            0
-          </p>
-
-        </div>
-
-
-        <div class="card rounded-3xl p-5">
-
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-
-            <i data-lucide="truck" class="w-5 h-5"></i>
-
-          </div>
-
-          <p class="text-xs text-slate-500 font-semibold">
-            Truk Hijau
-          </p>
-
-          <p
-            id="todayGreen"
-            class="text-3xl font-extrabold mt-1">
-            0
-          </p>
-
-        </div>
-
-
-        <div class="card rounded-3xl p-5">
-
-          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
-
-            <i data-lucide="map-pin" class="w-5 h-5"></i>
-
-          </div>
-
-          <p class="text-xs text-slate-500 font-semibold">
-            Area Teraktif
-          </p>
-
-          <p
-            id="topAreaToday"
-            class="text-xl font-extrabold mt-2 truncate">
-            -
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <!-- CHARTS -->
-
-      <div class="grid lg:grid-cols-3 gap-6">
-
-        <div class="lg:col-span-2 card rounded-3xl p-5 sm:p-6">
-
-          <div class="flex items-center justify-between gap-3 mb-5">
-
-            <div>
-
-              <h3 class="font-extrabold">
-                Aktivitas 7 Hari Terakhir
-              </h3>
-
-              <p class="text-xs text-slate-500 mt-1">
-                Jumlah armada per hari
-              </p>
-
-            </div>
-
-            <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-
-              <i data-lucide="activity" class="w-5 h-5"></i>
-
-            </div>
-
-          </div>
-
-          <div class="h-[280px]">
-
-            <canvas id="weeklyChart"></canvas>
-
-          </div>
-
-        </div>
-
-
-        <div class="card rounded-3xl p-5 sm:p-6">
-
-          <div class="mb-5">
-
-            <h3 class="font-extrabold">
-              Komposisi Truk
-            </h3>
-
-            <p class="text-xs text-slate-500 mt-1">
-              Seluruh data operasional
-            </p>
-
-          </div>
-
-          <div class="h-[220px]">
-
-            <canvas id="truckChart"></canvas>
-
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 mt-4">
-
-            <div class="bg-yellow-50 rounded-2xl p-3 text-center">
-
-              <p class="text-[11px] text-yellow-700 font-bold">
-                KUNING
-              </p>
-
-              <p
-                id="allYellow"
-                class="font-extrabold text-xl">
-                0
-              </p>
-
-            </div>
-
-
-            <div class="bg-emerald-50 rounded-2xl p-3 text-center">
-
-              <p class="text-[11px] text-emerald-700 font-bold">
-                HIJAU
-              </p>
-
-              <p
-                id="allGreen"
-                class="font-extrabold text-xl">
-                0
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- RANKING -->
-
-      <div class="grid lg:grid-cols-2 gap-6">
-
-        <div class="card rounded-3xl p-5 sm:p-6">
-
-          <div class="flex items-center gap-3 mb-5">
-
-            <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center">
-
-              <i data-lucide="trophy" class="w-5 h-5"></i>
-
-            </div>
-
-            <div>
-
-              <h3 class="font-extrabold">
-                Top Score Truk
-              </h3>
-
-              <p class="text-xs text-slate-500">
-                Jenis truk dengan total operasi terbanyak
-              </p>
-
-            </div>
-
-          </div>
-
-          <div
-            id="truckRanking"
-            class="space-y-3">
-          </div>
-
-        </div>
-
-
-        <div class="card rounded-3xl p-5 sm:p-6">
-
-          <div class="flex items-center gap-3 mb-5">
-
-            <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center">
-
-              <i data-lucide="map" class="w-5 h-5"></i>
-
-            </div>
-
-            <div>
-
-              <h3 class="font-extrabold">
-                Top Score Area
-              </h3>
-
-              <p class="text-xs text-slate-500">
-                Area dengan total operasi terbanyak
-              </p>
-
-            </div>
-
-          </div>
-
-          <div
-            id="areaRanking"
-            class="space-y-3">
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         INPUT
-    ====================================================== -->
-
-    <section id="view-input" class="view">
-
-      <div class="max-w-2xl mx-auto">
-
-        <div class="mb-6">
-
-          <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-            Pencatatan Armada
-          </p>
-
-          <h2 class="text-2xl sm:text-3xl font-extrabold">
-            Input Armada Beroperasi
-          </h2>
-
-          <p class="text-sm text-slate-500 mt-1">
-            Masukkan data aktivitas armada pada form berikut.
-          </p>
-
-        </div>
-
-
-        <form
-          id="armadaForm"
-          class="card rounded-3xl p-5 sm:p-7 space-y-5">
-
-
-          <!-- DATE -->
-
-          <div class="grid sm:grid-cols-2 gap-4">
-
-            <div>
-
-              <label class="text-sm font-bold block mb-2">
-                Tanggal
-              </label>
-
-              <input
-                id="date"
-                type="date"
-                required
-                class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
-
-            </div>
-
-
-            <div>
-
-              <label class="text-sm font-bold block mb-2">
-                Jam (24 Jam)
-              </label>
-
-              <input
-                id="time"
-                type="time"
-                required
-                class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
-
-            </div>
-
-          </div>
-
-
-          <!-- LOCATION -->
-
-          <div>
-
-            <label class="text-sm font-bold block mb-2">
-              Keterangan Lokasi
-            </label>
-
-            <input
-              id="location"
-              type="text"
-              required
-              placeholder="Contoh: Gudang A, KIIC, Site Tambang..."
-              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
-
-          </div>
-
-
-          <!-- AREA -->
-
-          <div>
-
-            <label class="text-sm font-bold block mb-2">
-              Area
-            </label>
-
-            <select
-              id="area"
-              required
-              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:border-slate-400">
-
-              <option value="">
-                Pilih Area
-              </option>
-
-              <option value="Karawang">
-                Karawang
-              </option>
-
-              <option value="Purwakarta">
-                Purwakarta
-              </option>
-
-              <option value="Subang">
-                Subang
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <!-- PHOTO -->
-
-          <div>
-
-            <label class="text-sm font-bold block mb-2">
-              Foto Lokasi
-            </label>
-
-            <div
-              id="photoDrop"
-              class="border-2 border-dashed border-slate-200 rounded-2xl p-5 hover:border-slate-400 transition cursor-pointer">
-
-              <input
-                id="locationPhoto"
-                type="file"
-                accept="image/*"
-                capture="environment"
-                class="hidden">
-
-              <label
-                for="locationPhoto"
-                class="cursor-pointer flex flex-col items-center justify-center text-center">
-
-                <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-
-                  <i
-                    data-lucide="camera"
-                    class="w-6 h-6 text-slate-500">
-                  </i>
-
-                </div>
-
-                <p class="font-bold text-sm">
-                  Ambil / pilih foto lokasi
-                </p>
-
-                <p class="text-xs text-slate-400 mt-1">
-                  Foto akan masuk otomatis ke folder area di Google Drive
-                </p>
-
-              </label>
-
-
-              <div
-                id="photoPreviewWrap"
-                class="hidden mt-4">
-
-                <img
-                  id="photoPreview"
-                  class="w-full max-h-64 object-cover rounded-2xl border border-slate-200">
-
-                <button
-                  type="button"
-                  onclick="removePhoto()"
-                  class="mt-2 text-xs font-bold text-red-600 hover:underline">
-
-                  Hapus foto
-
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- TRUCK -->
-
-          <div>
-
-            <label class="text-sm font-bold block mb-3">
-              Truk yang Beroperasi
-            </label>
-
-            <p class="text-xs text-slate-500 mb-3">
-              Pilih <b>satu jenis truk saja</b> untuk setiap catatan lokasi.
-            </p>
-
-
-            <div class="grid sm:grid-cols-2 gap-4">
-
-
-              <!-- YELLOW -->
-
-              <label
-                id="yellowOption"
-                class="border-2 border-yellow-200 bg-yellow-50 rounded-2xl p-4 cursor-pointer transition">
-
-                <input
-                  type="radio"
-                  name="truckType"
-                  value="yellow"
-                  class="sr-only"
-                  checked>
-
-                <div class="flex items-center gap-3">
-
-                  <div class="w-10 h-10 rounded-xl bg-yellow-200 text-yellow-800 flex items-center justify-center">
-
-                    <i data-lucide="truck" class="w-5 h-5"></i>
-
-                  </div>
-
-                  <div>
-
-                    <p class="font-bold">
-                      Truk Kuning
-                    </p>
-
-                    <p class="text-[11px] text-slate-500">
-                      Jenis truk yang beroperasi
-                    </p>
-
-                  </div>
-
-                  <i
-                    data-lucide="check-circle-2"
-                    class="truck-check-yellow ml-auto w-5 h-5 text-yellow-700">
-                  </i>
-
-                </div>
-
-              </label>
-
-
-              <!-- GREEN -->
-
-              <label
-                id="greenOption"
-                class="border-2 border-slate-200 bg-slate-50 rounded-2xl p-4 cursor-pointer transition">
-
-                <input
-                  type="radio"
-                  name="truckType"
-                  value="green"
-                  class="sr-only">
-
-                <div class="flex items-center gap-3">
-
-                  <div class="w-10 h-10 rounded-xl bg-emerald-200 text-emerald-800 flex items-center justify-center">
-
-                    <i data-lucide="truck" class="w-5 h-5"></i>
-
-                  </div>
-
-                  <div>
-
-                    <p class="font-bold">
-                      Truk Hijau
-                    </p>
-
-                    <p class="text-[11px] text-slate-500">
-                      Jenis truk yang beroperasi
-                    </p>
-
-                  </div>
-
-                  <i
-                    data-lucide="check-circle-2"
-                    class="truck-check-green ml-auto w-5 h-5 text-slate-300">
-                  </i>
-
-                </div>
-
-              </label>
-
-            </div>
-
-          </div>
-
-
-          <!-- COUNT -->
-
-          <div>
-
-            <label class="text-sm font-bold block mb-2">
-              Jumlah Armada
-            </label>
-
-            <input
-              id="truckCount"
-              type="number"
-              min="1"
-              value="1"
-              required
-              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-slate-400">
-
-            <p class="text-xs text-slate-400 mt-2">
-              Jumlah unit dari jenis truk yang dipilih pada lokasi tersebut.
-            </p>
-
-          </div>
-
-
-          <!-- BUTTON -->
-
-          <div class="pt-2 flex flex-col sm:flex-row gap-3">
-
-            <button
-              id="saveButton"
-              type="submit"
-              class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2">
-
-              <i data-lucide="save" class="w-4 h-4"></i>
-
-              Simpan Data
-
-            </button>
-
-
-            <button
-              type="button"
-              onclick="resetForm()"
-              class="px-5 py-3.5 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50">
-
-              Reset
-
-            </button>
-
-          </div>
-
-        </form>
-
-      </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         REKAP
-    ====================================================== -->
-
-    <section
-      id="view-rekap"
-      class="view space-y-6">
-
-      <div>
-
-        <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-          Analisis Data
-        </p>
-
-        <h2 class="text-2xl sm:text-3xl font-extrabold">
-          Rekap Operasional
-        </h2>
-
-        <p class="text-sm text-slate-500 mt-1">
-          Lihat dan download total armada berdasarkan periode.
-        </p>
-
-      </div>
-
-
-      <!-- FILTER -->
-
-      <div class="card rounded-3xl p-5">
-
-        <div class="flex flex-col lg:flex-row lg:items-end gap-4">
-
-          <div class="flex-1">
-
-            <label class="text-xs font-bold text-slate-500 block mb-2">
-              PERIODE REKAP
-            </label>
-
-            <select
-              id="rekapType"
-              onchange="renderRekap()"
-              class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-              <option value="daily">
-                Harian
-              </option>
-
-              <option value="weekly">
-                Mingguan
-              </option>
-
-              <option value="monthly">
-                Bulanan
-              </option>
-
-            </select>
-
-          </div>
-
-
-          <div class="flex-1">
-
-            <label class="text-xs font-bold text-slate-500 block mb-2">
-              AREA
-            </label>
-
-            <select
-              id="rekapArea"
-              onchange="renderRekap()"
-              class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-              <option value="all">
-                Semua Area
-              </option>
-
-              <option value="Karawang">
-                Karawang
-              </option>
-
-              <option value="Purwakarta">
-                Purwakarta
-              </option>
-
-              <option value="Subang">
-                Subang
-              </option>
-
-            </select>
-
-          </div>
-
-        </div>
-
-
-        <!-- DOWNLOAD -->
-
-        <div class="border-t border-slate-100 mt-5 pt-5">
-
-          <p class="text-xs font-bold text-slate-500 mb-3">
-            DOWNLOAD LAPORAN
-          </p>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
-            <button
-              onclick="downloadReport('daily')"
-              class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
-
-              <i data-lucide="download" class="w-4 h-4"></i>
-
-              Rekap Harian
-
-            </button>
-
-
-            <button
-              onclick="downloadReport('weekly')"
-              class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
-
-              <i data-lucide="download" class="w-4 h-4"></i>
-
-              Rekap Mingguan
-
-            </button>
-
-
-            <button
-              onclick="downloadReport('monthly')"
-              class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
-
-              <i data-lucide="download" class="w-4 h-4"></i>
-
-              Rekap Bulanan
-
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div
-        id="rekapCards"
-        class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-      </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         DATA
-    ====================================================== -->
-
-    <section
-      id="view-data"
-      class="view space-y-6">
-
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-
-        <div>
-
-          <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-            Google Sheets
-          </p>
-
-          <h2 class="text-2xl sm:text-3xl font-extrabold">
-            Data Armada
-          </h2>
-
-          <p class="text-sm text-slate-500 mt-1">
-            Semua catatan armada tersimpan di Google Sheets.
-          </p>
-
-        </div>
-
-
-        <div class="flex gap-2">
-
-          <button
-            onclick="loadData()"
-            class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
-
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-
-            Refresh
-
-          </button>
-
-
-          <button
-            onclick="exportCSV()"
-            class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
-
-            <i data-lucide="download" class="w-4 h-4"></i>
-
-            Export CSV
-
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div class="card rounded-3xl overflow-hidden">
-
-        <div class="p-4 border-b border-slate-100">
-
-          <div class="relative max-w-md">
-
-            <i
-              data-lucide="search"
-              class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-            </i>
-
-            <input
-              id="searchData"
-              oninput="renderTable()"
-              placeholder="Cari lokasi, area, tanggal..."
-              class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm">
-
-          </div>
-
-        </div>
-
-
-        <div class="overflow-x-auto">
-
-          <table class="w-full min-w-[900px]">
-
-            <thead class="bg-slate-50 text-left">
-
-              <tr class="text-[11px] uppercase tracking-wider text-slate-500">
-
-                <th class="px-5 py-4">
-                  Tanggal
-                </th>
-
-                <th class="px-5 py-4">
-                  Jam
-                </th>
-
-                <th class="px-5 py-4">
-                  Lokasi
-                </th>
-
-                <th class="px-5 py-4">
-                  Area
-                </th>
-
-                <th class="px-5 py-4">
-                  Foto
-                </th>
-
-                <th class="px-5 py-4">
-                  Truk
-                </th>
-
-                <th class="px-5 py-4">
-                  Jumlah
-                </th>
-
-                <th class="px-5 py-4 text-right">
-                  Aksi
-                </th>
-
-              </tr>
-
-            </thead>
-
-
-            <tbody id="dataTable"></tbody>
-
-          </table>
-
-        </div>
-
-
-        <div
-          id="emptyState"
-          class="hidden text-center px-5 py-16">
-
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-
-            <i
-              data-lucide="database"
-              class="w-6 h-6 text-slate-400">
-            </i>
-
-          </div>
-
-          <p class="font-bold">
-            Belum ada data
-          </p>
-
-          <p class="text-xs text-slate-500 mt-1">
-            Tambahkan data armada untuk mulai melihat laporan.
-          </p>
-
-        </div>
-
-      </div>
-
-    </section>
+    </div>
 
   </div>
 
+
+  <div class="card rounded-3xl overflow-hidden">
+
+    <div class="p-4 border-b border-slate-100">
+
+      <div class="relative max-w-md">
+
+        <i
+          data-lucide="search"
+          class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+        </i>
+
+        <input
+          id="searchData"
+          oninput="renderTable()"
+          placeholder="Cari lokasi, area, tanggal..."
+          class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm">
+
+      </div>
+
+    </div>
+
+
+    <div class="overflow-x-auto">
+
+      <table class="w-full min-w-[900px]">
+
+        <thead class="bg-slate-50 text-left">
+
+          <tr class="text-[11px] uppercase tracking-wider text-slate-500">
+
+            <th class="px-5 py-4">
+              Tanggal
+            </th>
+
+            <th class="px-5 py-4">
+              Jam
+            </th>
+
+            <th class="px-5 py-4">
+              Lokasi
+            </th>
+
+            <th class="px-5 py-4">
+              Area
+            </th>
+
+            <th class="px-5 py-4">
+              Foto
+            </th>
+
+            <th class="px-5 py-4">
+              Truk
+            </th>
+
+            <th class="px-5 py-4">
+              Jumlah
+            </th>
+
+            <th class="px-5 py-4 text-right">
+              Aksi
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody id="dataTable"></tbody>
+
+      </table>
+
+    </div>
+
+
+    <div
+      id="emptyState"
+      class="hidden text-center px-5 py-16">
+
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+
+        <i
+          data-lucide="database"
+          class="w-6 h-6 text-slate-400">
+        </i>
+
+      </div>
+
+      <p class="font-bold">
+        Belum ada data
+      </p>
+
+      <p class="text-xs text-slate-500 mt-1">
+        Tambahkan data armada untuk mulai melihat laporan.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+  </div>
 
   <!-- =====================================================
        TOAST
@@ -1222,19 +1255,20 @@
     id="toast"
     class="fixed bottom-5 right-5 z-50 translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
 
-    <i
-      data-lucide="check-circle-2"
-      class="w-5 h-5">
-    </i>
 
-    <p
-      id="toastText"
-      class="text-sm font-semibold">
-      Data berhasil disimpan
-    </p>
+<i
+  data-lucide="check-circle-2"
+  class="w-5 h-5">
+</i>
+
+<p
+  id="toastText"
+  class="text-sm font-semibold">
+  Data berhasil disimpan
+</p>
+
 
   </div>
-
 
   <!-- =====================================================
        JAVASCRIPT
@@ -1249,6 +1283,19 @@
     let truckChart = null;
 
     let selectedPhotoData = "";
+
+    /*
+     * ID data yang sedang diedit.
+     *
+     * null = mode tambah
+     * ada ID = mode edit
+     */
+    let editingRecordId = null;
+
+    /*
+     * Menyimpan URL foto lama.
+     */
+    let editingOldPhoto = "";
 
 
     /* =====================================================
@@ -1445,11 +1492,6 @@
 
       }
 
-
-      /*
-       * text/plain dipakai agar browser
-       * tidak melakukan CORS preflight.
-       */
 
       const response =
         await fetch(
@@ -1965,6 +2007,16 @@
 
               document
                 .getElementById(
+                  "photoStatus"
+                )
+                .textContent =
+                editingRecordId
+                  ? "Foto baru dipilih. Foto ini akan menggantikan foto lama saat disimpan."
+                  : "Foto siap diupload.";
+
+
+              document
+                .getElementById(
                   "photoPreviewWrap"
                 )
                 .classList.remove(
@@ -1996,6 +2048,36 @@
         "";
 
 
+      /*
+       * Jika sedang edit dan ada foto lama,
+       * kembalikan preview ke foto lama.
+       */
+
+      if (
+        editingRecordId &&
+        editingOldPhoto
+      ) {
+
+        document
+          .getElementById(
+            "photoPreview"
+          )
+          .src =
+          editingOldPhoto;
+
+
+        document
+          .getElementById(
+            "photoStatus"
+          )
+          .textContent =
+          "Foto lama tetap digunakan.";
+
+        return;
+
+      }
+
+
       document
         .getElementById(
           "photoPreview"
@@ -2016,7 +2098,243 @@
 
 
     /* =====================================================
-       SAVE FORM
+       EDIT RECORD
+    ====================================================== */
+
+    function editRecord(id) {
+
+      const record =
+        records.find(
+          r =>
+            String(r.id) ===
+            String(id)
+        );
+
+
+      if (!record) {
+
+        showToast(
+          "Data yang ingin diedit tidak ditemukan."
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Aktifkan mode edit
+       */
+
+      editingRecordId =
+        String(record.id);
+
+
+      editingOldPhoto =
+        record.photo || "";
+
+
+      /*
+       * Isi form
+       */
+
+      document
+        .getElementById("date")
+        .value =
+        record.date || "";
+
+
+      document
+        .getElementById("time")
+        .value =
+        record.time || "";
+
+
+      document
+        .getElementById("location")
+        .value =
+        record.location || "";
+
+
+      document
+        .getElementById("area")
+        .value =
+        record.area || "";
+
+
+      document
+        .getElementById("truckCount")
+        .value =
+        record.total || 1;
+
+
+      /*
+       * Jenis truk
+       */
+
+      const radio =
+        document.querySelector(
+          `input[name="truckType"][value="${record.truckType}"]`
+        );
+
+
+      if (radio) {
+
+        radio.checked =
+          true;
+
+      }
+
+
+      updateTruckChoice();
+
+
+      /*
+       * Reset file input.
+       *
+       * Foto lama hanya ditampilkan.
+       * Foto baru hanya dikirim jika
+       * user memilih foto baru.
+       */
+
+      selectedPhotoData =
+        "";
+
+
+      document
+        .getElementById(
+          "locationPhoto"
+        )
+        .value =
+        "";
+
+
+      if (
+        record.photo
+      ) {
+
+        document
+          .getElementById(
+            "photoPreview"
+          )
+          .src =
+          record.photo;
+
+
+        document
+          .getElementById(
+            "photoStatus"
+          )
+          .textContent =
+          "Foto lama. Pilih foto baru jika ingin menggantinya.";
+
+
+        document
+          .getElementById(
+            "photoPreviewWrap"
+          )
+          .classList.remove(
+            "hidden"
+          );
+
+      } else {
+
+        document
+          .getElementById(
+            "photoPreview"
+          )
+          .src =
+          "";
+
+
+        document
+          .getElementById(
+            "photoStatus"
+          )
+          .textContent =
+          "";
+
+
+        document
+          .getElementById(
+            "photoPreviewWrap"
+          )
+          .classList.add(
+            "hidden"
+          );
+
+      }
+
+
+      /*
+       * Ubah tampilan form
+       */
+
+      document
+        .getElementById(
+          "inputEyebrow"
+        )
+        .textContent =
+        "Edit Data Armada";
+
+
+      document
+        .getElementById(
+          "inputTitle"
+        )
+        .textContent =
+        "Edit Armada Beroperasi";
+
+
+      document
+        .getElementById(
+          "inputSubtitle"
+        )
+        .textContent =
+        "Perbarui data armada yang sudah tersimpan.";
+
+
+      document
+        .getElementById(
+          "saveButtonText"
+        )
+        .textContent =
+        "Simpan Perubahan";
+
+
+      document
+        .getElementById(
+          "cancelEditButton"
+        )
+        .classList.remove(
+          "hidden"
+        );
+
+
+      /*
+       * Pindah ke form input
+       */
+
+      showView(
+        "input"
+      );
+
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+
+      showToast(
+        "Mode edit aktif."
+      );
+
+    }
+
+
+    /* =====================================================
+       SAVE / UPDATE FORM
     ====================================================== */
 
     document
@@ -2081,6 +2399,54 @@
               ?.value;
 
 
+          /*
+           * VALIDASI
+           */
+
+          if (!date) {
+
+            showToast(
+              "Tanggal wajib diisi."
+            );
+
+            return;
+
+          }
+
+
+          if (!time) {
+
+            showToast(
+              "Jam wajib diisi."
+            );
+
+            return;
+
+          }
+
+
+          if (!location) {
+
+            showToast(
+              "Lokasi wajib diisi."
+            );
+
+            return;
+
+          }
+
+
+          if (!area) {
+
+            showToast(
+              "Pilih area terlebih dahulu."
+            );
+
+            return;
+
+          }
+
+
           if (!type) {
 
             showToast(
@@ -2103,21 +2469,21 @@
           }
 
 
-          if (!selectedPhotoData) {
+          /*
+           * Saat tambah data,
+           * foto wajib.
+           *
+           * Saat edit,
+           * foto lama boleh tetap digunakan.
+           */
+
+          if (
+            !editingRecordId &&
+            !selectedPhotoData
+          ) {
 
             showToast(
               "Tambahkan foto lokasi terlebih dahulu."
-            );
-
-            return;
-
-          }
-
-
-          if (!area) {
-
-            showToast(
-              "Pilih area terlebih dahulu."
             );
 
             return;
@@ -2129,33 +2495,109 @@
 
             setLoading(
               true,
-              "Menyimpan data dan foto..."
+              editingRecordId
+                ? "Memperbarui data armada..."
+                : "Menyimpan data dan foto..."
+            );
+
+
+            let payload;
+
+
+            /*
+             * MODE EDIT
+             */
+
+            if (
+              editingRecordId
+            ) {
+
+              payload = {
+
+                action:
+                  "updateRecord",
+
+                id:
+                  editingRecordId,
+
+                date:
+                  date,
+
+                time:
+                  time,
+
+                location:
+                  location,
+
+                area:
+                  area,
+
+                truckType:
+                  type,
+
+                total:
+                  count,
+
+                /*
+                 * Jika kosong:
+                 * foto lama tetap digunakan.
+                 *
+                 * Jika ada:
+                 * foto baru dikirim ke backend.
+                 */
+
+                photoData:
+                  selectedPhotoData || ""
+
+              };
+
+
+            } else {
+
+              /*
+               * MODE TAMBAH
+               */
+
+              payload = {
+
+                action:
+                  "saveRecord",
+
+                date:
+                  date,
+
+                time:
+                  time,
+
+                location:
+                  location,
+
+                area:
+                  area,
+
+                truckType:
+                  type,
+
+                total:
+                  count,
+
+                photoData:
+                  selectedPhotoData
+
+              };
+
+            }
+
+
+            console.log(
+              "Payload:",
+              payload
             );
 
 
             const result =
               await apiPost(
-                {
-                  action:
-                    "saveRecord",
-
-                  date,
-
-                  time,
-
-                  location,
-
-                  area,
-
-                  truckType:
-                    type,
-
-                  total:
-                    count,
-
-                  photoData:
-                    selectedPhotoData
-                }
+                payload
               );
 
 
@@ -2164,17 +2606,37 @@
             ) {
 
               showToast(
-                "Data tersimpan. Foto masuk ke folder " +
-                area +
-                "."
+                editingRecordId
+                  ? "Data berhasil diperbarui."
+                  : "Data berhasil disimpan."
               );
+
+
+              /*
+               * Reset state edit
+               */
+
+              editingRecordId =
+                null;
+
+
+              editingOldPhoto =
+                "";
 
 
               resetForm();
 
 
+              /*
+               * Ambil data terbaru
+               */
+
               await loadData();
 
+
+              /*
+               * Kembali ke dashboard
+               */
 
               showView(
                 "dashboard"
@@ -2207,7 +2669,7 @@
 
 
     /* =====================================================
-       RESET
+       RESET FORM
     ====================================================== */
 
     function resetForm() {
@@ -2234,6 +2696,10 @@
         "";
 
 
+      editingOldPhoto =
+        "";
+
+
       document
         .getElementById(
           "locationPhoto"
@@ -2252,12 +2718,32 @@
 
       document
         .getElementById(
+          "photoStatus"
+        )
+        .textContent =
+        "";
+
+
+      document
+        .getElementById(
           "photoPreviewWrap"
         )
         .classList.add(
           "hidden"
         );
 
+
+      /*
+       * Kembali ke mode tambah
+       */
+
+      editingRecordId =
+        null;
+
+
+      /*
+       * Kembalikan truk kuning
+       */
 
       document
         .querySelector(
@@ -2268,6 +2754,92 @@
 
 
       updateTruckChoice();
+
+
+      /*
+       * Kembalikan judul form
+       */
+
+      document
+        .getElementById(
+          "inputEyebrow"
+        )
+        .textContent =
+        "Pencatatan Armada";
+
+
+      document
+        .getElementById(
+          "inputTitle"
+        )
+        .textContent =
+        "Input Armada Beroperasi";
+
+
+      document
+        .getElementById(
+          "inputSubtitle"
+        )
+        .textContent =
+        "Masukkan data aktivitas armada pada form berikut.";
+
+
+      /*
+       * Kembalikan tombol
+       */
+
+      document
+        .getElementById(
+          "saveButtonText"
+        )
+        .textContent =
+        "Simpan Data";
+
+
+      document
+        .getElementById(
+          "cancelEditButton"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+    }
+
+
+    /* =====================================================
+       CANCEL EDIT
+    ====================================================== */
+
+    function cancelEdit() {
+
+      if (
+        editingRecordId
+      ) {
+
+        const confirmed =
+          confirm(
+            "Batalkan perubahan data?"
+          );
+
+
+        if (!confirmed)
+          return;
+
+      }
+
+
+      resetForm();
+
+
+      showToast(
+        "Edit dibatalkan."
+      );
+
+
+      showView(
+        "data"
+      );
 
     }
 
@@ -3455,12 +4027,13 @@
                       ? `
 
                         <a
-                          href="${r.photo}"
+                          href="${escapeJsUrl(r.photo)}"
                           target="_blank"
+                          rel="noopener noreferrer"
                           title="Buka foto">
 
                           <img
-                            src="${r.photo}"
+                            src="${escapeJsUrl(r.photo)}"
                             class="w-12 h-12 object-cover rounded-xl border border-slate-200 hover:scale-105 transition"
                             alt="Foto lokasi">
 
@@ -3468,9 +4041,11 @@
 
                       `
                       : `
+
                         <span class="text-xs text-slate-400">
                           -
                         </span>
+
                       `
                   }
 
@@ -3505,36 +4080,37 @@
 
                 <td class="px-5 py-4 text-right">
 
-  <div class="flex items-center justify-end gap-1">
+                  <div class="flex items-center justify-end gap-1">
 
-    <button
-      onclick="editRecord('${escapeJs(r.id)}')"
-      title="Edit data"
-      class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-blue-50 text-slate-400 hover:text-blue-600">
+                    <button
+                      onclick="editRecord('${escapeJs(r.id)}')"
+                      title="Edit data"
+                      class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-blue-50 text-slate-400 hover:text-blue-600">
 
-      <i
-        data-lucide="pencil"
-        class="w-4 h-4">
-      </i>
+                      <i
+                        data-lucide="pencil"
+                        class="w-4 h-4">
+                      </i>
 
-    </button>
+                    </button>
 
 
-    <button
-      onclick="deleteRecord('${escapeJs(r.id)}')"
-      title="Hapus data"
-      class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600">
+                    <button
+                      onclick="deleteRecord('${escapeJs(r.id)}')"
+                      title="Hapus data"
+                      class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600">
 
-      <i
-        data-lucide="trash-2"
-        class="w-4 h-4">
-      </i>
+                      <i
+                        data-lucide="trash-2"
+                        class="w-4 h-4">
+                      </i>
 
-    </button>
+                    </button>
 
-  </div>
+                  </div>
 
-</td>
+                </td>
+
               </tr>
 
             `
@@ -4065,6 +4641,33 @@
       .replaceAll(
         "\r",
         "\\r"
+      );
+
+    }
+
+
+    function escapeJsUrl(
+      text
+    ) {
+
+      return String(
+        text || ""
+      )
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+      .replaceAll(
+        ">",
+        "&gt;"
       );
 
     }
