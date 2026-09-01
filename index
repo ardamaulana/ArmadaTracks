@@ -1,0 +1,4082 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArmadaTrack — Monitoring Armada</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background: #f8fafc;
+    }
+
+    .glass {
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(226,232,240,.85);
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 30px rgba(15,23,42,.05);
+    }
+
+    .nav-btn.active {
+      background: #0f172a;
+      color: #fff;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .score-1 {
+      background: linear-gradient(135deg,#fef3c7,#fde68a);
+    }
+
+    .score-2 {
+      background: linear-gradient(135deg,#f1f5f9,#e2e8f0);
+    }
+
+    .score-3 {
+      background: linear-gradient(135deg,#ffedd5,#fed7aa);
+    }
+
+    input,
+    select {
+      outline: none;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.35);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #0f172a;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body class="text-slate-800">
+
+  <!-- =====================================================
+       CONFIG
+  ====================================================== -->
+
+  <script>
+    /*
+     * =====================================================
+     * WAJIB GANTI URL INI
+     *
+     * Masukkan URL Web App Google Apps Script kamu.
+     *
+     * Contoh:
+     * https://script.google.com/macros/s/XXXXXXXX/exec
+     * =====================================================
+     */
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbz6wf_jAiSlITjpQLKR65RFmIsKP2iBNZlCm3mv4QoOwns5UpEbFZns53uMwIJtnQFaEQ/exec";
+  </script>
+
+
+  <!-- =====================================================
+       LOADING
+  ====================================================== -->
+
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="bg-white rounded-3xl p-7 shadow-2xl text-center">
+      <div class="spinner mx-auto mb-4"></div>
+      <p id="loadingText" class="font-bold text-sm">
+        Memproses data...
+      </p>
+      <p class="text-xs text-slate-400 mt-1">
+        Mohon tunggu sebentar
+      </p>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
+  <header class="sticky top-0 z-40 glass">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+
+      <div class="flex items-center gap-3">
+
+        <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
+          <i data-lucide="truck" class="w-5 h-5"></i>
+        </div>
+
+        <div>
+          <h1 class="font-extrabold text-lg sm:text-xl tracking-tight">
+            ArmadaTrack
+          </h1>
+
+          <p class="text-[11px] sm:text-xs text-slate-500">
+            Monitoring Armada Operasional
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="hidden sm:flex text-right">
+
+        <div>
+
+          <p
+            id="headerDate"
+            class="font-bold text-sm text-slate-800">
+          </p>
+
+          <p
+            id="headerTime"
+            class="text-xs text-slate-500">
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <div class="mb-6 overflow-x-auto">
+
+      <div class="inline-flex min-w-max gap-2 p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
+
+        <button
+          class="nav-btn active px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"
+          data-view="dashboard">
+
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+
+          Dashboard
+
+        </button>
+
+
+        <button
+          class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+          data-view="input">
+
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+
+          Input Armada
+
+        </button>
+
+
+        <button
+          class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+          data-view="rekap">
+
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+
+          Rekap
+
+        </button>
+
+
+        <button
+          class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+          data-view="data">
+
+          <i data-lucide="database" class="w-4 h-4"></i>
+
+          Data
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DASHBOARD
+    ====================================================== -->
+
+    <section
+      id="view-dashboard"
+      class="view active space-y-6">
+
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+
+        <div>
+
+          <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+            Ringkasan Operasional
+          </p>
+
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            Dashboard Armada
+          </h2>
+
+          <p class="text-sm text-slate-500 mt-1">
+            Pantau jumlah armada yang beroperasi berdasarkan data yang dicatat.
+          </p>
+
+        </div>
+
+
+        <div class="flex gap-2">
+
+          <button
+            onclick="loadData()"
+            class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+
+            Refresh
+
+          </button>
+
+
+          <button
+            onclick="showView('input')"
+            class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+
+            <i data-lucide="plus" class="w-4 h-4"></i>
+
+            Tambah Data
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- STATISTICS -->
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div class="card rounded-3xl p-5">
+
+          <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
+
+            <i data-lucide="truck" class="w-5 h-5"></i>
+
+          </div>
+
+          <p class="text-xs text-slate-500 font-semibold">
+            Armada Hari Ini
+          </p>
+
+          <p
+            id="todayTotal"
+            class="text-3xl font-extrabold mt-1">
+            0
+          </p>
+
+        </div>
+
+
+        <div class="card rounded-3xl p-5">
+
+          <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
+
+            <i data-lucide="truck" class="w-5 h-5"></i>
+
+          </div>
+
+          <p class="text-xs text-slate-500 font-semibold">
+            Truk Kuning
+          </p>
+
+          <p
+            id="todayYellow"
+            class="text-3xl font-extrabold mt-1">
+            0
+          </p>
+
+        </div>
+
+
+        <div class="card rounded-3xl p-5">
+
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+
+            <i data-lucide="truck" class="w-5 h-5"></i>
+
+          </div>
+
+          <p class="text-xs text-slate-500 font-semibold">
+            Truk Hijau
+          </p>
+
+          <p
+            id="todayGreen"
+            class="text-3xl font-extrabold mt-1">
+            0
+          </p>
+
+        </div>
+
+
+        <div class="card rounded-3xl p-5">
+
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+
+          </div>
+
+          <p class="text-xs text-slate-500 font-semibold">
+            Area Teraktif
+          </p>
+
+          <p
+            id="topAreaToday"
+            class="text-xl font-extrabold mt-2 truncate">
+            -
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- CHARTS -->
+
+      <div class="grid lg:grid-cols-3 gap-6">
+
+        <div class="lg:col-span-2 card rounded-3xl p-5 sm:p-6">
+
+          <div class="flex items-center justify-between gap-3 mb-5">
+
+            <div>
+
+              <h3 class="font-extrabold">
+                Aktivitas 7 Hari Terakhir
+              </h3>
+
+              <p class="text-xs text-slate-500 mt-1">
+                Jumlah armada per hari
+              </p>
+
+            </div>
+
+            <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+
+              <i data-lucide="activity" class="w-5 h-5"></i>
+
+            </div>
+
+          </div>
+
+          <div class="h-[280px]">
+
+            <canvas id="weeklyChart"></canvas>
+
+          </div>
+
+        </div>
+
+
+        <div class="card rounded-3xl p-5 sm:p-6">
+
+          <div class="mb-5">
+
+            <h3 class="font-extrabold">
+              Komposisi Truk
+            </h3>
+
+            <p class="text-xs text-slate-500 mt-1">
+              Seluruh data operasional
+            </p>
+
+          </div>
+
+          <div class="h-[220px]">
+
+            <canvas id="truckChart"></canvas>
+
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-4">
+
+            <div class="bg-yellow-50 rounded-2xl p-3 text-center">
+
+              <p class="text-[11px] text-yellow-700 font-bold">
+                KUNING
+              </p>
+
+              <p
+                id="allYellow"
+                class="font-extrabold text-xl">
+                0
+              </p>
+
+            </div>
+
+
+            <div class="bg-emerald-50 rounded-2xl p-3 text-center">
+
+              <p class="text-[11px] text-emerald-700 font-bold">
+                HIJAU
+              </p>
+
+              <p
+                id="allGreen"
+                class="font-extrabold text-xl">
+                0
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- RANKING -->
+
+      <div class="grid lg:grid-cols-2 gap-6">
+
+        <div class="card rounded-3xl p-5 sm:p-6">
+
+          <div class="flex items-center gap-3 mb-5">
+
+            <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center">
+
+              <i data-lucide="trophy" class="w-5 h-5"></i>
+
+            </div>
+
+            <div>
+
+              <h3 class="font-extrabold">
+                Top Score Truk
+              </h3>
+
+              <p class="text-xs text-slate-500">
+                Jenis truk dengan total operasi terbanyak
+              </p>
+
+            </div>
+
+          </div>
+
+          <div
+            id="truckRanking"
+            class="space-y-3">
+          </div>
+
+        </div>
+
+
+        <div class="card rounded-3xl p-5 sm:p-6">
+
+          <div class="flex items-center gap-3 mb-5">
+
+            <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center">
+
+              <i data-lucide="map" class="w-5 h-5"></i>
+
+            </div>
+
+            <div>
+
+              <h3 class="font-extrabold">
+                Top Score Area
+              </h3>
+
+              <p class="text-xs text-slate-500">
+                Area dengan total operasi terbanyak
+              </p>
+
+            </div>
+
+          </div>
+
+          <div
+            id="areaRanking"
+            class="space-y-3">
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         INPUT
+    ====================================================== -->
+
+    <section id="view-input" class="view">
+
+      <div class="max-w-2xl mx-auto">
+
+        <div class="mb-6">
+
+          <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+            Pencatatan Armada
+          </p>
+
+          <h2 class="text-2xl sm:text-3xl font-extrabold">
+            Input Armada Beroperasi
+          </h2>
+
+          <p class="text-sm text-slate-500 mt-1">
+            Masukkan data aktivitas armada pada form berikut.
+          </p>
+
+        </div>
+
+
+        <form
+          id="armadaForm"
+          class="card rounded-3xl p-5 sm:p-7 space-y-5">
+
+
+          <!-- DATE -->
+
+          <div class="grid sm:grid-cols-2 gap-4">
+
+            <div>
+
+              <label class="text-sm font-bold block mb-2">
+                Tanggal
+              </label>
+
+              <input
+                id="date"
+                type="date"
+                required
+                class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+            </div>
+
+
+            <div>
+
+              <label class="text-sm font-bold block mb-2">
+                Jam (24 Jam)
+              </label>
+
+              <input
+                id="time"
+                type="time"
+                required
+                class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+            </div>
+
+          </div>
+
+
+          <!-- LOCATION -->
+
+          <div>
+
+            <label class="text-sm font-bold block mb-2">
+              Keterangan Lokasi
+            </label>
+
+            <input
+              id="location"
+              type="text"
+              required
+              placeholder="Contoh: Gudang A, KIIC, Site Tambang..."
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+          </div>
+
+
+          <!-- AREA -->
+
+          <div>
+
+            <label class="text-sm font-bold block mb-2">
+              Area
+            </label>
+
+            <select
+              id="area"
+              required
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:border-slate-400">
+
+              <option value="">
+                Pilih Area
+              </option>
+
+              <option value="Karawang">
+                Karawang
+              </option>
+
+              <option value="Purwakarta">
+                Purwakarta
+              </option>
+
+              <option value="Subang">
+                Subang
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- PHOTO -->
+
+          <div>
+
+            <label class="text-sm font-bold block mb-2">
+              Foto Lokasi
+            </label>
+
+            <div
+              id="photoDrop"
+              class="border-2 border-dashed border-slate-200 rounded-2xl p-5 hover:border-slate-400 transition cursor-pointer">
+
+              <input
+                id="locationPhoto"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                class="hidden">
+
+              <label
+                for="locationPhoto"
+                class="cursor-pointer flex flex-col items-center justify-center text-center">
+
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+
+                  <i
+                    data-lucide="camera"
+                    class="w-6 h-6 text-slate-500">
+                  </i>
+
+                </div>
+
+                <p class="font-bold text-sm">
+                  Ambil / pilih foto lokasi
+                </p>
+
+                <p class="text-xs text-slate-400 mt-1">
+                  Foto akan masuk otomatis ke folder area di Google Drive
+                </p>
+
+              </label>
+
+
+              <div
+                id="photoPreviewWrap"
+                class="hidden mt-4">
+
+                <img
+                  id="photoPreview"
+                  class="w-full max-h-64 object-cover rounded-2xl border border-slate-200">
+
+                <button
+                  type="button"
+                  onclick="removePhoto()"
+                  class="mt-2 text-xs font-bold text-red-600 hover:underline">
+
+                  Hapus foto
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- TRUCK -->
+
+          <div>
+
+            <label class="text-sm font-bold block mb-3">
+              Truk yang Beroperasi
+            </label>
+
+            <p class="text-xs text-slate-500 mb-3">
+              Pilih <b>satu jenis truk saja</b> untuk setiap catatan lokasi.
+            </p>
+
+
+            <div class="grid sm:grid-cols-2 gap-4">
+
+
+              <!-- YELLOW -->
+
+              <label
+                id="yellowOption"
+                class="border-2 border-yellow-200 bg-yellow-50 rounded-2xl p-4 cursor-pointer transition">
+
+                <input
+                  type="radio"
+                  name="truckType"
+                  value="yellow"
+                  class="sr-only"
+                  checked>
+
+                <div class="flex items-center gap-3">
+
+                  <div class="w-10 h-10 rounded-xl bg-yellow-200 text-yellow-800 flex items-center justify-center">
+
+                    <i data-lucide="truck" class="w-5 h-5"></i>
+
+                  </div>
+
+                  <div>
+
+                    <p class="font-bold">
+                      Truk Kuning
+                    </p>
+
+                    <p class="text-[11px] text-slate-500">
+                      Jenis truk yang beroperasi
+                    </p>
+
+                  </div>
+
+                  <i
+                    data-lucide="check-circle-2"
+                    class="truck-check-yellow ml-auto w-5 h-5 text-yellow-700">
+                  </i>
+
+                </div>
+
+              </label>
+
+
+              <!-- GREEN -->
+
+              <label
+                id="greenOption"
+                class="border-2 border-slate-200 bg-slate-50 rounded-2xl p-4 cursor-pointer transition">
+
+                <input
+                  type="radio"
+                  name="truckType"
+                  value="green"
+                  class="sr-only">
+
+                <div class="flex items-center gap-3">
+
+                  <div class="w-10 h-10 rounded-xl bg-emerald-200 text-emerald-800 flex items-center justify-center">
+
+                    <i data-lucide="truck" class="w-5 h-5"></i>
+
+                  </div>
+
+                  <div>
+
+                    <p class="font-bold">
+                      Truk Hijau
+                    </p>
+
+                    <p class="text-[11px] text-slate-500">
+                      Jenis truk yang beroperasi
+                    </p>
+
+                  </div>
+
+                  <i
+                    data-lucide="check-circle-2"
+                    class="truck-check-green ml-auto w-5 h-5 text-slate-300">
+                  </i>
+
+                </div>
+
+              </label>
+
+            </div>
+
+          </div>
+
+
+          <!-- COUNT -->
+
+          <div>
+
+            <label class="text-sm font-bold block mb-2">
+              Jumlah Armada
+            </label>
+
+            <input
+              id="truckCount"
+              type="number"
+              min="1"
+              value="1"
+              required
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-slate-400">
+
+            <p class="text-xs text-slate-400 mt-2">
+              Jumlah unit dari jenis truk yang dipilih pada lokasi tersebut.
+            </p>
+
+          </div>
+
+
+          <!-- BUTTON -->
+
+          <div class="pt-2 flex flex-col sm:flex-row gap-3">
+
+            <button
+              id="saveButton"
+              type="submit"
+              class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2">
+
+              <i data-lucide="save" class="w-4 h-4"></i>
+
+              Simpan Data
+
+            </button>
+
+
+            <button
+              type="button"
+              onclick="resetForm()"
+              class="px-5 py-3.5 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50">
+
+              Reset
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         REKAP
+    ====================================================== -->
+
+    <section
+      id="view-rekap"
+      class="view space-y-6">
+
+      <div>
+
+        <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+          Analisis Data
+        </p>
+
+        <h2 class="text-2xl sm:text-3xl font-extrabold">
+          Rekap Operasional
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-1">
+          Lihat dan download total armada berdasarkan periode.
+        </p>
+
+      </div>
+
+
+      <!-- FILTER -->
+
+      <div class="card rounded-3xl p-5">
+
+        <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+
+          <div class="flex-1">
+
+            <label class="text-xs font-bold text-slate-500 block mb-2">
+              PERIODE REKAP
+            </label>
+
+            <select
+              id="rekapType"
+              onchange="renderRekap()"
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+              <option value="daily">
+                Harian
+              </option>
+
+              <option value="weekly">
+                Mingguan
+              </option>
+
+              <option value="monthly">
+                Bulanan
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="flex-1">
+
+            <label class="text-xs font-bold text-slate-500 block mb-2">
+              AREA
+            </label>
+
+            <select
+              id="rekapArea"
+              onchange="renderRekap()"
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+              <option value="all">
+                Semua Area
+              </option>
+
+              <option value="Karawang">
+                Karawang
+              </option>
+
+              <option value="Purwakarta">
+                Purwakarta
+              </option>
+
+              <option value="Subang">
+                Subang
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- DOWNLOAD -->
+
+        <div class="border-t border-slate-100 mt-5 pt-5">
+
+          <p class="text-xs font-bold text-slate-500 mb-3">
+            DOWNLOAD LAPORAN
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+            <button
+              onclick="downloadReport('daily')"
+              class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+              <i data-lucide="download" class="w-4 h-4"></i>
+
+              Rekap Harian
+
+            </button>
+
+
+            <button
+              onclick="downloadReport('weekly')"
+              class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+              <i data-lucide="download" class="w-4 h-4"></i>
+
+              Rekap Mingguan
+
+            </button>
+
+
+            <button
+              onclick="downloadReport('monthly')"
+              class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+              <i data-lucide="download" class="w-4 h-4"></i>
+
+              Rekap Bulanan
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="rekapCards"
+        class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DATA
+    ====================================================== -->
+
+    <section
+      id="view-data"
+      class="view space-y-6">
+
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+
+        <div>
+
+          <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+            Google Sheets
+          </p>
+
+          <h2 class="text-2xl sm:text-3xl font-extrabold">
+            Data Armada
+          </h2>
+
+          <p class="text-sm text-slate-500 mt-1">
+            Semua catatan armada tersimpan di Google Sheets.
+          </p>
+
+        </div>
+
+
+        <div class="flex gap-2">
+
+          <button
+            onclick="loadData()"
+            class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
+
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+
+            Refresh
+
+          </button>
+
+
+          <button
+            onclick="exportCSV()"
+            class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
+
+            <i data-lucide="download" class="w-4 h-4"></i>
+
+            Export CSV
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="card rounded-3xl overflow-hidden">
+
+        <div class="p-4 border-b border-slate-100">
+
+          <div class="relative max-w-md">
+
+            <i
+              data-lucide="search"
+              class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+            </i>
+
+            <input
+              id="searchData"
+              oninput="renderTable()"
+              placeholder="Cari lokasi, area, tanggal..."
+              class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm">
+
+          </div>
+
+        </div>
+
+
+        <div class="overflow-x-auto">
+
+          <table class="w-full min-w-[900px]">
+
+            <thead class="bg-slate-50 text-left">
+
+              <tr class="text-[11px] uppercase tracking-wider text-slate-500">
+
+                <th class="px-5 py-4">
+                  Tanggal
+                </th>
+
+                <th class="px-5 py-4">
+                  Jam
+                </th>
+
+                <th class="px-5 py-4">
+                  Lokasi
+                </th>
+
+                <th class="px-5 py-4">
+                  Area
+                </th>
+
+                <th class="px-5 py-4">
+                  Foto
+                </th>
+
+                <th class="px-5 py-4">
+                  Truk
+                </th>
+
+                <th class="px-5 py-4">
+                  Jumlah
+                </th>
+
+                <th class="px-5 py-4 text-right">
+                  Aksi
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody id="dataTable"></tbody>
+
+          </table>
+
+        </div>
+
+
+        <div
+          id="emptyState"
+          class="hidden text-center px-5 py-16">
+
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+
+            <i
+              data-lucide="database"
+              class="w-6 h-6 text-slate-400">
+            </i>
+
+          </div>
+
+          <p class="font-bold">
+            Belum ada data
+          </p>
+
+          <p class="text-xs text-slate-500 mt-1">
+            Tambahkan data armada untuk mulai melihat laporan.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- =====================================================
+       TOAST
+  ====================================================== -->
+
+  <div
+    id="toast"
+    class="fixed bottom-5 right-5 z-50 translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+
+    <i
+      data-lucide="check-circle-2"
+      class="w-5 h-5">
+    </i>
+
+    <p
+      id="toastText"
+      class="text-sm font-semibold">
+      Data berhasil disimpan
+    </p>
+
+  </div>
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+  ====================================================== -->
+
+  <script>
+
+    let records = [];
+
+    let weeklyChart = null;
+
+    let truckChart = null;
+
+    let selectedPhotoData = "";
+
+
+    /* =====================================================
+       BASIC
+    ====================================================== */
+
+    const pad = n =>
+      String(n).padStart(2, "0");
+
+
+    function localDateString(
+      d = new Date()
+    ) {
+
+      return (
+        d.getFullYear()
+        + "-"
+        + pad(d.getMonth() + 1)
+        + "-"
+        + pad(d.getDate())
+      );
+
+    }
+
+
+    function formatDateID(
+      dateStr
+    ) {
+
+      if (!dateStr)
+        return "-";
+
+
+      const parts =
+        String(dateStr)
+          .split("-")
+          .map(Number);
+
+
+      if (parts.length !== 3)
+        return dateStr;
+
+
+      const [
+        y,
+        m,
+        d
+      ] = parts;
+
+
+      return new Date(
+        y,
+        m - 1,
+        d
+      ).toLocaleDateString(
+        "id-ID",
+        {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        }
+      );
+
+    }
+
+
+    function updateClock() {
+
+      const now =
+        new Date();
+
+
+      document
+        .getElementById(
+          "headerDate"
+        )
+        .textContent =
+        now.toLocaleDateString(
+          "id-ID",
+          {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          }
+        );
+
+
+      document
+        .getElementById(
+          "headerTime"
+        )
+        .textContent =
+        now.toLocaleTimeString(
+          "id-ID",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+          }
+        )
+        + " WIB";
+
+    }
+
+
+    setInterval(
+      updateClock,
+      1000
+    );
+
+
+    updateClock();
+
+
+    function setDefaults() {
+
+      const now =
+        new Date();
+
+
+      document
+        .getElementById(
+          "date"
+        )
+        .value =
+        localDateString(now);
+
+
+      document
+        .getElementById(
+          "time"
+        )
+        .value =
+        `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    }
+
+
+    setDefaults();
+
+
+    /* =====================================================
+       LOADING
+    ====================================================== */
+
+    function setLoading(
+      state,
+      text = "Memproses data..."
+    ) {
+
+      const overlay =
+        document
+          .getElementById(
+            "loadingOverlay"
+          );
+
+
+      document
+        .getElementById(
+          "loadingText"
+        )
+        .textContent =
+        text;
+
+
+      overlay.classList.toggle(
+        "show",
+        state
+      );
+
+    }
+
+
+    /* =====================================================
+       API
+    ====================================================== */
+
+    async function apiPost(
+      payload
+    ) {
+
+      if (
+        !API_URL ||
+        API_URL.includes(
+          "PASTE_URL"
+        )
+      ) {
+
+        throw new Error(
+          "URL Web App belum dimasukkan."
+        );
+
+      }
+
+
+      /*
+       * text/plain dipakai agar browser
+       * tidak melakukan CORS preflight.
+       */
+
+      const response =
+        await fetch(
+          API_URL,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "text/plain;charset=utf-8"
+            },
+
+            body:
+              JSON.stringify(payload)
+          }
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (!result.ok) {
+
+        throw new Error(
+          result.message ||
+          "Terjadi kesalahan pada server."
+        );
+
+      }
+
+
+      return result;
+
+    }
+
+
+    async function apiGet() {
+
+      if (
+        !API_URL ||
+        API_URL.includes(
+          "PASTE_URL"
+        )
+      ) {
+
+        throw new Error(
+          "URL Web App belum dimasukkan."
+        );
+
+      }
+
+
+      const response =
+        await fetch(
+          API_URL
+          + "?action=getData"
+          + "&t="
+          + Date.now()
+        );
+
+
+      const result =
+        await response.json();
+
+
+      if (!result.ok) {
+
+        throw new Error(
+          result.message ||
+          "Gagal mengambil data."
+        );
+
+      }
+
+
+      return result.data || [];
+
+    }
+
+
+    /* =====================================================
+       LOAD DATA
+    ====================================================== */
+
+    async function loadData() {
+
+      try {
+
+        setLoading(
+          true,
+          "Mengambil data dari Google Sheets..."
+        );
+
+
+        records =
+          await apiGet();
+
+
+        records =
+          records.map(
+            normalizeRecord
+          );
+
+
+        renderDashboard();
+
+        renderRekap();
+
+        renderTable();
+
+
+        showToast(
+          "Data berhasil diperbarui."
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+
+        showToast(
+          error.message
+        );
+
+      } finally {
+
+        setLoading(
+          false
+        );
+
+      }
+
+    }
+
+
+    function normalizeRecord(
+      r
+    ) {
+
+      const total =
+        Number(
+          r.total || 0
+        );
+
+
+      return {
+
+        id:
+          String(
+            r.id || ""
+          ),
+
+        timestamp:
+          r.timestamp || "",
+
+        date:
+          String(
+            r.date || ""
+          ),
+
+        time:
+          String(
+            r.time || ""
+          ).substring(0, 5),
+
+        location:
+          String(
+            r.location || ""
+          ),
+
+        area:
+          String(
+            r.area || ""
+          ),
+
+        truckType:
+          r.truckType === "green"
+            ? "green"
+            : "yellow",
+
+        yellow:
+          r.truckType === "green"
+            ? 0
+            : total,
+
+        green:
+          r.truckType === "green"
+            ? total
+            : 0,
+
+        total,
+
+        photo:
+          r.photo || "",
+
+        photoFileId:
+          r.photoFileId || "",
+
+        folder:
+          r.folder || ""
+
+      };
+
+    }
+
+
+    /* =====================================================
+       NAVIGATION
+    ====================================================== */
+
+    function showView(
+      name
+    ) {
+
+      document
+        .querySelectorAll(
+          ".view"
+        )
+        .forEach(
+          v =>
+            v.classList.remove(
+              "active"
+            )
+        );
+
+
+      document
+        .getElementById(
+          "view-" + name
+        )
+        .classList.add(
+          "active"
+        );
+
+
+      document
+        .querySelectorAll(
+          ".nav-btn"
+        )
+        .forEach(
+          btn => {
+
+            btn.classList.toggle(
+              "active",
+              btn.dataset.view === name
+            );
+
+
+            if (
+              btn.dataset.view !== name
+            ) {
+
+              btn.classList.add(
+                "text-slate-600"
+              );
+
+            } else {
+
+              btn.classList.remove(
+                "text-slate-600"
+              );
+
+            }
+
+          }
+        );
+
+
+      if (
+        name === "dashboard"
+      )
+        renderDashboard();
+
+
+      if (
+        name === "rekap"
+      )
+        renderRekap();
+
+
+      if (
+        name === "data"
+      )
+        renderTable();
+
+
+      window.scrollTo(
+        {
+          top: 0,
+          behavior: "smooth"
+        }
+      );
+
+    }
+
+
+    document
+      .querySelectorAll(
+        ".nav-btn"
+      )
+      .forEach(
+        btn => {
+
+          btn.addEventListener(
+            "click",
+            () =>
+              showView(
+                btn.dataset.view
+              )
+          );
+
+        }
+      );
+
+
+    /* =====================================================
+       TRUCK SELECTION
+    ====================================================== */
+
+    document
+      .querySelectorAll(
+        'input[name="truckType"]'
+      )
+      .forEach(
+        radio => {
+
+          radio.addEventListener(
+            "change",
+            updateTruckChoice
+          );
+
+        }
+      );
+
+
+    function updateTruckChoice() {
+
+      const type =
+        document
+          .querySelector(
+            'input[name="truckType"]:checked'
+          )
+          ?.value
+        || "yellow";
+
+
+      const yellow =
+        document.getElementById(
+          "yellowOption"
+        );
+
+
+      const green =
+        document.getElementById(
+          "greenOption"
+        );
+
+
+      const cy =
+        document.querySelector(
+          ".truck-check-yellow"
+        );
+
+
+      const cg =
+        document.querySelector(
+          ".truck-check-green"
+        );
+
+
+      if (
+        type === "yellow"
+      ) {
+
+        yellow.className =
+          "border-2 border-yellow-300 bg-yellow-50 rounded-2xl p-4 cursor-pointer transition";
+
+
+        green.className =
+          "border-2 border-slate-200 bg-slate-50 rounded-2xl p-4 cursor-pointer transition";
+
+
+        cy.classList.remove(
+          "text-slate-300"
+        );
+
+        cy.classList.add(
+          "text-yellow-700"
+        );
+
+
+        cg.classList.remove(
+          "text-emerald-700"
+        );
+
+        cg.classList.add(
+          "text-slate-300"
+        );
+
+      } else {
+
+        yellow.className =
+          "border-2 border-slate-200 bg-slate-50 rounded-2xl p-4 cursor-pointer transition";
+
+
+        green.className =
+          "border-2 border-emerald-300 bg-emerald-50 rounded-2xl p-4 cursor-pointer transition";
+
+
+        cy.classList.remove(
+          "text-yellow-700"
+        );
+
+        cy.classList.add(
+          "text-slate-300"
+        );
+
+
+        cg.classList.remove(
+          "text-slate-300"
+        );
+
+        cg.classList.add(
+          "text-emerald-700"
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       PHOTO
+    ====================================================== */
+
+    document
+      .getElementById(
+        "locationPhoto"
+      )
+      .addEventListener(
+        "change",
+        function(e) {
+
+          const file =
+            e.target.files[0];
+
+
+          if (!file)
+            return;
+
+
+          if (
+            file.size >
+            4 * 1024 * 1024
+          ) {
+
+            showToast(
+              "Ukuran foto maksimal 4 MB."
+            );
+
+
+            this.value =
+              "";
+
+
+            return;
+
+          }
+
+
+          if (
+            !file.type.startsWith(
+              "image/"
+            )
+          ) {
+
+            showToast(
+              "File harus berupa foto."
+            );
+
+
+            this.value =
+              "";
+
+
+            return;
+
+          }
+
+
+          const reader =
+            new FileReader();
+
+
+          reader.onload =
+            function(ev) {
+
+              selectedPhotoData =
+                ev.target.result;
+
+
+              document
+                .getElementById(
+                  "photoPreview"
+                )
+                .src =
+                selectedPhotoData;
+
+
+              document
+                .getElementById(
+                  "photoPreviewWrap"
+                )
+                .classList.remove(
+                  "hidden"
+                );
+
+            };
+
+
+          reader.readAsDataURL(
+            file
+          );
+
+        }
+      );
+
+
+    function removePhoto() {
+
+      selectedPhotoData =
+        "";
+
+
+      document
+        .getElementById(
+          "locationPhoto"
+        )
+        .value =
+        "";
+
+
+      document
+        .getElementById(
+          "photoPreview"
+        )
+        .src =
+        "";
+
+
+      document
+        .getElementById(
+          "photoPreviewWrap"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+    }
+
+
+    /* =====================================================
+       SAVE FORM
+    ====================================================== */
+
+    document
+      .getElementById(
+        "armadaForm"
+      )
+      .addEventListener(
+        "submit",
+        async function(e) {
+
+          e.preventDefault();
+
+
+          const date =
+            document
+              .getElementById(
+                "date"
+              )
+              .value;
+
+
+          const time =
+            document
+              .getElementById(
+                "time"
+              )
+              .value;
+
+
+          const location =
+            document
+              .getElementById(
+                "location"
+              )
+              .value
+              .trim();
+
+
+          const area =
+            document
+              .getElementById(
+                "area"
+              )
+              .value;
+
+
+          const count =
+            Number(
+              document
+                .getElementById(
+                  "truckCount"
+                )
+                .value || 0
+            );
+
+
+          const type =
+            document
+              .querySelector(
+                'input[name="truckType"]:checked'
+              )
+              ?.value;
+
+
+          if (!type) {
+
+            showToast(
+              "Pilih jenis truk yang beroperasi."
+            );
+
+            return;
+
+          }
+
+
+          if (count <= 0) {
+
+            showToast(
+              "Jumlah armada minimal 1."
+            );
+
+            return;
+
+          }
+
+
+          if (!selectedPhotoData) {
+
+            showToast(
+              "Tambahkan foto lokasi terlebih dahulu."
+            );
+
+            return;
+
+          }
+
+
+          if (!area) {
+
+            showToast(
+              "Pilih area terlebih dahulu."
+            );
+
+            return;
+
+          }
+
+
+          try {
+
+            setLoading(
+              true,
+              "Menyimpan data dan foto..."
+            );
+
+
+            const result =
+              await apiPost(
+                {
+                  action:
+                    "saveRecord",
+
+                  date,
+
+                  time,
+
+                  location,
+
+                  area,
+
+                  truckType:
+                    type,
+
+                  total:
+                    count,
+
+                  photoData:
+                    selectedPhotoData
+                }
+              );
+
+
+            if (
+              result.ok
+            ) {
+
+              showToast(
+                "Data tersimpan. Foto masuk ke folder " +
+                area +
+                "."
+              );
+
+
+              resetForm();
+
+
+              await loadData();
+
+
+              showView(
+                "dashboard"
+              );
+
+            }
+
+
+          } catch (error) {
+
+            console.error(
+              error
+            );
+
+
+            showToast(
+              error.message
+            );
+
+          } finally {
+
+            setLoading(
+              false
+            );
+
+          }
+
+        }
+      );
+
+
+    /* =====================================================
+       RESET
+    ====================================================== */
+
+    function resetForm() {
+
+      document
+        .getElementById(
+          "armadaForm"
+        )
+        .reset();
+
+
+      setDefaults();
+
+
+      document
+        .getElementById(
+          "truckCount"
+        )
+        .value =
+        1;
+
+
+      selectedPhotoData =
+        "";
+
+
+      document
+        .getElementById(
+          "locationPhoto"
+        )
+        .value =
+        "";
+
+
+      document
+        .getElementById(
+          "photoPreview"
+        )
+        .src =
+        "";
+
+
+      document
+        .getElementById(
+          "photoPreviewWrap"
+        )
+        .classList.add(
+          "hidden"
+        );
+
+
+      document
+        .querySelector(
+          'input[name="truckType"][value="yellow"]'
+        )
+        .checked =
+        true;
+
+
+      updateTruckChoice();
+
+    }
+
+
+    /* =====================================================
+       TOAST
+    ====================================================== */
+
+    function showToast(
+      text
+    ) {
+
+      const toast =
+        document.getElementById(
+          "toast"
+        );
+
+
+      document
+        .getElementById(
+          "toastText"
+        )
+        .textContent =
+        text;
+
+
+      toast.classList.remove(
+        "translate-y-24",
+        "opacity-0"
+      );
+
+
+      setTimeout(
+        () => {
+
+          toast.classList.add(
+            "translate-y-24",
+            "opacity-0"
+          );
+
+        },
+        3000
+      );
+
+    }
+
+
+    /* =====================================================
+       SUM
+    ====================================================== */
+
+    function sum(
+      list,
+      key
+    ) {
+
+      return list.reduce(
+        (a, b) =>
+          a +
+          Number(
+            b[key] || 0
+          ),
+        0
+      );
+
+    }
+
+
+    /* =====================================================
+       DASHBOARD
+    ====================================================== */
+
+    function renderDashboard() {
+
+      const today =
+        localDateString();
+
+
+      const todayData =
+        records.filter(
+          r =>
+            r.date === today
+        );
+
+
+      document
+        .getElementById(
+          "todayTotal"
+        )
+        .textContent =
+        sum(
+          todayData,
+          "total"
+        );
+
+
+      document
+        .getElementById(
+          "todayYellow"
+        )
+        .textContent =
+        sum(
+          todayData,
+          "yellow"
+        );
+
+
+      document
+        .getElementById(
+          "todayGreen"
+        )
+        .textContent =
+        sum(
+          todayData,
+          "green"
+        );
+
+
+      const areaToday =
+        {};
+
+
+      todayData.forEach(
+        r => {
+
+          areaToday[r.area] =
+            (
+              areaToday[r.area] ||
+              0
+            ) +
+            r.total;
+
+        }
+      );
+
+
+      const bestToday =
+        Object.entries(
+          areaToday
+        )
+        .sort(
+          (a,b) =>
+            b[1] - a[1]
+        )[0];
+
+
+      document
+        .getElementById(
+          "topAreaToday"
+        )
+        .textContent =
+        bestToday
+          ? bestToday[0]
+          : "-";
+
+
+      document
+        .getElementById(
+          "allYellow"
+        )
+        .textContent =
+        sum(
+          records,
+          "yellow"
+        );
+
+
+      document
+        .getElementById(
+          "allGreen"
+        )
+        .textContent =
+        sum(
+          records,
+          "green"
+        );
+
+
+      renderWeeklyChart();
+
+      renderTruckChart();
+
+      renderRankings();
+
+    }
+
+
+    /* =====================================================
+       WEEKLY CHART
+    ====================================================== */
+
+    function renderWeeklyChart() {
+
+      const labels = [];
+
+      const data = [];
+
+
+      for (
+        let i = 6;
+        i >= 0;
+        i--
+      ) {
+
+        const d =
+          new Date();
+
+
+        d.setHours(
+          0,
+          0,
+          0,
+          0
+        );
+
+
+        d.setDate(
+          d.getDate() - i
+        );
+
+
+        const key =
+          localDateString(
+            d
+          );
+
+
+        labels.push(
+          d.toLocaleDateString(
+            "id-ID",
+            {
+              day: "2-digit",
+              month: "short"
+            }
+          )
+        );
+
+
+        data.push(
+          sum(
+            records.filter(
+              r =>
+                r.date === key
+            ),
+            "total"
+          )
+        );
+
+      }
+
+
+      if (
+        weeklyChart
+      )
+        weeklyChart.destroy();
+
+
+      weeklyChart =
+        new Chart(
+          document.getElementById(
+            "weeklyChart"
+          ),
+          {
+            type: "bar",
+
+            data: {
+
+              labels,
+
+              datasets: [{
+
+                label:
+                  "Armada",
+
+                data,
+
+                backgroundColor:
+                  "#0f172a",
+
+                borderRadius:
+                  8,
+
+                borderSkipped:
+                  false
+
+              }]
+
+            },
+
+            options: {
+
+              responsive:
+                true,
+
+              maintainAspectRatio:
+                false,
+
+              plugins: {
+
+                legend: {
+                  display:
+                    false
+                }
+
+              },
+
+              scales: {
+
+                x: {
+
+                  grid: {
+                    display:
+                      false
+                  }
+
+                },
+
+                y: {
+
+                  beginAtZero:
+                    true,
+
+                  ticks: {
+                    precision:
+                      0
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+        );
+
+    }
+
+
+    /* =====================================================
+       TRUCK CHART
+    ====================================================== */
+
+    function renderTruckChart() {
+
+      const yellow =
+        sum(
+          records,
+          "yellow"
+        );
+
+
+      const green =
+        sum(
+          records,
+          "green"
+        );
+
+
+      if (
+        truckChart
+      )
+        truckChart.destroy();
+
+
+      truckChart =
+        new Chart(
+          document.getElementById(
+            "truckChart"
+          ),
+          {
+            type:
+              "doughnut",
+
+            data: {
+
+              labels:
+                [
+                  "Kuning",
+                  "Hijau"
+                ],
+
+              datasets: [{
+
+                data:
+                  [
+                    yellow,
+                    green
+                  ],
+
+                backgroundColor:
+                  [
+                    "#facc15",
+                    "#10b981"
+                  ],
+
+                borderWidth:
+                  0,
+
+                hoverOffset:
+                  4
+
+              }]
+
+            },
+
+            options: {
+
+              responsive:
+                true,
+
+              maintainAspectRatio:
+                false,
+
+              cutout:
+                "72%",
+
+              plugins: {
+
+                legend: {
+
+                  position:
+                    "bottom",
+
+                  labels: {
+
+                    usePointStyle:
+                      true,
+
+                    boxWidth:
+                      8,
+
+                    font: {
+
+                      family:
+                        "Plus Jakarta Sans",
+
+                      size:
+                        11
+
+                    }
+
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+        );
+
+    }
+
+
+    /* =====================================================
+       RANKING
+    ====================================================== */
+
+    function rankRows(
+      items,
+      type
+    ) {
+
+      if (
+        !items.length
+      ) {
+
+        return `
+          <div class="text-center py-8 text-sm text-slate-400">
+            Belum ada data ranking.
+          </div>
+        `;
+
+      }
+
+
+      return items
+        .slice(
+          0,
+          3
+        )
+        .map(
+          (
+            [name, score],
+            i
+          ) => `
+
+            <div class="${
+              i === 0
+                ? "score-1"
+                : i === 1
+                ? "score-2"
+                : "score-3"
+            } rounded-2xl p-4 flex items-center gap-4">
+
+              <div class="w-10 h-10 bg-white/80 rounded-xl flex items-center justify-center font-extrabold">
+
+                ${
+                  i === 0
+                    ? "🏆"
+                    : i === 1
+                    ? "🥈"
+                    : "🥉"
+                }
+
+              </div>
+
+              <div class="flex-1">
+
+                <p class="font-extrabold">
+                  ${escapeHtml(name)}
+                </p>
+
+                <p class="text-xs text-slate-500">
+                  ${type}
+                </p>
+
+              </div>
+
+              <div class="text-right">
+
+                <p class="font-extrabold text-xl">
+                  ${score}
+                </p>
+
+                <p class="text-[10px] text-slate-500">
+                  operasi
+                </p>
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+    }
+
+
+    function renderRankings() {
+
+      const truckScores = {
+
+        "Truk Kuning":
+          sum(
+            records,
+            "yellow"
+          ),
+
+        "Truk Hijau":
+          sum(
+            records,
+            "green"
+          )
+
+      };
+
+
+      const truckRank =
+        Object.entries(
+          truckScores
+        )
+        .filter(
+          x =>
+            x[1] > 0
+        )
+        .sort(
+          (a,b) =>
+            b[1] - a[1]
+        );
+
+
+      const areaScores =
+        {};
+
+
+      records.forEach(
+        r => {
+
+          areaScores[r.area] =
+            (
+              areaScores[r.area] ||
+              0
+            ) +
+            r.total;
+
+        }
+      );
+
+
+      const areaRank =
+        Object.entries(
+          areaScores
+        )
+        .sort(
+          (a,b) =>
+            b[1] - a[1]
+        );
+
+
+      document
+        .getElementById(
+          "truckRanking"
+        )
+        .innerHTML =
+        rankRows(
+          truckRank,
+          "Jenis armada"
+        );
+
+
+      document
+        .getElementById(
+          "areaRanking"
+        )
+        .innerHTML =
+        rankRows(
+          areaRank,
+          "Area operasional"
+        );
+
+    }
+
+
+    /* =====================================================
+       WEEK KEY
+    ====================================================== */
+
+    function getWeekKey(
+      dateStr
+    ) {
+
+      const [
+        y,
+        m,
+        d
+      ] =
+        dateStr
+          .split("-")
+          .map(Number);
+
+
+      const date =
+        new Date(
+          y,
+          m - 1,
+          d
+        );
+
+
+      const day =
+        date.getDay();
+
+
+      const diff =
+        day === 0
+          ? -6
+          : 1 - day;
+
+
+      const monday =
+        new Date(
+          date
+        );
+
+
+      monday.setDate(
+        date.getDate() +
+        diff
+      );
+
+
+      const year =
+        monday.getFullYear();
+
+
+      const firstDay =
+        new Date(
+          year,
+          0,
+          1
+        );
+
+
+      const days =
+        Math.floor(
+          (
+            monday -
+            firstDay
+          ) /
+          86400000
+        );
+
+
+      const week =
+        Math.floor(
+          days / 7
+        ) + 1;
+
+
+      return (
+        year +
+        "-W" +
+        String(
+          week
+        ).padStart(
+          2,
+          "0"
+        )
+      );
+
+    }
+
+
+    /* =====================================================
+       REKAP
+    ====================================================== */
+
+    function buildGroups(
+      type,
+      area = "all"
+    ) {
+
+      const list =
+        area === "all"
+          ? records
+          : records.filter(
+              r =>
+                r.area === area
+            );
+
+
+      const groups =
+        {};
+
+
+      list.forEach(
+        r => {
+
+          let key;
+
+
+          if (
+            type === "daily"
+          ) {
+
+            key =
+              r.date;
+
+          } else if (
+            type === "weekly"
+          ) {
+
+            key =
+              getWeekKey(
+                r.date
+              );
+
+          } else {
+
+            key =
+              r.date.slice(
+                0,
+                7
+              );
+
+          }
+
+
+          if (
+            !groups[key]
+          ) {
+
+            groups[key] = {
+
+              yellow:
+                0,
+
+              green:
+                0,
+
+              total:
+                0,
+
+              entries:
+                0
+
+            };
+
+          }
+
+
+          groups[key].yellow +=
+            r.yellow;
+
+
+          groups[key].green +=
+            r.green;
+
+
+          groups[key].total +=
+            r.total;
+
+
+          groups[key].entries++;
+
+        }
+      );
+
+
+      return groups;
+
+    }
+
+
+    function renderRekap() {
+
+      const type =
+        document
+          .getElementById(
+            "rekapType"
+          )
+          .value;
+
+
+      const area =
+        document
+          .getElementById(
+            "rekapArea"
+          )
+          .value;
+
+
+      const groups =
+        buildGroups(
+          type,
+          area
+        );
+
+
+      const sorted =
+        Object.entries(
+          groups
+        )
+        .sort(
+          (a,b) =>
+            b[0].localeCompare(
+              a[0]
+            )
+        );
+
+
+      const wrap =
+        document
+          .getElementById(
+            "rekapCards"
+          );
+
+
+      if (
+        !sorted.length
+      ) {
+
+        wrap.innerHTML = `
+
+          <div class="md:col-span-2 xl:col-span-3 card rounded-3xl p-10 text-center text-slate-400">
+
+            Belum ada data untuk rekap ini.
+
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+
+      wrap.innerHTML =
+        sorted
+          .map(
+            ([key,v]) => {
+
+              let title =
+                key;
+
+
+              if (
+                type === "daily"
+              ) {
+
+                title =
+                  formatDateID(
+                    key
+                  );
+
+              }
+
+
+              if (
+                type === "monthly"
+              ) {
+
+                const [
+                  y,
+                  m
+                ] =
+                  key
+                    .split("-");
+
+
+                title =
+                  new Date(
+                    Number(y),
+                    Number(m) - 1,
+                    1
+                  )
+                  .toLocaleDateString(
+                    "id-ID",
+                    {
+                      month:
+                        "long",
+
+                      year:
+                        "numeric"
+                    }
+                  );
+
+              }
+
+
+              if (
+                type === "weekly"
+              ) {
+
+                title =
+                  "Minggu " +
+                  key.split(
+                    "-W"
+                  )[1]
+                  +
+                  " • "
+                  +
+                  key.split(
+                    "-W"
+                  )[0];
+
+              }
+
+
+              return `
+
+                <div class="card rounded-3xl p-5">
+
+                  <div class="flex items-start justify-between mb-5">
+
+                    <div>
+
+                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+
+                        ${
+                          type === "daily"
+                            ? "Harian"
+                            : type === "weekly"
+                            ? "Mingguan"
+                            : "Bulanan"
+                        }
+
+                      </p>
+
+                      <h3 class="font-extrabold mt-1">
+
+                        ${title}
+
+                      </h3>
+
+                    </div>
+
+
+                    <div class="text-right">
+
+                      <p class="text-3xl font-extrabold">
+
+                        ${v.total}
+
+                      </p>
+
+                      <p class="text-[10px] text-slate-400">
+
+                        TOTAL ARMADA
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+
+                  <div class="grid grid-cols-2 gap-3">
+
+                    <div class="bg-yellow-50 rounded-2xl p-3">
+
+                      <p class="text-[10px] text-yellow-700 font-bold">
+
+                        KUNING
+
+                      </p>
+
+                      <p class="text-xl font-extrabold">
+
+                        ${v.yellow}
+
+                      </p>
+
+                    </div>
+
+
+                    <div class="bg-emerald-50 rounded-2xl p-3">
+
+                      <p class="text-[10px] text-emerald-700 font-bold">
+
+                        HIJAU
+
+                      </p>
+
+                      <p class="text-xl font-extrabold">
+
+                        ${v.green}
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+
+                  <p class="text-[11px] text-slate-400 mt-4">
+
+                    ${v.entries}
+                    catatan operasional
+
+                  </p>
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join("");
+
+    }
+
+
+    /* =====================================================
+       TABLE
+    ====================================================== */
+
+    function renderTable() {
+
+      const query =
+        (
+          document
+            .getElementById(
+              "searchData"
+            )
+            ?.value ||
+          ""
+        )
+        .toLowerCase();
+
+
+      const data =
+        [...records]
+          .sort(
+            (a,b) =>
+              (
+                b.date +
+                b.time
+              )
+              .localeCompare(
+                a.date +
+                a.time
+              )
+          )
+          .filter(
+            r =>
+              `
+                ${r.date}
+                ${r.time}
+                ${r.location}
+                ${r.area}
+                ${r.truckType}
+              `
+              .toLowerCase()
+              .includes(
+                query
+              )
+          );
+
+
+      const tbody =
+        document
+          .getElementById(
+            "dataTable"
+          );
+
+
+      const empty =
+        document
+          .getElementById(
+            "emptyState"
+          );
+
+
+      if (
+        !data.length
+      ) {
+
+        tbody.innerHTML =
+          "";
+
+
+        empty.classList.remove(
+          "hidden"
+        );
+
+
+        return;
+
+      }
+
+
+      empty.classList.add(
+        "hidden"
+      );
+
+
+      tbody.innerHTML =
+        data
+          .map(
+            r => `
+
+              <tr class="border-t border-slate-100 hover:bg-slate-50/60">
+
+                <td class="px-5 py-4 text-sm font-semibold">
+
+                  ${formatDateID(r.date)}
+
+                </td>
+
+
+                <td class="px-5 py-4 text-sm">
+
+                  ${r.time}
+
+                </td>
+
+
+                <td class="px-5 py-4 text-sm">
+
+                  ${escapeHtml(r.location)}
+
+                </td>
+
+
+                <td class="px-5 py-4">
+
+                  <span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold">
+
+                    ${escapeHtml(r.area)}
+
+                  </span>
+
+                </td>
+
+
+                <td class="px-5 py-4">
+
+                  ${
+                    r.photo
+                      ? `
+
+                        <a
+                          href="${r.photo}"
+                          target="_blank"
+                          title="Buka foto">
+
+                          <img
+                            src="${r.photo}"
+                            class="w-12 h-12 object-cover rounded-xl border border-slate-200 hover:scale-105 transition"
+                            alt="Foto lokasi">
+
+                        </a>
+
+                      `
+                      : `
+                        <span class="text-xs text-slate-400">
+                          -
+                        </span>
+                      `
+                  }
+
+                </td>
+
+
+                <td class="px-5 py-4">
+
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
+                    r.truckType === "yellow"
+                      ? "bg-yellow-50 text-yellow-700"
+                      : "bg-emerald-50 text-emerald-700"
+                  }">
+
+                    ${
+                      r.truckType === "yellow"
+                        ? "Kuning"
+                        : "Hijau"
+                    }
+
+                  </span>
+
+                </td>
+
+
+                <td class="px-5 py-4 text-sm font-extrabold">
+
+                  ${r.total}
+
+                </td>
+
+
+                <td class="px-5 py-4 text-right">
+
+                  <button
+                    onclick="deleteRecord('${escapeJs(r.id)}')"
+                    class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600">
+
+                    <i
+                      data-lucide="trash-2"
+                      class="w-4 h-4">
+                    </i>
+
+                  </button>
+
+                </td>
+
+              </tr>
+
+            `
+          )
+          .join("");
+
+
+      lucide.createIcons();
+
+    }
+
+
+    /* =====================================================
+       DELETE
+    ====================================================== */
+
+    async function deleteRecord(
+      id
+    ) {
+
+      if (
+        !confirm(
+          "Hapus data armada ini?\n\nFoto di Google Drive juga akan dipindahkan ke sampah."
+        )
+      )
+        return;
+
+
+      try {
+
+        setLoading(
+          true,
+          "Menghapus data..."
+        );
+
+
+        await apiPost(
+          {
+            action:
+              "deleteRecord",
+
+            id:
+              id
+          }
+        );
+
+
+        showToast(
+          "Data dan foto berhasil dihapus."
+        );
+
+
+        await loadData();
+
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+
+        showToast(
+          error.message
+        );
+
+      } finally {
+
+        setLoading(
+          false
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       DOWNLOAD REKAP
+    ====================================================== */
+
+    function downloadReport(
+      type
+    ) {
+
+      const area =
+        document
+          .getElementById(
+            "rekapArea"
+          )
+          .value;
+
+
+      const groups =
+        buildGroups(
+          type,
+          area
+        );
+
+
+      const entries =
+        Object.entries(
+          groups
+        )
+        .sort(
+          (a,b) =>
+            a[0].localeCompare(
+              b[0]
+            )
+        );
+
+
+      if (
+        !entries.length
+      ) {
+
+        showToast(
+          "Belum ada data untuk didownload."
+        );
+
+        return;
+
+      }
+
+
+      const detail =
+        records
+          .filter(
+            r =>
+              area === "all"
+                ? true
+                : r.area === area
+          )
+          .sort(
+            (a,b) =>
+              (
+                a.date +
+                a.time
+              )
+              .localeCompare(
+                b.date +
+                b.time
+              )
+          );
+
+
+      let title =
+        "Rekap " +
+        (
+          type === "daily"
+            ? "Harian"
+            : type === "weekly"
+            ? "Mingguan"
+            : "Bulanan"
+        );
+
+
+      const rows = [];
+
+
+      rows.push([
+        "LAPORAN ARMADA"
+      ]);
+
+
+      rows.push([
+        title
+      ]);
+
+
+      rows.push([
+        "Area",
+        area === "all"
+          ? "Semua Area"
+          : area
+      ]);
+
+
+      rows.push([]);
+
+
+      rows.push([
+        "PERIODE",
+        "KUNING",
+        "HIJAU",
+        "TOTAL ARMADA",
+        "JUMLAH CATATAN"
+      ]);
+
+
+      entries.forEach(
+        ([key,v]) => {
+
+          rows.push([
+            key,
+            v.yellow,
+            v.green,
+            v.total,
+            v.entries
+          ]);
+
+        }
+      );
+
+
+      rows.push([]);
+
+      rows.push([]);
+
+      rows.push([
+        "DETAIL DATA"
+      ]);
+
+
+      rows.push([
+        "Tanggal",
+        "Jam",
+        "Lokasi",
+        "Area",
+        "Jenis Truk",
+        "Jumlah Armada",
+        "Foto"
+      ]);
+
+
+      detail.forEach(
+        r => {
+
+          rows.push([
+            r.date,
+            r.time,
+            r.location,
+            r.area,
+            r.truckType === "yellow"
+              ? "Kuning"
+              : "Hijau",
+            r.total,
+            r.photo
+              ? "Ada"
+              : "Tidak"
+          ]);
+
+        }
+      );
+
+
+      const csv =
+        rows
+          .map(
+            row =>
+              row
+                .map(
+                  value =>
+                    csvEscape(
+                      value
+                    )
+                )
+                .join(",")
+          )
+          .join("\n");
+
+
+      const blob =
+        new Blob(
+          [
+            "\uFEFF" +
+            csv
+          ],
+          {
+            type:
+              "text/csv;charset=utf-8;"
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+
+      const a =
+        document.createElement(
+          "a"
+        );
+
+
+      a.href =
+        url;
+
+
+      a.download =
+        `laporan-armada-${type}-${localDateString()}.csv`;
+
+
+      document
+        .body
+        .appendChild(
+          a
+        );
+
+
+      a.click();
+
+
+      a.remove();
+
+
+      URL.revokeObjectURL(
+        url
+      );
+
+
+      showToast(
+        title +
+        " berhasil didownload."
+      );
+
+    }
+
+
+    /* =====================================================
+       EXPORT CSV DATA LENGKAP
+    ====================================================== */
+
+    function exportCSV() {
+
+      if (
+        !records.length
+      ) {
+
+        showToast(
+          "Belum ada data untuk diexport."
+        );
+
+        return;
+
+      }
+
+
+      const header = [
+
+        "ID",
+        "Tanggal",
+        "Jam",
+        "Lokasi",
+        "Area",
+        "Jenis Truk",
+        "Jumlah Armada",
+        "Foto Lokasi",
+        "Folder Drive"
+
+      ];
+
+
+      const rows =
+        records.map(
+          r => [
+
+            r.id,
+
+            r.date,
+
+            r.time,
+
+            r.location,
+
+            r.area,
+
+            r.truckType === "yellow"
+              ? "Kuning"
+              : "Hijau",
+
+            r.total,
+
+            r.photo
+              ? r.photo
+              : "",
+
+            r.folder
+              ? r.folder
+              : ""
+
+          ]
+        );
+
+
+      const csv =
+        [
+          header,
+          ...rows
+        ]
+        .map(
+          row =>
+            row
+              .map(
+                csvEscape
+              )
+              .join(",")
+        )
+        .join("\n");
+
+
+      const blob =
+        new Blob(
+          [
+            "\uFEFF" +
+            csv
+          ],
+          {
+            type:
+              "text/csv;charset=utf-8;"
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+
+      const a =
+        document.createElement(
+          "a"
+        );
+
+
+      a.href =
+        url;
+
+
+      a.download =
+        `data-armada-${localDateString()}.csv`;
+
+
+      document
+        .body
+        .appendChild(
+          a
+        );
+
+
+      a.click();
+
+
+      a.remove();
+
+
+      URL.revokeObjectURL(
+        url
+      );
+
+
+      showToast(
+        "Data berhasil diexport."
+      );
+
+    }
+
+
+    function csvEscape(
+      value
+    ) {
+
+      const text =
+        String(
+          value ?? ""
+        );
+
+
+      return (
+        '"'
+        +
+        text.replaceAll(
+          '"',
+          '""'
+        )
+        +
+        '"'
+      );
+
+    }
+
+
+    /* =====================================================
+       SECURITY HELPERS
+    ====================================================== */
+
+    function escapeHtml(
+      text
+    ) {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.textContent =
+        text;
+
+
+      return div.innerHTML;
+
+    }
+
+
+    function escapeJs(
+      text
+    ) {
+
+      return String(
+        text || ""
+      )
+      .replaceAll(
+        "\\",
+        "\\\\"
+      )
+      .replaceAll(
+        "'",
+        "\\'"
+      )
+      .replaceAll(
+        "\n",
+        "\\n"
+      )
+      .replaceAll(
+        "\r",
+        "\\r"
+      );
+
+    }
+
+
+    /* =====================================================
+       INIT
+    ====================================================== */
+
+    updateTruckChoice();
+
+    lucide.createIcons();
+
+    renderDashboard();
+
+    renderRekap();
+
+    renderTable();
+
+
+    /*
+     * Ambil data dari Google Sheets
+     * saat halaman pertama kali dibuka.
+     */
+
+    loadData();
+
+  </script>
+
+</body>
+</html>
