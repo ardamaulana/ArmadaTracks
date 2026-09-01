@@ -1074,6 +1074,25 @@
 
       </div>
 
+      <div class="mt-4">
+  <label
+    for="driverNote"
+    class="block text-sm font-medium text-gray-700 mb-2"
+  >
+    Catatan / Keterangan
+  </label>
+
+  <input
+    type="text"
+    id="driverNote"
+    name="driverNote"
+    placeholder="Masukkan nama driver..."
+    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm
+           focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+           outline-none transition"
+  />
+</div>
+
 
       <!-- COUNT -->
 
@@ -1388,6 +1407,8 @@
             <th class="px-5 py-4">
               Area
             </th>
+
+            <th>Driver</th>
 
             <th class="px-5 py-4">
               Foto
@@ -2575,6 +2596,13 @@
               )
               .value;
 
+              const driverName =
+  document
+    .getElementById(
+      "driverNote"
+    )
+    .value
+    .trim();
 
           const count =
             Number(
@@ -2675,7 +2703,7 @@
             let payload;
 
 
-            if (
+                        if (
               isEditing
             ) {
 
@@ -2696,6 +2724,9 @@
 
                 truckType:
                   type,
+
+                driverName:
+                  driverName,
 
                 total:
                   count
@@ -2735,6 +2766,9 @@
 
                 truckType:
                   type,
+
+                driverName:
+                  driverName,
 
                 total:
                   count,
@@ -2876,6 +2910,12 @@
         .value =
         record.area || "";
 
+        document
+  .getElementById(
+    "driverNote"
+  )
+  .value =
+  record.driverName || "";
 
       document
         .getElementById(
@@ -2883,6 +2923,13 @@
         )
         .value =
         record.total || 1;
+
+        document
+  .getElementById(
+    "driverNote"
+  )
+  .value =
+  record.driverName || "";
 
 
       const radio =
@@ -4420,6 +4467,24 @@
 
                 </td>
 
+                <td class="px-5 py-4">
+
+  ${
+    r.driverName
+      ? `
+        <div class="text-sm font-semibold text-slate-700">
+          ${escapeHtml(r.driverName)}
+        </div>
+      `
+      : `
+        <span class="text-xs text-slate-400">
+          -
+        </span>
+      `
+  }
+
+</td>
+
 
                 <td class="px-5 py-4">
 
@@ -4744,36 +4809,40 @@
       ]);
 
 
-      rows.push([
-        "Tanggal",
-        "Jam",
-        "Lokasi",
-        "Area",
-        "Jenis Truk",
-        "Jumlah Armada",
-        "Foto"
-      ]);
+     rows.push([
+  "Tanggal",
+  "Jam",
+  "Lokasi",
+  "Area",
+  "Nama Driver / Keterangan",
+  "Jenis Truk",
+  "Jumlah Armada",
+  "Foto"
+]);
 
 
       detail.forEach(
-        r => {
+  r => {
 
-          rows.push([
-            r.date,
-            r.time,
-            r.location,
-            r.area,
-            r.truckType === "yellow"
-              ? "Kuning"
-              : "Hijau",
-            r.total,
-            r.photo
-              ? "Ada"
-              : "Tidak"
-          ]);
+    rows.push([
+      r.date,
+      r.time,
+      r.location,
+      r.area,
+      r.driverName
+        ? r.driverName
+        : "",
+      r.truckType === "yellow"
+        ? "Kuning"
+        : "Hijau",
+      r.total,
+      r.photo
+        ? "Ada"
+        : "Tidak"
+    ]);
 
-        }
-      );
+  }
+);
 
 
       const csv =
