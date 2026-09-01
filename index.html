@@ -3505,19 +3505,36 @@
 
                 <td class="px-5 py-4 text-right">
 
-                  <button
-                    onclick="deleteRecord('${escapeJs(r.id)}')"
-                    class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600">
+  <div class="flex items-center justify-end gap-1">
 
-                    <i
-                      data-lucide="trash-2"
-                      class="w-4 h-4">
-                    </i>
+    <button
+      onclick="editRecord('${escapeJs(r.id)}')"
+      title="Edit data"
+      class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-blue-50 text-slate-400 hover:text-blue-600">
 
-                  </button>
+      <i
+        data-lucide="pencil"
+        class="w-4 h-4">
+      </i>
 
-                </td>
+    </button>
 
+
+    <button
+      onclick="deleteRecord('${escapeJs(r.id)}')"
+      title="Hapus data"
+      class="w-9 h-9 inline-flex items-center justify-center rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600">
+
+      <i
+        data-lucide="trash-2"
+        class="w-4 h-4">
+      </i>
+
+    </button>
+
+  </div>
+
+</td>
               </tr>
 
             `
