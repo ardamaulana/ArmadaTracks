@@ -1184,70 +1184,170 @@
 
   <!-- FILTER -->
 
-  <div class="card rounded-3xl p-5">
+<div class="card rounded-3xl p-5">
 
-    <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+  <!-- PERIODE TANGGAL -->
 
-      <div class="flex-1">
+  <div class="mb-5">
 
-        <label class="text-xs font-bold text-slate-500 block mb-2">
-          PERIODE REKAP
+    <label class="text-xs font-bold text-slate-500 block mb-2">
+      PERIODE TANGGAL
+    </label>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+      <div>
+        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">
+          Dari Tanggal
         </label>
 
-        <select
-          id="rekapType"
+        <input
+          type="date"
+          id="rekapStartDate"
           onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-          <option value="daily">
-            Harian
-          </option>
-
-          <option value="weekly">
-            Mingguan
-          </option>
-
-          <option value="monthly">
-            Bulanan
-          </option>
-
-        </select>
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm"
+        >
 
       </div>
 
 
-      <div class="flex-1">
-
-        <label class="text-xs font-bold text-slate-500 block mb-2">
-          AREA
+      <div>
+        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">
+          Sampai Tanggal
         </label>
 
-        <select
-          id="rekapArea"
+        <input
+          type="date"
+          id="rekapEndDate"
           onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-          <option value="all">
-            Semua Area
-          </option>
-
-          <option value="Karawang">
-            Karawang
-          </option>
-
-          <option value="Purwakarta">
-            Purwakarta
-          </option>
-
-          <option value="Subang">
-            Subang
-          </option>
-
-        </select>
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm"
+        >
 
       </div>
 
     </div>
+
+  </div>
+
+
+  <!-- SHORTCUT PERIODE -->
+
+  <div class="mb-5">
+
+    <label class="text-xs font-bold text-slate-500 block mb-2">
+      PILIH CEPAT
+    </label>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+
+      <button
+        type="button"
+        onclick="setRekapPreset('today')"
+        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+        Hari Ini
+
+      </button>
+
+
+      <button
+        type="button"
+        onclick="setRekapPreset('7days')"
+        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+        7 Hari
+
+      </button>
+
+
+      <button
+        type="button"
+        onclick="setRekapPreset('thisMonth')"
+        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+        Bulan Ini
+
+      </button>
+
+
+      <button
+        type="button"
+        onclick="setRekapPreset('lastMonth')"
+        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+        Bulan Lalu
+
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- TAMPILAN + AREA -->
+
+  <div class="flex flex-col lg:flex-row lg:items-end gap-4">
+
+    <div class="flex-1">
+
+      <label class="text-xs font-bold text-slate-500 block mb-2">
+        TAMPILAN REKAP
+      </label>
+
+      <select
+        id="rekapType"
+        onchange="renderRekap()"
+        class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+        <option value="daily">
+          Harian
+        </option>
+
+        <option value="weekly">
+          Mingguan
+        </option>
+
+        <option value="monthly">
+          Bulanan
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="flex-1">
+
+      <label class="text-xs font-bold text-slate-500 block mb-2">
+        AREA
+      </label>
+
+      <select
+        id="rekapArea"
+        onchange="renderRekap()"
+        class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+        <option value="all">
+          Semua Area
+        </option>
+
+        <option value="Karawang">
+          Karawang
+        </option>
+
+        <option value="Purwakarta">
+          Purwakarta
+        </option>
+
+        <option value="Subang">
+          Subang
+        </option>
+
+      </select>
+
+    </div>
+
+  </div>
 
 
     <!-- DOWNLOAD -->
@@ -4006,125 +4106,191 @@
     ====================================================== */
 
     function buildGroups(
-      type,
-      area = "all"
-    ) {
+  type,
+  area = "all",
+  startDate = "",
+  endDate = ""
+) {
 
-      const list =
-        area === "all"
-          ? records
-          : records.filter(
-              r =>
-                r.area === area
-            );
+  const list =
+    records.filter(
+      r => {
 
-
-      const groups =
-        {};
-
-
-      list.forEach(
-        r => {
-
-          let key;
-
-
-          if (
-            type === "daily"
-          ) {
-
-            key =
-              r.date;
-
-          } else if (
-            type === "weekly"
-          ) {
-
-            key =
-              getWeekKey(
-                r.date
-              );
-
-          } else {
-
-            key =
-              r.date.slice(
-                0,
-                7
-              );
-
-          }
-
-
-          if (
-            !groups[key]
-          ) {
-
-            groups[key] = {
-
-              yellow:
-                0,
-
-              green:
-                0,
-
-              total:
-                0,
-
-              entries:
-                0
-
-            };
-
-          }
-
-
-          groups[key].yellow +=
-            r.yellow;
-
-
-          groups[key].green +=
-            r.green;
-
-
-          groups[key].total +=
-            r.total;
-
-
-          groups[key].entries++;
-
+        // Filter area
+        if (
+          area !== "all" &&
+          r.area !== area
+        ) {
+          return false;
         }
-      );
 
 
-      return groups;
+        // Filter tanggal mulai
+        if (
+          startDate &&
+          r.date < startDate
+        ) {
+          return false;
+        }
+
+
+        // Filter tanggal akhir
+        if (
+          endDate &&
+          r.date > endDate
+        ) {
+          return false;
+        }
+
+
+        return true;
+
+      }
+    );
+
+
+  const groups = {};
+
+
+  list.forEach(
+    r => {
+
+      let key;
+
+
+      if (
+        type === "daily"
+      ) {
+
+        key =
+          r.date;
+
+      } else if (
+        type === "weekly"
+      ) {
+
+        key =
+          getWeekKey(
+            r.date
+          );
+
+      } else {
+
+        key =
+          r.date.slice(
+            0,
+            7
+          );
+
+      }
+
+
+      if (
+        !groups[key]
+      ) {
+
+        groups[key] = {
+
+          yellow:
+            0,
+
+          green:
+            0,
+
+          total:
+            0,
+
+          entries:
+            0
+
+        };
+
+      }
+
+
+      groups[key].yellow +=
+        r.yellow;
+
+
+      groups[key].green +=
+        r.green;
+
+
+      groups[key].total +=
+        r.total;
+
+
+      groups[key].entries++;
 
     }
+  );
+
+
+  return groups;
+
+}
 
 
     function renderRekap() {
 
-      const type =
-        document
-          .getElementById(
-            "rekapType"
-          )
-          .value;
+  const type =
+    document
+      .getElementById(
+        "rekapType"
+      )
+      .value;
 
 
-      const area =
-        document
-          .getElementById(
-            "rekapArea"
-          )
-          .value;
+  const area =
+    document
+      .getElementById(
+        "rekapArea"
+      )
+      .value;
 
 
-      const groups =
-        buildGroups(
-          type,
-          area
-        );
+  const startDate =
+    document
+      .getElementById(
+        "rekapStartDate"
+      )
+      ?.value ||
+    "";
+
+
+  const endDate =
+    document
+      .getElementById(
+        "rekapEndDate"
+      )
+      ?.value ||
+    "";
+
+
+  // Validasi tanggal
+
+  if (
+    startDate &&
+    endDate &&
+    startDate > endDate
+  ) {
+
+    showToast(
+      "Tanggal mulai tidak boleh lebih besar dari tanggal akhir."
+    );
+
+    return;
+
+  }
+
+
+  const groups =
+    buildGroups(
+      type,
+      area,
+      startDate,
+      endDate
+    );
 
 
       const sorted =
@@ -4339,6 +4505,163 @@
           .join("");
 
     }
+
+    function setRekapPreset(
+  preset
+) {
+
+  const startInput =
+    document.getElementById(
+      "rekapStartDate"
+    );
+
+
+  const endInput =
+    document.getElementById(
+      "rekapEndDate"
+    );
+
+
+  if (
+    !startInput ||
+    !endInput
+  ) {
+    return;
+  }
+
+
+  const today =
+    new Date();
+
+
+  let start =
+    new Date(
+      today
+    );
+
+
+  let end =
+    new Date(
+      today
+    );
+
+
+  if (
+    preset === "today"
+  ) {
+
+    // Hari ini
+
+  }
+
+
+  else if (
+    preset === "7days"
+  ) {
+
+    start.setDate(
+      today.getDate() - 6
+    );
+
+  }
+
+
+  else if (
+    preset === "thisMonth"
+  ) {
+
+    start =
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+
+    end =
+      new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        0
+      );
+
+  }
+
+
+  else if (
+    preset === "lastMonth"
+  ) {
+
+    start =
+      new Date(
+        today.getFullYear(),
+        today.getMonth() - 1,
+        1
+      );
+
+    end =
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        0
+      );
+
+  }
+
+
+  startInput.value =
+    toInputDate(
+      start
+    );
+
+
+  endInput.value =
+    toInputDate(
+      end
+    );
+
+
+  renderRekap();
+
+}
+
+
+function toInputDate(
+  date
+) {
+
+  const year =
+    date.getFullYear();
+
+
+  const month =
+    String(
+      date.getMonth() + 1
+    )
+    .padStart(
+      2,
+      "0"
+    );
+
+
+  const day =
+    String(
+      date.getDate()
+    )
+    .padStart(
+      2,
+      "0"
+    );
+
+
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    day
+  );
+
+}
 
 
     /* =====================================================
@@ -4664,22 +4987,57 @@
     ====================================================== */
 
     function downloadReport(
-      type
-    ) {
+  type
+) {
 
-      const area =
-        document
-          .getElementById(
-            "rekapArea"
-          )
-          .value;
+  const area =
+    document
+      .getElementById(
+        "rekapArea"
+      )
+      .value;
 
 
-      const groups =
-        buildGroups(
-          type,
-          area
-        );
+  const startDate =
+    document
+      .getElementById(
+        "rekapStartDate"
+      )
+      ?.value ||
+    "";
+
+
+  const endDate =
+    document
+      .getElementById(
+        "rekapEndDate"
+      )
+      ?.value ||
+    "";
+
+
+  if (
+    startDate &&
+    endDate &&
+    startDate > endDate
+  ) {
+
+    showToast(
+      "Tanggal mulai tidak boleh lebih besar dari tanggal akhir."
+    );
+
+    return;
+
+  }
+
+
+  const groups =
+    buildGroups(
+      type,
+      area,
+      startDate,
+      endDate
+    );
 
 
       const entries =
@@ -4708,13 +5066,39 @@
 
 
       const detail =
-        records
-          .filter(
-            r =>
-              area === "all"
-                ? true
-                : r.area === area
-          )
+  records
+    .filter(
+      r => {
+
+        if (
+          area !== "all" &&
+          r.area !== area
+        ) {
+          return false;
+        }
+
+
+        if (
+          startDate &&
+          r.date < startDate
+        ) {
+          return false;
+        }
+
+
+        if (
+          endDate &&
+          r.date > endDate
+        ) {
+          return false;
+        }
+
+
+        return true;
+
+      }
+    )
+
           .sort(
             (a,b) =>
               (
@@ -4877,8 +5261,18 @@
         url;
 
 
-      a.download =
-        `laporan-armada-${type}-${localDateString()}.csv`;
+      const periodLabel =
+  startDate && endDate
+    ? `${startDate}_${endDate}`
+    : startDate
+    ? `mulai-${startDate}`
+    : endDate
+    ? `sampai-${endDate}`
+    : "semua-periode";
+
+
+a.download =
+  `laporan-armada-${type}-${periodLabel}.csv`;
 
 
       document
