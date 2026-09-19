@@ -7,10 +7,11 @@
   <title>ArmadaTrack — Monitoring Armada</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1161,67 +1162,264 @@
      REKAP
 ====================================================== -->
 
-<section
-  id="view-rekap"
-  class="view space-y-6">
+<!-- =====================================================
+     REKAP / LAPORAN
+====================================================== -->
 
-  <div>
+<section id="view-rekap" class="view space-y-6">
 
-    <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-      Analisis Data
-    </p>
+  <!-- HEADER -->
 
-    <h2 class="text-2xl sm:text-3xl font-extrabold">
-      Rekap Operasional
-    </h2>
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
 
-    <p class="text-sm text-slate-500 mt-1">
-      Lihat dan download total armada berdasarkan periode.
-    </p>
+    <div>
+
+      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+        Laporan Operasional
+      </p>
+
+      <h2 class="text-2xl sm:text-3xl font-extrabold">
+        Laporan Armada
+      </h2>
+
+      <p class="text-sm text-slate-500 mt-1">
+        Ringkasan dan detail aktivitas armada berdasarkan periode yang dipilih.
+      </p>
+
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-2">
+
+      <button
+        onclick="exportReportPDF()"
+        class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+
+        <i data-lucide="file-text" class="w-4 h-4"></i>
+
+        Export PDF
+
+      </button>
+
+      <button
+        onclick="exportReportExcel()"
+        class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+
+        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+
+        Export Excel
+
+      </button>
+
+    </div>
 
   </div>
 
 
   <!-- FILTER -->
 
-<div class="card rounded-3xl p-5">
+  <div class="card rounded-3xl p-5 sm:p-6">
 
-  <!-- PERIODE TANGGAL -->
+    <div class="flex items-center gap-3 mb-5">
 
-  <div class="mb-5">
+      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
 
-    <label class="text-xs font-bold text-slate-500 block mb-2">
-      PERIODE TANGGAL
-    </label>
+        <i data-lucide="filter" class="w-5 h-5"></i>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      </div>
 
       <div>
-        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">
-          Dari Tanggal
+
+        <h3 class="font-extrabold">
+          Filter Laporan
+        </h3>
+
+        <p class="text-xs text-slate-500">
+          Tentukan periode dan data yang ingin ditampilkan.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- TANGGAL -->
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+
+      <div>
+
+        <label class="text-xs font-bold text-slate-500 block mb-2">
+          DARI TANGGAL
         </label>
 
         <input
           type="date"
           id="rekapStartDate"
           onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm"
-        >
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
 
       </div>
 
 
       <div>
-        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">
-          Sampai Tanggal
+
+        <label class="text-xs font-bold text-slate-500 block mb-2">
+          SAMPAI TANGGAL
         </label>
 
         <input
           type="date"
           id="rekapEndDate"
           onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm"
-        >
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+      </div>
+
+    </div>
+
+
+    <!-- PRESET -->
+
+    <div class="mb-5">
+
+      <label class="text-xs font-bold text-slate-500 block mb-2">
+        PERIODE CEPAT
+      </label>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+
+        <button
+          type="button"
+          onclick="setRekapPreset('today')"
+          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+          Hari Ini
+
+        </button>
+
+
+        <button
+          type="button"
+          onclick="setRekapPreset('7days')"
+          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+          7 Hari
+
+        </button>
+
+
+        <button
+          type="button"
+          onclick="setRekapPreset('thisMonth')"
+          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+          Bulan Ini
+
+        </button>
+
+
+        <button
+          type="button"
+          onclick="setRekapPreset('lastMonth')"
+          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+          Bulan Lalu
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- FILTER LAIN -->
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <div>
+
+        <label class="text-xs font-bold text-slate-500 block mb-2">
+          TAMPILAN
+        </label>
+
+        <select
+          id="rekapType"
+          onchange="renderRekap()"
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+          <option value="daily">
+            Harian
+          </option>
+
+          <option value="weekly">
+            Mingguan
+          </option>
+
+          <option value="monthly">
+            Bulanan
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label class="text-xs font-bold text-slate-500 block mb-2">
+          AREA
+        </label>
+
+        <select
+          id="rekapArea"
+          onchange="renderRekap()"
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+          <option value="all">
+            Semua Area
+          </option>
+
+          <option value="Karawang">
+            Karawang
+          </option>
+
+          <option value="Purwakarta">
+            Purwakarta
+          </option>
+
+          <option value="Subang">
+            Subang
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div>
+
+        <label class="text-xs font-bold text-slate-500 block mb-2">
+          JENIS TRUK
+        </label>
+
+        <select
+          id="rekapTruck"
+          onchange="renderRekap()"
+          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+          <option value="all">
+            Semua Jenis
+          </option>
+
+          <option value="yellow">
+            Truk Kuning
+          </option>
+
+          <option value="green">
+            Truk Hijau
+          </option>
+
+        </select>
 
       </div>
 
@@ -1230,178 +1428,266 @@
   </div>
 
 
-  <!-- SHORTCUT PERIODE -->
+  <!-- SUMMARY -->
 
-  <div class="mb-5">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-    <label class="text-xs font-bold text-slate-500 block mb-2">
-      PILIH CEPAT
-    </label>
+    <div class="card rounded-3xl p-5">
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
 
-      <button
-        type="button"
-        onclick="setRekapPreset('today')"
-        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
 
-        Hari Ini
+      </div>
 
-      </button>
-
-
-      <button
-        type="button"
-        onclick="setRekapPreset('7days')"
-        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
-
-        7 Hari
-
-      </button>
-
-
-      <button
-        type="button"
-        onclick="setRekapPreset('thisMonth')"
-        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
-
-        Bulan Ini
-
-      </button>
-
-
-      <button
-        type="button"
-        onclick="setRekapPreset('lastMonth')"
-        class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
-
-        Bulan Lalu
-
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- TAMPILAN + AREA -->
-
-  <div class="flex flex-col lg:flex-row lg:items-end gap-4">
-
-    <div class="flex-1">
-
-      <label class="text-xs font-bold text-slate-500 block mb-2">
-        TAMPILAN REKAP
-      </label>
-
-      <select
-        id="rekapType"
-        onchange="renderRekap()"
-        class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-        <option value="daily">
-          Harian
-        </option>
-
-        <option value="weekly">
-          Mingguan
-        </option>
-
-        <option value="monthly">
-          Bulanan
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="flex-1">
-
-      <label class="text-xs font-bold text-slate-500 block mb-2">
-        AREA
-      </label>
-
-      <select
-        id="rekapArea"
-        onchange="renderRekap()"
-        class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-        <option value="all">
-          Semua Area
-        </option>
-
-        <option value="Karawang">
-          Karawang
-        </option>
-
-        <option value="Purwakarta">
-          Purwakarta
-        </option>
-
-        <option value="Subang">
-          Subang
-        </option>
-
-      </select>
-
-    </div>
-
-  </div>
-
-
-    <!-- DOWNLOAD -->
-
-    <div class="border-t border-slate-100 mt-5 pt-5">
-
-      <p class="text-xs font-bold text-slate-500 mb-3">
-        DOWNLOAD LAPORAN
+      <p class="text-xs text-slate-500 font-semibold">
+        Total Aktivitas
       </p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <p
+        id="reportActivityTotal"
+        class="text-3xl font-extrabold mt-1">
+        0
+      </p>
 
-        <button
-          onclick="downloadReport('daily')"
-          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+      <p class="text-[11px] text-slate-400 mt-1">
+        Catatan operasional
+      </p>
 
-          <i data-lucide="download" class="w-4 h-4"></i>
-
-          Rekap Harian
-
-        </button>
-
-
-        <button
-          onclick="downloadReport('weekly')"
-          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
-
-          <i data-lucide="download" class="w-4 h-4"></i>
-
-          Rekap Mingguan
-
-        </button>
+    </div>
 
 
-        <button
-          onclick="downloadReport('monthly')"
-          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-4 py-3 text-sm font-bold flex items-center justify-center gap-2">
+    <div class="card rounded-3xl p-5">
 
-          <i data-lucide="download" class="w-4 h-4"></i>
+      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
 
-          Rekap Bulanan
-
-        </button>
+        <i data-lucide="truck" class="w-5 h-5"></i>
 
       </div>
+
+      <p class="text-xs text-slate-500 font-semibold">
+        Total Armada
+      </p>
+
+      <p
+        id="reportTruckTotal"
+        class="text-3xl font-extrabold mt-1">
+        0
+      </p>
+
+      <p class="text-[11px] text-slate-400 mt-1">
+        Seluruh unit tercatat
+      </p>
+
+    </div>
+
+
+    <div class="card rounded-3xl p-5">
+
+      <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
+
+        <i data-lucide="truck" class="w-5 h-5"></i>
+
+      </div>
+
+      <p class="text-xs text-slate-500 font-semibold">
+        Truk Kuning
+      </p>
+
+      <p
+        id="reportYellowTotal"
+        class="text-3xl font-extrabold mt-1">
+        0
+      </p>
+
+    </div>
+
+
+    <div class="card rounded-3xl p-5">
+
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+
+        <i data-lucide="truck" class="w-5 h-5"></i>
+
+      </div>
+
+      <p class="text-xs text-slate-500 font-semibold">
+        Truk Hijau
+      </p>
+
+      <p
+        id="reportGreenTotal"
+        class="text-3xl font-extrabold mt-1">
+        0
+      </p>
 
     </div>
 
   </div>
 
 
-  <div
-    id="rekapCards"
-    class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+  <!-- REKAP AREA -->
+
+  <div class="card rounded-3xl p-5 sm:p-6">
+
+    <div class="flex items-center gap-3 mb-5">
+
+      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+
+        <i data-lucide="map" class="w-5 h-5"></i>
+
+      </div>
+
+      <div>
+
+        <h3 class="font-extrabold">
+          Rekap Area
+        </h3>
+
+        <p class="text-xs text-slate-500">
+          Aktivitas armada berdasarkan area operasional.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="reportAreaTable"
+      class="overflow-x-auto">
+    </div>
+
+  </div>
+
+
+  <!-- REKAP PERIODE -->
+
+  <div>
+
+    <div class="flex items-center justify-between mb-4">
+
+      <div>
+
+        <h3 class="font-extrabold">
+          Rekap Periode
+        </h3>
+
+        <p class="text-xs text-slate-500 mt-1">
+          Ringkasan sesuai periode yang dipilih.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="rekapCards"
+      class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+    </div>
+
+  </div>
+
+
+  <!-- DETAIL -->
+
+  <div class="card rounded-3xl overflow-hidden">
+
+    <div class="p-5 sm:p-6 border-b border-slate-100">
+
+      <div class="flex items-center gap-3">
+
+        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+
+          <i data-lucide="list" class="w-5 h-5"></i>
+
+        </div>
+
+        <div>
+
+          <h3 class="font-extrabold">
+            Detail Aktivitas
+          </h3>
+
+          <p class="text-xs text-slate-500">
+            Data aktivitas yang masuk dalam filter laporan.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="overflow-x-auto">
+
+      <table class="w-full min-w-[1050px]">
+
+        <thead class="bg-slate-50 text-left">
+
+          <tr class="text-[11px] uppercase tracking-wider text-slate-500">
+
+            <th class="px-5 py-4">
+              Tanggal
+            </th>
+
+            <th class="px-5 py-4">
+              Jam
+            </th>
+
+            <th class="px-5 py-4">
+              Lokasi
+            </th>
+
+            <th class="px-5 py-4">
+              Area
+            </th>
+
+            <th class="px-5 py-4">
+              Truk
+            </th>
+
+            <th class="px-5 py-4">
+              Jumlah
+            </th>
+
+            <th class="px-5 py-4">
+              Keterangan
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="reportDetailTable"></tbody>
+
+      </table>
+
+    </div>
+
+
+    <div
+      id="reportEmptyState"
+      class="hidden text-center px-5 py-14">
+
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+
+        <i data-lucide="file-search" class="w-6 h-6 text-slate-400"></i>
+
+      </div>
+
+      <p class="font-bold">
+        Tidak ada data
+      </p>
+
+      <p class="text-xs text-slate-500 mt-1">
+        Tidak ada aktivitas yang sesuai dengan filter laporan.
+      </p>
+
+    </div>
+
   </div>
 
 </section>
@@ -1954,61 +2240,69 @@
 
       return {
 
-        id:
-          String(
-            r.id || ""
-          ),
+  id:
+    String(
+      r.id || ""
+    ),
 
-        timestamp:
-          r.timestamp || "",
+  timestamp:
+    r.timestamp || "",
 
-        date:
-          String(
-            r.date || ""
-          ),
+  date:
+    String(
+      r.date || ""
+    ),
 
-        time:
-          String(
-            r.time || ""
-          ).substring(0, 5),
+  time:
+    String(
+      r.time || ""
+    ).substring(0, 5),
 
-        location:
-          String(
-            r.location || ""
-          ),
+  location:
+    String(
+      r.location || ""
+    ),
 
-        area:
-          String(
-            r.area || ""
-          ),
+  area:
+    String(
+      r.area || ""
+    ),
 
-        truckType:
-          String(r.truckType).toLowerCase() === "green"
-            ? "green"
-            : "yellow",
+  truckType:
+    String(r.truckType).toLowerCase() === "green"
+      ? "green"
+      : "yellow",
 
-        yellow:
-          String(r.truckType).toLowerCase() === "green"
-            ? 0
-            : total,
+  yellow:
+    String(r.truckType).toLowerCase() === "green"
+      ? 0
+      : total,
 
-        green:
-          String(r.truckType).toLowerCase() === "green"
-            ? total
-            : 0,
+  green:
+    String(r.truckType).toLowerCase() === "green"
+      ? total
+      : 0,
 
-        total,
+  total,
 
-        photo:
-          r.photo || "",
+  driverName:
+    String(
+      r.driverName ||
+      r.namaDriver ||
+      r.keterangan ||
+      ""
+    ),
 
-        photoFileId:
-          r.photoFileId || "",
+  photo:
+    r.photo || "",
 
-        folder:
-          r.folder || ""
+  photoFileId:
+    r.photoFileId || "",
 
-      };
+  folder:
+    r.folder || ""
+
+};
 
     }
 
@@ -4109,7 +4403,8 @@
   type,
   area = "all",
   startDate = "",
-  endDate = ""
+  endDate = "",
+  truckFilter = "all"
 ) {
 
   const list =
@@ -4123,6 +4418,14 @@
         ) {
           return false;
         }
+
+        // Filter jenis truk
+if (
+  truckFilter !== "all" &&
+  r.truckType !== truckFilter
+) {
+  return false;
+}
 
 
         // Filter tanggal mulai
@@ -4235,39 +4538,29 @@
 
   const type =
     document
-      .getElementById(
-        "rekapType"
-      )
+      .getElementById("rekapType")
       .value;
-
 
   const area =
     document
-      .getElementById(
-        "rekapArea"
-      )
+      .getElementById("rekapArea")
       .value;
 
+  const truckFilter =
+    document
+      .getElementById("rekapTruck")
+      .value;
 
   const startDate =
     document
-      .getElementById(
-        "rekapStartDate"
-      )
-      ?.value ||
-    "";
-
+      .getElementById("rekapStartDate")
+      ?.value || "";
 
   const endDate =
     document
-      .getElementById(
-        "rekapEndDate"
-      )
-      ?.value ||
-    "";
+      .getElementById("rekapEndDate")
+      ?.value || "";
 
-
-  // Validasi tanggal
 
   if (
     startDate &&
@@ -4284,227 +4577,614 @@
   }
 
 
+  /* =====================================================
+     FILTER DATA
+  ====================================================== */
+
+  const filtered =
+    records.filter(
+      r => {
+
+        if (
+          area !== "all" &&
+          r.area !== area
+        ) {
+          return false;
+        }
+
+        if (
+          truckFilter !== "all" &&
+          r.truckType !== truckFilter
+        ) {
+          return false;
+        }
+
+        if (
+          startDate &&
+          r.date < startDate
+        ) {
+          return false;
+        }
+
+        if (
+          endDate &&
+          r.date > endDate
+        ) {
+          return false;
+        }
+
+        return true;
+
+      }
+    );
+
+
+  /* =====================================================
+     SUMMARY
+  ====================================================== */
+
+  const totalActivity =
+    filtered.length;
+
+  const totalTruck =
+    sum(
+      filtered,
+      "total"
+    );
+
+  const totalYellow =
+    sum(
+      filtered,
+      "yellow"
+    );
+
+  const totalGreen =
+    sum(
+      filtered,
+      "green"
+    );
+
+
+  document
+    .getElementById("reportActivityTotal")
+    .textContent =
+    totalActivity;
+
+  document
+    .getElementById("reportTruckTotal")
+    .textContent =
+    totalTruck;
+
+  document
+    .getElementById("reportYellowTotal")
+    .textContent =
+    totalYellow;
+
+  document
+    .getElementById("reportGreenTotal")
+    .textContent =
+    totalGreen;
+
+
+  /* =====================================================
+     REKAP AREA
+  ====================================================== */
+
+  const areaStats = {
+
+    Karawang: {
+      activity: 0,
+      total: 0,
+      yellow: 0,
+      green: 0
+    },
+
+    Purwakarta: {
+      activity: 0,
+      total: 0,
+      yellow: 0,
+      green: 0
+    },
+
+    Subang: {
+      activity: 0,
+      total: 0,
+      yellow: 0,
+      green: 0
+    }
+
+  };
+
+
+  filtered.forEach(
+    r => {
+
+      if (
+        !areaStats[r.area]
+      ) {
+
+        areaStats[r.area] = {
+          activity: 0,
+          total: 0,
+          yellow: 0,
+          green: 0
+        };
+
+      }
+
+      areaStats[r.area].activity++;
+
+      areaStats[r.area].total +=
+        Number(r.total || 0);
+
+      areaStats[r.area].yellow +=
+        Number(r.yellow || 0);
+
+      areaStats[r.area].green +=
+        Number(r.green || 0);
+
+    }
+  );
+
+
+  const areaColors = {
+
+    Karawang:
+      "bg-blue-50 text-blue-700",
+
+    Purwakarta:
+      "bg-purple-50 text-purple-700",
+
+    Subang:
+      "bg-orange-50 text-orange-700"
+
+  };
+
+
+  document
+    .getElementById("reportAreaTable")
+    .innerHTML = `
+
+      <table class="w-full min-w-[700px]">
+
+        <thead>
+
+          <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-100">
+
+            <th class="text-left px-4 py-3">
+              Area
+            </th>
+
+            <th class="text-right px-4 py-3">
+              Aktivitas
+            </th>
+
+            <th class="text-right px-4 py-3">
+              Kuning
+            </th>
+
+            <th class="text-right px-4 py-3">
+              Hijau
+            </th>
+
+            <th class="text-right px-4 py-3">
+              Total Armada
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${
+            ["Karawang","Purwakarta","Subang"]
+              .map(
+                name => {
+
+                  const v =
+                    areaStats[name];
+
+                  return `
+
+                    <tr class="border-b border-slate-50 last:border-0">
+
+                      <td class="px-4 py-4">
+
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
+                          areaColors[name]
+                        }">
+
+                          ${name}
+
+                        </span>
+
+                      </td>
+
+                      <td class="px-4 py-4 text-right text-sm font-semibold">
+
+                        ${v.activity}
+
+                      </td>
+
+                      <td class="px-4 py-4 text-right text-sm font-semibold text-yellow-700">
+
+                        ${v.yellow}
+
+                      </td>
+
+                      <td class="px-4 py-4 text-right text-sm font-semibold text-emerald-700">
+
+                        ${v.green}
+
+                      </td>
+
+                      <td class="px-4 py-4 text-right text-sm font-extrabold">
+
+                        ${v.total}
+
+                      </td>
+
+                    </tr>
+
+                  `;
+
+                }
+              )
+              .join("")
+          }
+
+        </tbody>
+
+      </table>
+
+    `;
+
+
+  /* =====================================================
+     REKAP PERIODE
+  ====================================================== */
+
   const groups =
     buildGroups(
       type,
       area,
       startDate,
-      endDate
+      endDate,
+      truckFilter
     );
 
 
-      const sorted =
-        Object.entries(
-          groups
+  const sorted =
+    Object.entries(groups)
+      .sort(
+        (a,b) =>
+          b[0].localeCompare(a[0])
+      );
+
+
+  const wrap =
+    document.getElementById(
+      "rekapCards"
+    );
+
+
+  if (!sorted.length) {
+
+    wrap.innerHTML = `
+
+      <div class="md:col-span-2 xl:col-span-3 card rounded-3xl p-10 text-center text-slate-400">
+
+        Belum ada data untuk periode ini.
+
+      </div>
+
+    `;
+
+  } else {
+
+    wrap.innerHTML =
+      sorted
+        .map(
+          ([key,v]) => {
+
+            let title = key;
+
+
+            if (
+              type === "daily"
+            ) {
+
+              title =
+                formatDateID(key);
+
+            }
+
+
+            if (
+              type === "monthly"
+            ) {
+
+              const [
+                y,
+                m
+              ] =
+                key.split("-");
+
+              title =
+                new Date(
+                  Number(y),
+                  Number(m) - 1,
+                  1
+                )
+                .toLocaleDateString(
+                  "id-ID",
+                  {
+                    month: "long",
+                    year: "numeric"
+                  }
+                );
+
+            }
+
+
+            if (
+              type === "weekly"
+            ) {
+
+              title =
+                "Minggu " +
+                key.split("-W")[1] +
+                " • " +
+                key.split("-W")[0];
+
+            }
+
+
+            return `
+
+              <div class="card rounded-3xl p-5">
+
+                <div class="flex items-start justify-between mb-5">
+
+                  <div>
+
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+
+                      ${
+                        type === "daily"
+                          ? "Harian"
+                          : type === "weekly"
+                          ? "Mingguan"
+                          : "Bulanan"
+                      }
+
+                    </p>
+
+                    <h3 class="font-extrabold mt-1">
+
+                      ${title}
+
+                    </h3>
+
+                  </div>
+
+
+                  <div class="text-right">
+
+                    <p class="text-3xl font-extrabold">
+
+                      ${v.total}
+
+                    </p>
+
+                    <p class="text-[10px] text-slate-400">
+
+                      TOTAL ARMADA
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <div class="grid grid-cols-2 gap-3">
+
+                  <div class="bg-yellow-50 rounded-2xl p-3">
+
+                    <p class="text-[10px] text-yellow-700 font-bold">
+                      KUNING
+                    </p>
+
+                    <p class="text-xl font-extrabold">
+                      ${v.yellow}
+                    </p>
+
+                  </div>
+
+
+                  <div class="bg-emerald-50 rounded-2xl p-3">
+
+                    <p class="text-[10px] text-emerald-700 font-bold">
+                      HIJAU
+                    </p>
+
+                    <p class="text-xl font-extrabold">
+                      ${v.green}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <p class="text-[11px] text-slate-400 mt-4">
+
+                  ${v.entries}
+                  catatan operasional
+
+                </p>
+
+              </div>
+
+            `;
+
+          }
         )
+        .join("");
+
+  }
+
+
+  /* =====================================================
+     DETAIL TABLE
+  ====================================================== */
+
+  const tbody =
+    document.getElementById(
+      "reportDetailTable"
+    );
+
+  const empty =
+    document.getElementById(
+      "reportEmptyState"
+    );
+
+
+  if (!filtered.length) {
+
+    tbody.innerHTML = "";
+
+    empty.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    empty.classList.add(
+      "hidden"
+    );
+
+
+    const detail =
+      [...filtered]
         .sort(
           (a,b) =>
-            b[0].localeCompare(
-              a[0]
+            (
+              a.date +
+              a.time
+            )
+            .localeCompare(
+              b.date +
+              b.time
             )
         );
 
 
-      const wrap =
-        document
-          .getElementById(
-            "rekapCards"
-          );
+    tbody.innerHTML =
+      detail
+        .map(
+          r => `
 
+            <tr class="border-t border-slate-100 hover:bg-slate-50/60">
 
-      if (
-        !sorted.length
-      ) {
+              <td class="px-5 py-4 text-sm font-semibold">
 
-        wrap.innerHTML = `
+                ${formatDateID(r.date)}
 
-          <div class="md:col-span-2 xl:col-span-3 card rounded-3xl p-10 text-center text-slate-400">
+              </td>
 
-            Belum ada data untuk rekap ini.
 
-          </div>
+              <td class="px-5 py-4 text-sm">
 
-        `;
+                ${escapeHtml(r.time)}
 
-        return;
+              </td>
 
-      }
 
+              <td class="px-5 py-4 text-sm">
 
-      wrap.innerHTML =
-        sorted
-          .map(
-            ([key,v]) => {
+                ${escapeHtml(r.location)}
 
-              let title =
-                key;
+              </td>
 
 
-              if (
-                type === "daily"
-              ) {
+              <td class="px-5 py-4">
 
-                title =
-                  formatDateID(
-                    key
-                  );
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
+                  r.area === "Karawang"
+                    ? "bg-blue-50 text-blue-700"
+                    : r.area === "Purwakarta"
+                    ? "bg-purple-50 text-purple-700"
+                    : "bg-orange-50 text-orange-700"
+                }">
 
-              }
+                  ${escapeHtml(r.area)}
 
+                </span>
 
-              if (
-                type === "monthly"
-              ) {
+              </td>
 
-                const [
-                  y,
-                  m
-                ] =
-                  key
-                    .split("-");
 
+              <td class="px-5 py-4">
 
-                title =
-                  new Date(
-                    Number(y),
-                    Number(m) - 1,
-                    1
-                  )
-                  .toLocaleDateString(
-                    "id-ID",
-                    {
-                      month:
-                        "long",
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
+                  r.truckType === "yellow"
+                    ? "bg-yellow-50 text-yellow-700"
+                    : "bg-emerald-50 text-emerald-700"
+                }">
 
-                      year:
-                        "numeric"
-                    }
-                  );
+                  ${
+                    r.truckType === "yellow"
+                      ? "Kuning"
+                      : "Hijau"
+                  }
 
-              }
+                </span>
 
+              </td>
 
-              if (
-                type === "weekly"
-              ) {
 
-                title =
-                  "Minggu " +
-                  key.split(
-                    "-W"
-                  )[1]
-                  +
-                  " • "
-                  +
-                  key.split(
-                    "-W"
-                  )[0];
+              <td class="px-5 py-4 text-sm font-extrabold">
 
-              }
+                ${r.total}
 
+              </td>
 
-              return `
+              <td class="px-5 py-4 text-sm text-slate-500 max-w-[250px]">
 
-                <div class="card rounded-3xl p-5">
+  ${
+    r.driverName
+      ? escapeHtml(r.driverName)
+      : "-"
+  }
 
-                  <div class="flex items-start justify-between mb-5">
+</td>
 
-                    <div>
+              <td class="px-5 py-4 text-sm text-slate-500 max-w-[280px]">
 
-                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                ${
+                  r.driverName
+                    ? escapeHtml(r.driverName)
+                    : "-"
+                }
 
-                        ${
-                          type === "daily"
-                            ? "Harian"
-                            : type === "weekly"
-                            ? "Mingguan"
-                            : "Bulanan"
-                        }
+              </td>
 
-                      </p>
+            </tr>
 
-                      <h3 class="font-extrabold mt-1">
+          `
+        )
+        .join("");
 
-                        ${title}
+  }
 
-                      </h3>
 
-                    </div>
+  lucide.createIcons();
 
+}
 
-                    <div class="text-right">
-
-                      <p class="text-3xl font-extrabold">
-
-                        ${v.total}
-
-                      </p>
-
-                      <p class="text-[10px] text-slate-400">
-
-                        TOTAL ARMADA
-
-                      </p>
-
-                    </div>
-
-                  </div>
-
-
-                  <div class="grid grid-cols-2 gap-3">
-
-                    <div class="bg-yellow-50 rounded-2xl p-3">
-
-                      <p class="text-[10px] text-yellow-700 font-bold">
-
-                        KUNING
-
-                      </p>
-
-                      <p class="text-xl font-extrabold">
-
-                        ${v.yellow}
-
-                      </p>
-
-                    </div>
-
-
-                    <div class="bg-emerald-50 rounded-2xl p-3">
-
-                      <p class="text-[10px] text-emerald-700 font-bold">
-
-                        HIJAU
-
-                      </p>
-
-                      <p class="text-xl font-extrabold">
-
-                        ${v.green}
-
-                      </p>
-
-                    </div>
-
-                  </div>
-
-
-                  <p class="text-[11px] text-slate-400 mt-4">
-
-                    ${v.entries}
-                    catatan operasional
-
-                  </p>
-
-                </div>
-
-              `;
-
-            }
-          )
-          .join("");
-
-    }
 
     function setRekapPreset(
   preset
@@ -5464,6 +6144,997 @@ a.download =
 
     }
 
+
+    /* =====================================================
+   EXPORT REPORT PDF
+====================================================== */
+
+function exportReportPDF() {
+
+  const {
+    jsPDF
+  } = window.jspdf;
+
+
+  const area =
+    document
+      .getElementById("rekapArea")
+      .value;
+
+
+  const truckFilter =
+    document
+      .getElementById("rekapTruck")
+      .value;
+
+
+  const startDate =
+    document
+      .getElementById("rekapStartDate")
+      .value;
+
+
+  const endDate =
+    document
+      .getElementById("rekapEndDate")
+      .value;
+
+
+  if (
+    startDate &&
+    endDate &&
+    startDate > endDate
+  ) {
+
+    showToast(
+      "Tanggal mulai tidak boleh lebih besar dari tanggal akhir."
+    );
+
+    return;
+
+  }
+
+
+  const filtered =
+    records.filter(
+      r => {
+
+        if (
+          area !== "all" &&
+          r.area !== area
+        ) {
+          return false;
+        }
+
+        if (
+          truckFilter !== "all" &&
+          r.truckType !== truckFilter
+        ) {
+          return false;
+        }
+
+        if (
+          startDate &&
+          r.date < startDate
+        ) {
+          return false;
+        }
+
+        if (
+          endDate &&
+          r.date > endDate
+        ) {
+          return false;
+        }
+
+        return true;
+
+      }
+    );
+
+
+  if (!filtered.length) {
+
+    showToast(
+      "Belum ada data untuk dibuatkan PDF."
+    );
+
+    return;
+
+  }
+
+
+  setLoading(
+    true,
+    "Membuat laporan PDF..."
+  );
+
+
+  try {
+
+    const doc =
+      new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4"
+      });
+
+
+    const pageWidth =
+      doc.internal.pageSize.getWidth();
+
+
+    /* HEADER */
+
+    doc.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    doc.setFontSize(
+      20
+    );
+
+    doc.text(
+      "ARMADATRACK",
+      14,
+      16
+    );
+
+
+    doc.setFontSize(
+      10
+    );
+
+    doc.setFont(
+      "helvetica",
+      "normal"
+    );
+
+    doc.text(
+      "Laporan Aktivitas Armada Operasional",
+      14,
+      22
+    );
+
+
+    doc.setFontSize(
+      9
+    );
+
+    const periodText =
+      startDate || endDate
+        ? `${startDate || "..."} s/d ${endDate || "..."}`
+        : "Semua Periode";
+
+
+    doc.text(
+      `Periode: ${periodText}`,
+      pageWidth - 14,
+      16,
+      {
+        align: "right"
+      }
+    );
+
+
+    doc.text(
+      `Area: ${
+        area === "all"
+          ? "Semua Area"
+          : area
+      }`,
+      pageWidth - 14,
+      21,
+      {
+        align: "right"
+      }
+    );
+
+
+    doc.text(
+      `Jenis Truk: ${
+        truckFilter === "all"
+          ? "Semua Jenis"
+          : truckFilter === "yellow"
+          ? "Kuning"
+          : "Hijau"
+      }`,
+      pageWidth - 14,
+      26,
+      {
+        align: "right"
+      }
+    );
+
+
+    /* SUMMARY */
+
+    const totalActivity =
+      filtered.length;
+
+    const totalTruck =
+      sum(
+        filtered,
+        "total"
+      );
+
+    const totalYellow =
+      sum(
+        filtered,
+        "yellow"
+      );
+
+    const totalGreen =
+      sum(
+        filtered,
+        "green"
+      );
+
+
+    doc.autoTable({
+
+      startY: 32,
+
+      head: [[
+        "Total Aktivitas",
+        "Total Armada",
+        "Truk Kuning",
+        "Truk Hijau"
+      ]],
+
+      body: [[
+        totalActivity,
+        totalTruck,
+        totalYellow,
+        totalGreen
+      ]],
+
+      theme: "grid",
+
+      styles: {
+        fontSize: 10,
+        halign: "center",
+        cellPadding: 4
+      },
+
+      headStyles: {
+        fontStyle: "bold"
+      }
+
+    });
+
+
+    /* AREA */
+
+    let nextY =
+      doc.lastAutoTable.finalY + 8;
+
+
+    doc.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    doc.setFontSize(
+      12
+    );
+
+    doc.text(
+      "Rekap Area",
+      14,
+      nextY
+    );
+
+
+    const areaRows = {};
+
+
+    filtered.forEach(
+      r => {
+
+        if (
+          !areaRows[r.area]
+        ) {
+
+          areaRows[r.area] = {
+            activity: 0,
+            yellow: 0,
+            green: 0,
+            total: 0
+          };
+
+        }
+
+
+        areaRows[r.area].activity++;
+
+        areaRows[r.area].yellow +=
+          r.yellow;
+
+        areaRows[r.area].green +=
+          r.green;
+
+        areaRows[r.area].total +=
+          r.total;
+
+      }
+    );
+
+
+    doc.autoTable({
+
+      startY:
+        nextY + 3,
+
+      head: [[
+        "Area",
+        "Aktivitas",
+        "Kuning",
+        "Hijau",
+        "Total Armada"
+      ]],
+
+      body:
+        ["Karawang","Purwakarta","Subang"]
+          .map(
+            name => {
+
+              const v =
+                areaRows[name] ||
+                {
+                  activity: 0,
+                  yellow: 0,
+                  green: 0,
+                  total: 0
+                };
+
+              return [
+                name,
+                v.activity,
+                v.yellow,
+                v.green,
+                v.total
+              ];
+
+            }
+          ),
+
+      theme: "grid",
+
+      styles: {
+        fontSize: 8
+      },
+
+      headStyles: {
+        fontStyle: "bold"
+      }
+
+    });
+
+
+    /* DETAIL */
+
+    nextY =
+      doc.lastAutoTable.finalY + 8;
+
+
+    doc.setFontSize(
+      12
+    );
+
+    doc.setFont(
+      "helvetica",
+      "bold"
+    );
+
+    doc.text(
+      "Detail Aktivitas",
+      14,
+      nextY
+    );
+
+
+    const detailRows =
+      [...filtered]
+        .sort(
+          (a,b) =>
+            (
+              a.date +
+              a.time
+            )
+            .localeCompare(
+              b.date +
+              b.time
+            )
+        )
+        .map(
+          r => [
+
+            formatDateID(r.date),
+
+            r.time,
+
+            r.location,
+
+            r.area,
+
+            r.truckType === "yellow"
+              ? "Kuning"
+              : "Hijau",
+
+            r.total,
+
+            r.driverName || "-"
+
+          ]
+        );
+
+
+    doc.autoTable({
+
+      startY:
+        nextY + 3,
+
+      head: [[
+        "Tanggal",
+        "Jam",
+        "Lokasi",
+        "Area",
+        "Truk",
+        "Jumlah",
+        "Keterangan"
+      ]],
+
+      body:
+        detailRows,
+
+      theme: "grid",
+
+      styles: {
+        fontSize: 7,
+        cellPadding: 2.5,
+        overflow: "linebreak"
+      },
+
+      headStyles: {
+        fontStyle: "bold"
+      },
+
+      columnStyles: {
+        0: {
+          cellWidth: 25
+        },
+
+        1: {
+          cellWidth: 15
+        },
+
+        2: {
+          cellWidth: 48
+        },
+
+        3: {
+          cellWidth: 28
+        },
+
+        4: {
+          cellWidth: 22
+        },
+
+        5: {
+          cellWidth: 18,
+          halign: "center"
+        },
+
+        6: {
+          cellWidth: 90
+        }
+
+      },
+
+      didDrawPage:
+        function() {
+
+          const pageHeight =
+            doc.internal.pageSize.getHeight();
+
+
+          doc.setFontSize(
+            7
+          );
+
+          doc.setFont(
+            "helvetica",
+            "normal"
+          );
+
+          doc.text(
+            `ArmadaTrack • Halaman ${
+              doc.internal.getNumberOfPages()
+            }`,
+            14,
+            pageHeight - 8
+          );
+
+        }
+
+    });
+
+
+    const filePeriod =
+      startDate && endDate
+        ? `${startDate}_${endDate}`
+        : startDate
+        ? `mulai-${startDate}`
+        : endDate
+        ? `sampai-${endDate}`
+        : "semua-periode";
+
+
+    doc.save(
+      `laporan-armada-${filePeriod}.pdf`
+    );
+
+
+    showToast(
+      "Laporan PDF berhasil dibuat."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+    showToast(
+      "Gagal membuat PDF."
+    );
+
+  } finally {
+
+    setLoading(
+      false
+    );
+
+  }
+
+}
+
+/* =====================================================
+   EXPORT REPORT EXCEL
+====================================================== */
+
+function exportReportExcel() {
+
+  const area =
+    document
+      .getElementById("rekapArea")
+      .value;
+
+
+  const truckFilter =
+    document
+      .getElementById("rekapTruck")
+      .value;
+
+
+  const startDate =
+    document
+      .getElementById("rekapStartDate")
+      .value;
+
+
+  const endDate =
+    document
+      .getElementById("rekapEndDate")
+      .value;
+
+
+  if (
+    startDate &&
+    endDate &&
+    startDate > endDate
+  ) {
+
+    showToast(
+      "Tanggal mulai tidak boleh lebih besar dari tanggal akhir."
+    );
+
+    return;
+
+  }
+
+
+  const filtered =
+    records.filter(
+      r => {
+
+        if (
+          area !== "all" &&
+          r.area !== area
+        ) {
+          return false;
+        }
+
+        if (
+          truckFilter !== "all" &&
+          r.truckType !== truckFilter
+        ) {
+          return false;
+        }
+
+        if (
+          startDate &&
+          r.date < startDate
+        ) {
+          return false;
+        }
+
+        if (
+          endDate &&
+          r.date > endDate
+        ) {
+          return false;
+        }
+
+        return true;
+
+      }
+    );
+
+
+  if (!filtered.length) {
+
+    showToast(
+      "Belum ada data untuk diexport."
+    );
+
+    return;
+
+  }
+
+
+  setLoading(
+    true,
+    "Membuat file Excel..."
+  );
+
+
+  try {
+
+    const wb =
+      XLSX.utils.book_new();
+
+
+    /* =================================================
+       SHEET RINGKASAN
+    ================================================== */
+
+    const summary = [
+
+      ["ARMADATRACK"],
+
+      ["Laporan Aktivitas Armada"],
+
+      [],
+
+      [
+        "Periode",
+        startDate || "Semua",
+        "s/d",
+        endDate || "Semua"
+      ],
+
+      [
+        "Area",
+        area === "all"
+          ? "Semua Area"
+          : area
+      ],
+
+      [
+        "Jenis Truk",
+        truckFilter === "all"
+          ? "Semua Jenis"
+          : truckFilter === "yellow"
+          ? "Kuning"
+          : "Hijau"
+      ],
+
+      [],
+
+      [
+        "RINGKASAN",
+        "Jumlah"
+      ],
+
+      [
+        "Total Aktivitas",
+        filtered.length
+      ],
+
+      [
+        "Total Armada",
+        sum(filtered, "total")
+      ],
+
+      [
+        "Truk Kuning",
+        sum(filtered, "yellow")
+      ],
+
+      [
+        "Truk Hijau",
+        sum(filtered, "green")
+      ],
+
+      [],
+
+      [
+        "REKAP AREA"
+      ],
+
+      [
+        "Area",
+        "Aktivitas",
+        "Kuning",
+        "Hijau",
+        "Total Armada"
+      ]
+
+    ];
+
+
+    const areaStats = {};
+
+
+    filtered.forEach(
+      r => {
+
+        if (
+          !areaStats[r.area]
+        ) {
+
+          areaStats[r.area] = {
+            activity: 0,
+            yellow: 0,
+            green: 0,
+            total: 0
+          };
+
+        }
+
+
+        areaStats[r.area].activity++;
+
+        areaStats[r.area].yellow +=
+          r.yellow;
+
+        areaStats[r.area].green +=
+          r.green;
+
+        areaStats[r.area].total +=
+          r.total;
+
+      }
+    );
+
+
+    ["Karawang","Purwakarta","Subang"]
+      .forEach(
+        name => {
+
+          const v =
+            areaStats[name] ||
+            {
+              activity: 0,
+              yellow: 0,
+              green: 0,
+              total: 0
+            };
+
+
+          summary.push([
+            name,
+            v.activity,
+            v.yellow,
+            v.green,
+            v.total
+          ]);
+
+        }
+      );
+
+
+    const wsSummary =
+      XLSX.utils.aoa_to_sheet(
+        summary
+      );
+
+
+    wsSummary["!cols"] = [
+      {
+        wch: 24
+      },
+      {
+        wch: 18
+      },
+      {
+        wch: 10
+      },
+      {
+        wch: 18
+      },
+      {
+        wch: 18
+      }
+    ];
+
+
+    XLSX.utils.book_append_sheet(
+      wb,
+      wsSummary,
+      "Ringkasan"
+    );
+
+
+    /* =================================================
+       SHEET DETAIL
+    ================================================== */
+
+    const detailRows = [
+
+      [
+        "Tanggal",
+        "Jam",
+        "Lokasi",
+        "Area",
+        "Jenis Truk",
+        "Jumlah Armada",
+        "Keterangan",
+        "Foto"
+      ]
+
+    ];
+
+
+    [...filtered]
+      .sort(
+        (a,b) =>
+          (
+            a.date +
+            a.time
+          )
+          .localeCompare(
+            b.date +
+            b.time
+          )
+      )
+      .forEach(
+        r => {
+
+          detailRows.push([
+
+            r.date,
+
+            r.time,
+
+            r.location,
+
+            r.area,
+
+            r.truckType === "yellow"
+              ? "Kuning"
+              : "Hijau",
+
+            r.total,
+
+            r.driverName || "",
+
+            r.photo || ""
+
+          ]);
+
+        }
+      );
+
+
+    const wsDetail =
+      XLSX.utils.aoa_to_sheet(
+        detailRows
+      );
+
+
+    wsDetail["!cols"] = [
+
+      {
+        wch: 14
+      },
+
+      {
+        wch: 10
+      },
+
+      {
+        wch: 32
+      },
+
+      {
+        wch: 16
+      },
+
+      {
+        wch: 16
+      },
+
+      {
+        wch: 16
+      },
+
+      {
+        wch: 42
+      },
+
+      {
+        wch: 60
+      }
+
+    ];
+
+
+    XLSX.utils.book_append_sheet(
+      wb,
+      wsDetail,
+      "Detail Aktivitas"
+    );
+
+
+    /* =================================================
+       DOWNLOAD
+    ================================================== */
+
+    const period =
+      startDate && endDate
+        ? `${startDate}_${endDate}`
+        : startDate
+        ? `mulai-${startDate}`
+        : endDate
+        ? `sampai-${endDate}`
+        : "semua-periode";
+
+
+    XLSX.writeFile(
+      wb,
+      `laporan-armada-${period}.xlsx`
+    );
+
+
+    showToast(
+      "Laporan Excel berhasil dibuat."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+    showToast(
+      "Gagal membuat file Excel."
+    );
+
+  } finally {
+
+    setLoading(
+      false
+    );
+
+  }
+
+}
 
     /* =====================================================
        SECURITY HELPERS
