@@ -7,10 +7,15 @@
   <title>ArmadaTrack — Monitoring Armada</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <script src="https://unpkg.com/lucide@latest"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,13 +127,6 @@
     .editing-banner.show {
       display: flex;
     }
-  
-    /* ADMIN EXTENSION */
-    #adminModal input:focus, #adminModal select:focus {
-      border-color: #94a3b8;
-      box-shadow: 0 0 0 3px rgba(148,163,184,.15);
-    }
-
   </style>
 
 </head>
@@ -144,31 +142,6 @@
       "https://script.google.com/macros/s/AKfycbz6wf_jAiSlITjpQLKR65RFmIsKP2iBNZlCm3mv4QoOwns5UpEbFZns53uMwIJtnQFaEQ/exec";
   </script>
 
-
-  <script>
-    /* Early fallbacks: keep the original page safe before the Admin extension loads. */
-    window.getAdminAreas = window.getAdminAreas || function() {
-      return ["Karawang", "Purwakarta", "Subang"];
-    };
-    window.adminAreaClasses = window.adminAreaClasses || function() {
-      return "bg-slate-50 text-slate-700";
-    };
-    window.adminVehicleLabel = window.adminVehicleLabel || function(id) {
-      return String(id).toLowerCase() === "yellow"
-        ? "Kuning"
-        : String(id).toLowerCase() === "green"
-          ? "Hijau"
-          : String(id || "-");
-    };
-    window.adminVehicleClasses = window.adminVehicleClasses || function(id) {
-      return String(id).toLowerCase() === "yellow"
-        ? "bg-yellow-50 text-yellow-700"
-        : String(id).toLowerCase() === "green"
-          ? "bg-emerald-50 text-emerald-700"
-          : "bg-slate-50 text-slate-700";
-    };
-  </script>
-
   <!-- =====================================================
        LOADING
   ====================================================== -->
@@ -176,7 +149,6 @@
   <div id="loadingOverlay" class="loading-overlay">
     <div class="bg-white rounded-3xl p-7 shadow-2xl text-center">
       <div class="spinner mx-auto mb-4"></div>
-
 
   <p id="loadingText" class="font-bold text-sm">
     Memproses data...
@@ -187,7 +159,6 @@
   </p>
 </div>
 
-
   </div>
 
   <!-- =====================================================
@@ -196,63 +167,49 @@
 
   <header class="sticky top-0 z-40 glass">
 
-
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
 
   <div class="flex items-center gap-3">
 
-    <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
-      <i data-lucide="truck" class="w-5 h-5"></i>
-    </div>
+<div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-lg">
+  <i data-lucide="truck" class="w-5 h-5"></i>
+</div>
 
-    <div>
-      <h1 class="font-extrabold text-lg sm:text-xl tracking-tight">
-        ArmadaTrack
-      </h1>
+<div>
+  <h1 class="font-extrabold text-lg sm:text-xl tracking-tight">
+    ArmadaTrack
+  </h1>
 
-      <p class="text-[11px] sm:text-xs text-slate-500">
-        Monitoring Armada Operasional
-      </p>
-    </div>
+  <p class="text-[11px] sm:text-xs text-slate-500">
+    Monitoring Armada Operasional
+  </p>
+</div>
 
   </div>
 
-
   <div class="hidden sm:flex text-right">
 
-    <div>
+<div>
 
-      <p
-        id="headerDate"
-        class="font-bold text-sm text-slate-800">
-      </p>
+  <p
+    id="headerDate"
+    class="font-bold text-sm text-slate-800">
+  </p>
 
-      <p
-        id="headerTime"
-        class="text-xs text-slate-500">
-      </p>
+  <p
+    id="headerTime"
+    class="text-xs text-slate-500">
+  </p>
 
-    </div>
+</div>
 
   </div>
 
 </div>
 
-
   </header>
 
-  <div id="adminToolbar" class="fixed bottom-5 left-5 z-40">
-    <button
-      type="button"
-      onclick="openAdminPanel()"
-      class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-2xl text-sm font-bold shadow-xl flex items-center gap-2">
-      <i data-lucide="settings-2" class="w-4 h-4"></i>
-      Admin
-    </button>
-  </div>
-
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
 
 <!-- =====================================================
      NAVIGATION
@@ -262,53 +219,52 @@
 
   <div class="inline-flex min-w-max gap-2 p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
 
-    <button
-      class="nav-btn active px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"
-      data-view="dashboard">
+<button
+  class="nav-btn active px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"
+  data-view="dashboard">
 
-      <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+  <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
 
-      Dashboard
+  Dashboard
 
-    </button>
-
-
-    <button
-      class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
-      data-view="input">
-
-      <i data-lucide="plus-circle" class="w-4 h-4"></i>
-
-      Input Armada
-
-    </button>
+</button>
 
 
-    <button
-      class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
-      data-view="rekap">
+<button
+  class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+  data-view="input">
 
-      <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+  <i data-lucide="plus-circle" class="w-4 h-4"></i>
 
-      Rekap
+  Input Armada
 
-    </button>
+</button>
 
 
-    <button
-      class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
-      data-view="data">
+<button
+  class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+  data-view="rekap">
 
-      <i data-lucide="database" class="w-4 h-4"></i>
+  <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
 
-      Data
+  Rekap
 
-    </button>
+</button>
+
+
+<button
+  class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 text-slate-600"
+  data-view="data">
+
+  <i data-lucide="database" class="w-4 h-4"></i>
+
+  Data
+
+</button>
 
   </div>
 
 </div>
-
 
 <!-- =====================================================
      DASHBOARD
@@ -320,307 +276,303 @@
 
   <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
 
-    <div>
+<div>
 
-      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-        Ringkasan Operasional
-      </p>
+  <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+    Ringkasan Operasional
+  </p>
 
-      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-        Dashboard Armada
-      </h2>
+  <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+    Dashboard Armada
+  </h2>
 
-      <p class="text-sm text-slate-500 mt-1">
-        Pantau jumlah armada yang beroperasi berdasarkan data yang dicatat.
-      </p>
+  <p class="text-sm text-slate-500 mt-1">
+    Pantau jumlah armada yang beroperasi berdasarkan data yang dicatat.
+  </p>
 
-    </div>
-
-
-    <div class="flex gap-2">
-
-      <button
-        onclick="loadData()"
-        class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-
-        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-
-        Refresh
-
-      </button>
+</div>
 
 
-      <button
-        onclick="startNewRecord()"
-        class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+<div class="flex gap-2">
 
-        <i data-lucide="plus" class="w-4 h-4"></i>
+  <button
+    onclick="loadData()"
+    class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
 
-        Tambah Data
+    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
 
-      </button>
+    Refresh
 
-    </div>
+  </button>
+
+
+  <button
+    onclick="startNewRecord()"
+    class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+
+    <i data-lucide="plus" class="w-4 h-4"></i>
+
+    Tambah Data
+
+  </button>
+
+</div>
 
   </div>
-
 
   <!-- STATISTICS -->
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-    <div class="card rounded-3xl p-5">
+<div class="card rounded-3xl p-5">
 
-      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
+  <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
 
-        <i data-lucide="truck" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Armada Hari Ini
-      </p>
-
-      <p
-        id="todayTotal"
-        class="text-3xl font-extrabold mt-1">
-        0
-      </p>
-
-    </div>
-
-
-    <div class="card rounded-3xl p-5">
-
-      <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
-
-        <i data-lucide="truck" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Truk Kuning
-      </p>
-
-      <p
-        id="todayYellow"
-        class="text-3xl font-extrabold mt-1">
-        0
-      </p>
-
-    </div>
-
-
-    <div class="card rounded-3xl p-5">
-
-      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-
-        <i data-lucide="truck" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Truk Hijau
-      </p>
-
-      <p
-        id="todayGreen"
-        class="text-3xl font-extrabold mt-1">
-        0
-      </p>
-
-    </div>
-
-
-    <div class="card rounded-3xl p-5">
-
-      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
-
-        <i data-lucide="map-pin" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Area Teraktif
-      </p>
-
-      <p
-        id="topAreaToday"
-        class="text-xl font-extrabold mt-2 truncate">
-        -
-      </p>
-
-    </div>
+    <i data-lucide="truck" class="w-5 h-5"></i>
 
   </div>
 
+  <p class="text-xs text-slate-500 font-semibold">
+    Armada Hari Ini
+  </p>
+
+  <p
+    id="todayTotal"
+    class="text-3xl font-extrabold mt-1">
+    0
+  </p>
+
+</div>
+
+
+<div class="card rounded-3xl p-5">
+
+  <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
+
+    <i data-lucide="truck" class="w-5 h-5"></i>
+
+  </div>
+
+  <p class="text-xs text-slate-500 font-semibold">
+    Truk Kuning
+  </p>
+
+  <p
+    id="todayYellow"
+    class="text-3xl font-extrabold mt-1">
+    0
+  </p>
+
+</div>
+
+
+<div class="card rounded-3xl p-5">
+
+  <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+
+    <i data-lucide="truck" class="w-5 h-5"></i>
+
+  </div>
+
+  <p class="text-xs text-slate-500 font-semibold">
+    Truk Hijau
+  </p>
+
+  <p
+    id="todayGreen"
+    class="text-3xl font-extrabold mt-1">
+    0
+  </p>
+
+</div>
+
+
+<div class="card rounded-3xl p-5">
+
+  <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+
+    <i data-lucide="map-pin" class="w-5 h-5"></i>
+
+  </div>
+
+  <p class="text-xs text-slate-500 font-semibold">
+    Area Teraktif
+  </p>
+
+  <p
+    id="topAreaToday"
+    class="text-xl font-extrabold mt-2 truncate">
+    -
+  </p>
+
+</div>
+
+  </div>
 
   <!-- CHARTS -->
 
   <div class="grid lg:grid-cols-3 gap-6">
 
-    <div class="lg:col-span-2 card rounded-3xl p-5 sm:p-6">
+<div class="lg:col-span-2 card rounded-3xl p-5 sm:p-6">
 
-      <div class="flex items-center justify-between gap-3 mb-5">
+  <div class="flex items-center justify-between gap-3 mb-5">
 
-        <div>
+    <div>
 
-          <h3 class="font-extrabold">
-            Aktivitas 7 Hari Terakhir
-          </h3>
+      <h3 class="font-extrabold">
+        Aktivitas 7 Hari Terakhir
+      </h3>
 
-          <p class="text-xs text-slate-500 mt-1">
-            Jumlah armada per hari
-          </p>
-
-        </div>
-
-        <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-
-          <i data-lucide="activity" class="w-5 h-5"></i>
-
-        </div>
-
-      </div>
-
-      <div class="h-[280px]">
-
-        <canvas id="weeklyChart"></canvas>
-
-      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Jumlah armada per hari
+      </p>
 
     </div>
 
+    <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
 
-    <div class="card rounded-3xl p-5 sm:p-6">
-
-      <div class="mb-5">
-
-        <h3 class="font-extrabold">
-          Komposisi Truk
-        </h3>
-
-        <p class="text-xs text-slate-500 mt-1">
-          Seluruh data operasional
-        </p>
-
-      </div>
-
-      <div class="h-[220px]">
-
-        <canvas id="truckChart"></canvas>
-
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 mt-4">
-
-        <div class="bg-yellow-50 rounded-2xl p-3 text-center">
-
-          <p class="text-[11px] text-yellow-700 font-bold">
-            KUNING
-          </p>
-
-          <p
-            id="allYellow"
-            class="font-extrabold text-xl">
-            0
-          </p>
-
-        </div>
-
-
-        <div class="bg-emerald-50 rounded-2xl p-3 text-center">
-
-          <p class="text-[11px] text-emerald-700 font-bold">
-            HIJAU
-          </p>
-
-          <p
-            id="allGreen"
-            class="font-extrabold text-xl">
-            0
-          </p>
-
-        </div>
-
-      </div>
+      <i data-lucide="activity" class="w-5 h-5"></i>
 
     </div>
 
   </div>
 
+  <div class="h-[280px]">
+
+    <canvas id="weeklyChart"></canvas>
+
+  </div>
+
+</div>
+
+
+<div class="card rounded-3xl p-5 sm:p-6">
+
+  <div class="mb-5">
+
+    <h3 class="font-extrabold">
+      Komposisi Truk
+    </h3>
+
+    <p class="text-xs text-slate-500 mt-1">
+      Seluruh data operasional
+    </p>
+
+  </div>
+
+  <div class="h-[220px]">
+
+    <canvas id="truckChart"></canvas>
+
+  </div>
+
+  <div class="grid grid-cols-2 gap-3 mt-4">
+
+    <div class="bg-yellow-50 rounded-2xl p-3 text-center">
+
+      <p class="text-[11px] text-yellow-700 font-bold">
+        KUNING
+      </p>
+
+      <p
+        id="allYellow"
+        class="font-extrabold text-xl">
+        0
+      </p>
+
+    </div>
+
+
+    <div class="bg-emerald-50 rounded-2xl p-3 text-center">
+
+      <p class="text-[11px] text-emerald-700 font-bold">
+        HIJAU
+      </p>
+
+      <p
+        id="allGreen"
+        class="font-extrabold text-xl">
+        0
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
+
+  </div>
 
   <!-- RANKING -->
 
   <div class="grid lg:grid-cols-2 gap-6">
 
-    <div class="card rounded-3xl p-5 sm:p-6">
+<div class="card rounded-3xl p-5 sm:p-6">
 
-      <div class="flex items-center gap-3 mb-5">
+  <div class="flex items-center gap-3 mb-5">
 
-        <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center">
+    <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center">
 
-          <i data-lucide="trophy" class="w-5 h-5"></i>
-
-        </div>
-
-        <div>
-
-          <h3 class="font-extrabold">
-            Top Truk
-          </h3>
-
-          <p class="text-xs text-slate-500">
-            Jenis truk dengan total operasi terbanyak
-          </p>
-
-        </div>
-
-      </div>
-
-      <div
-        id="truckRanking"
-        class="space-y-3">
-      </div>
+      <i data-lucide="trophy" class="w-5 h-5"></i>
 
     </div>
 
+    <div>
 
-    <div class="card rounded-3xl p-5 sm:p-6">
+      <h3 class="font-extrabold">
+        Top Truk
+      </h3>
 
-      <div class="flex items-center gap-3 mb-5">
-
-        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center">
-
-          <i data-lucide="map" class="w-5 h-5"></i>
-
-        </div>
-
-        <div>
-
-          <h3 class="font-extrabold">
-            Top Area
-          </h3>
-
-          <p class="text-xs text-slate-500">
-            Area dengan total operasi terbanyak
-          </p>
-
-        </div>
-
-      </div>
-
-      <div
-        id="areaRanking"
-        class="space-y-3">
-      </div>
+      <p class="text-xs text-slate-500">
+        Jenis truk dengan total operasi terbanyak
+      </p>
 
     </div>
 
   </div>
 
-</section>
+  <div
+    id="truckRanking"
+    class="space-y-3">
+  </div>
 
+</div>
+
+
+<div class="card rounded-3xl p-5 sm:p-6">
+
+  <div class="flex items-center gap-3 mb-5">
+
+    <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center">
+
+      <i data-lucide="map" class="w-5 h-5"></i>
+
+    </div>
+
+    <div>
+
+      <h3 class="font-extrabold">
+        Top Area
+      </h3>
+
+      <p class="text-xs text-slate-500">
+        Area dengan total operasi terbanyak
+      </p>
+
+    </div>
+
+  </div>
+
+  <div
+    id="areaRanking"
+    class="space-y-3">
+  </div>
+
+</div>
+
+  </div>
+
+</section>
 
 <!-- =====================================================
      INPUT / EDIT
@@ -630,575 +582,578 @@
 
   <div class="max-w-2xl mx-auto">
 
-    <!-- EDITING BANNER -->
+<!-- EDITING BANNER -->
 
-    <div
-      id="editingBanner"
-      class="editing-banner items-center gap-3 mb-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl px-4 py-3">
+<div
+  id="editingBanner"
+  class="editing-banner items-center gap-3 mb-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-2xl px-4 py-3">
 
-      <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+  <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
 
-        <i data-lucide="pencil" class="w-4 h-4"></i>
+    <i data-lucide="pencil" class="w-4 h-4"></i>
 
-      </div>
+  </div>
 
-      <div class="flex-1">
+  <div class="flex-1">
 
-        <p class="text-xs font-bold uppercase tracking-wide">
-          Mode Edit
-        </p>
+    <p class="text-xs font-bold uppercase tracking-wide">
+      Mode Edit
+    </p>
 
-        <p class="text-xs mt-0.5 text-blue-700">
-          Kamu sedang mengubah data armada yang sudah tersimpan.
-        </p>
+    <p class="text-xs mt-0.5 text-blue-700">
+      Kamu sedang mengubah data armada yang sudah tersimpan.
+    </p>
 
-      </div>
+  </div>
 
-      <button
-        type="button"
-        onclick="cancelEdit()"
-        class="text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-100">
+  <button
+    type="button"
+    onclick="cancelEdit()"
+    class="text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-100">
 
-        Batal
+    Batal
 
-      </button>
+  </button>
 
-    </div>
-
-
-    <div class="mb-6">
-
-      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-        Pencatatan Armada
-      </p>
-
-      <h2
-        id="inputTitle"
-        class="text-2xl sm:text-3xl font-extrabold">
-
-        Input Armada Beroperasi
-
-      </h2>
-
-      <p
-        id="inputSubtitle"
-        class="text-sm text-slate-500 mt-1">
-
-        Masukkan data aktivitas armada pada form berikut.
-
-      </p>
-
-    </div>
-
-
-    <form
-      id="armadaForm"
-      class="card rounded-3xl p-5 sm:p-7 space-y-5">
-
-
-      <!-- HIDDEN EDIT ID -->
-
-      <input
-        type="hidden"
-        id="editRecordId"
-        value="">
-
-
-      <!-- DATE -->
-
-      <div class="grid sm:grid-cols-2 gap-4">
-
-        <div>
-
-          <label class="text-sm font-bold block mb-2">
-            Tanggal
-          </label>
-
-          <input
-            id="date"
-            type="date"
-            required
-            class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
-
-        </div>
-
-
-        <div>
-
-          <label class="text-sm font-bold block mb-2">
-            Jam (24 Jam)
-          </label>
-
-          <input
-            id="time"
-            type="time"
-            required
-            class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
-
-        </div>
-
-      </div>
-
-
-      <!-- LOCATION -->
-
-      <div>
-
-        <label class="text-sm font-bold block mb-2">
-          Keterangan Lokasi
-        </label>
-
-        <input
-          id="location"
-          type="text"
-          required
-          placeholder="Contoh: Gudang A, KIIC, Site Tambang..."
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
-
-      </div>
-
-
-      <!-- AREA -->
-
-      <div>
-
-        <label class="text-sm font-bold block mb-2">
-          Area
-        </label>
-
-        <select
-          id="area"
-          required
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:border-slate-400">
-
-          <option value="">
-            Pilih Area
-          </option>
-
-          <option value="Karawang">
-            Karawang
-          </option>
-
-          <option value="Purwakarta">
-            Purwakarta
-          </option>
-
-          <option value="Subang">
-            Subang
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <!-- =================================================
-           PHOTO
-      ================================================== -->
-
-      <div>
-
-        <div class="flex items-center justify-between gap-3 mb-2">
-
-          <label class="text-sm font-bold">
-            Foto Lokasi
-          </label>
-
-          <span
-            id="photoStatus"
-            class="text-[11px] font-semibold text-slate-400">
-            Wajib
-          </span>
-
-        </div>
-
-
-        <!-- OLD PHOTO WHEN EDIT -->
-
-        <div
-          id="existingPhotoWrap"
-          class="hidden mb-3">
-
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3">
-
-            <div class="flex items-center justify-between mb-2">
-
-              <p class="text-xs font-bold text-slate-600">
-                Foto saat ini
-              </p>
-
-              <a
-                id="existingPhotoLink"
-                href="#"
-                target="_blank"
-                class="text-[11px] font-bold text-blue-600 hover:underline">
-
-                Buka foto
-
-              </a>
-
-            </div>
-
-            <img
-              id="existingPhotoPreview"
-              src=""
-              class="w-full max-h-48 object-cover rounded-xl border border-slate-200"
-              alt="Foto lokasi saat ini">
-
-          </div>
-
-        </div>
-
-
-        <!-- DROP ZONE -->
-
-        <div
-          id="photoDrop"
-          class="border-2 border-dashed border-slate-200 rounded-2xl p-5 hover:border-slate-400 transition cursor-pointer">
-
-          <!-- CAMERA INPUT -->
-
-          <input
-            id="cameraInput"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            class="hidden">
-
-
-          <!-- FILE / GALLERY INPUT -->
-
-          <input
-            id="galleryInput"
-            type="file"
-            accept="image/*"
-            class="hidden">
-
-
-          <div class="text-center">
-
-            <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-
-              <i
-                data-lucide="image-plus"
-                class="w-7 h-7 text-slate-500">
-              </i>
-
-            </div>
-
-
-            <p class="font-bold text-sm">
-              Tambahkan Foto Lokasi
-            </p>
-
-            <p class="text-xs text-slate-400 mt-1">
-              Ambil foto dengan kamera atau pilih dari galeri
-            </p>
-
-
-            <!-- PHOTO ACTIONS -->
-
-            <div class="grid grid-cols-2 gap-3 mt-5 max-w-md mx-auto">
-
-              <button
-                type="button"
-                id="cameraButton"
-                class="photo-option border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-3 text-sm font-bold flex items-center justify-center gap-2">
-
-                <i data-lucide="camera" class="w-4 h-4"></i>
-
-                Kamera
-
-              </button>
-
-
-              <button
-                type="button"
-                id="galleryButton"
-                class="photo-option border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-3 text-sm font-bold flex items-center justify-center gap-2">
-
-                <i data-lucide="image" class="w-4 h-4"></i>
-
-                Galeri / File
-
-              </button>
-
-            </div>
-
-
-            <div class="flex items-center gap-3 max-w-md mx-auto my-4">
-
-              <div class="h-px bg-slate-200 flex-1"></div>
-
-              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
-                atau
-              </span>
-
-              <div class="h-px bg-slate-200 flex-1"></div>
-
-            </div>
-
-
-            <div class="text-xs text-slate-400">
-
-              <i data-lucide="upload-cloud" class="w-4 h-4 inline-block align-middle mr-1"></i>
-
-              Tarik & lepas foto di area ini
-
-            </div>
-
-          </div>
-
-
-          <!-- PHOTO PREVIEW -->
-
-          <div
-            id="photoPreviewWrap"
-            class="hidden mt-5">
-
-            <div class="relative">
-
-              <img
-                id="photoPreview"
-                src=""
-                class="w-full max-h-72 object-cover rounded-2xl border border-slate-200"
-                alt="Preview foto lokasi">
-
-
-              <button
-                type="button"
-                onclick="removePhoto()"
-                class="absolute top-3 right-3 w-9 h-9 rounded-xl bg-white/95 shadow-lg text-red-600 flex items-center justify-center hover:bg-red-50"
-                title="Hapus foto">
-
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-
-              </button>
-
-            </div>
-
-
-            <div class="flex items-center justify-between gap-3 mt-2">
-
-              <p
-                id="photoFileName"
-                class="text-xs text-slate-500 truncate">
-                Foto dipilih
-              </p>
-
-              <button
-                type="button"
-                onclick="replacePhoto()"
-                class="text-xs font-bold text-blue-600 hover:underline shrink-0">
-
-                Ganti foto
-
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <p
-          id="photoHelpText"
-          class="text-xs text-slate-400 mt-2">
-
-          Maksimal 4 MB. Foto akan masuk otomatis ke folder area di Google Drive.
-
-        </p>
-
-      </div>
-
-
-      <!-- TRUCK -->
-
-      <div>
-
-        <label class="text-sm font-bold block mb-3">
-          Truk yang Beroperasi
-        </label>
-
-        <p class="text-xs text-slate-500 mb-3">
-          Pilih <b>satu jenis truk saja</b> untuk setiap catatan lokasi.
-        </p>
-
-
-        <div class="grid sm:grid-cols-2 gap-4">
-
-
-          <!-- YELLOW -->
-
-          <label
-            id="yellowOption"
-            class="border-2 border-yellow-200 bg-yellow-50 rounded-2xl p-4 cursor-pointer transition">
-
-            <input
-              type="radio"
-              name="truckType"
-              value="yellow"
-              class="sr-only"
-              checked>
-
-            <div class="flex items-center gap-3">
-
-              <div class="w-10 h-10 rounded-xl bg-yellow-200 text-yellow-800 flex items-center justify-center">
-
-                <i data-lucide="truck" class="w-5 h-5"></i>
-
-              </div>
-
-              <div>
-
-                <p class="font-bold">
-                  Truk Kuning
-                </p>
-
-                <p class="text-[11px] text-slate-500">
-                  Jenis truk yang beroperasi
-                </p>
-
-              </div>
-
-              <i
-                data-lucide="check-circle-2"
-                class="truck-check-yellow ml-auto w-5 h-5 text-yellow-700">
-              </i>
-
-            </div>
-
-          </label>
-
-
-          <!-- GREEN -->
-
-          <label
-            id="greenOption"
-            class="border-2 border-slate-200 bg-slate-50 rounded-2xl p-4 cursor-pointer transition">
-
-            <input
-              type="radio"
-              name="truckType"
-              value="green"
-              class="sr-only">
-
-            <div class="flex items-center gap-3">
-
-              <div class="w-10 h-10 rounded-xl bg-emerald-200 text-emerald-800 flex items-center justify-center">
-
-                <i data-lucide="truck" class="w-5 h-5"></i>
-
-              </div>
-
-              <div>
-
-                <p class="font-bold">
-                  Truk Hijau
-                </p>
-
-                <p class="text-[11px] text-slate-500">
-                  Jenis truk yang beroperasi
-                </p>
-
-              </div>
-
-              <i
-                data-lucide="check-circle-2"
-                class="truck-check-green ml-auto w-5 h-5 text-slate-300">
-              </i>
-
-            </div>
-
-          </label>
-
-        </div>
-
-      </div>
-
-      <div class="mt-4">
-  <label
-    for="driverNote"
-    class="block text-sm font-medium text-gray-700 mb-2"
-  >
-    Catatan / Keterangan
-  </label>
-
-  <input
-    type="text"
-    id="driverNote"
-    name="driverNote"
-    placeholder="Masukkan nama driver..."
-    class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm
-           focus:border-blue-500 focus:ring-2 focus:ring-blue-200
-           outline-none transition"
-  />
 </div>
 
 
-      <!-- COUNT -->
+<div class="mb-6">
 
-      <div>
+  <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+    Pencatatan Armada
+  </p>
 
-        <label class="text-sm font-bold block mb-2">
-          Jumlah Armada
-        </label>
+  <h2
+    id="inputTitle"
+    class="text-2xl sm:text-3xl font-extrabold">
 
-        <input
-          id="truckCount"
-          type="number"
-          min="1"
-          value="1"
-          required
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-slate-400">
+    Input Armada Beroperasi
 
-        <p class="text-xs text-slate-400 mt-2">
-          Jumlah unit dari jenis truk yang dipilih pada lokasi tersebut.
-        </p>
+  </h2>
+
+  <p
+    id="inputSubtitle"
+    class="text-sm text-slate-500 mt-1">
+
+    Masukkan data aktivitas armada pada form berikut.
+
+  </p>
+
+</div>
+
+
+<form
+  id="armadaForm"
+  class="card rounded-3xl p-5 sm:p-7 space-y-5">
+
+
+  <!-- HIDDEN EDIT ID -->
+
+  <input
+    type="hidden"
+    id="editRecordId"
+    value="">
+
+
+  <!-- DATE -->
+
+  <div class="grid sm:grid-cols-2 gap-4">
+
+    <div>
+
+      <label class="text-sm font-bold block mb-2">
+        Tanggal
+      </label>
+
+      <input
+        id="date"
+        type="date"
+        required
+        class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+    </div>
+
+
+    <div>
+
+      <label class="text-sm font-bold block mb-2">
+        Jam (24 Jam)
+      </label>
+
+      <input
+        id="time"
+        type="time"
+        required
+        class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+    </div>
+
+  </div>
+
+
+  <!-- LOCATION -->
+
+  <div>
+
+    <label class="text-sm font-bold block mb-2">
+      Keterangan Lokasi
+    </label>
+
+    <input
+      id="location"
+      type="text"
+      required
+      placeholder="Contoh: Gudang A, KIIC, Site Tambang..."
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-400">
+
+  </div>
+
+
+  <!-- AREA -->
+
+  <div>
+
+    <label class="text-sm font-bold block mb-2">
+      Area
+    </label>
+
+    <select
+      id="area"
+      required
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white focus:border-slate-400">
+
+      <option value="">
+        Pilih Area
+      </option>
+
+      <option value="Karawang">
+        Karawang
+      </option>
+
+      <option value="Purwakarta">
+        Purwakarta
+      </option>
+
+      <option value="Subang">
+        Subang
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- =================================================
+       PHOTO
+  ================================================== -->
+
+  <div>
+
+    <div class="flex items-center justify-between gap-3 mb-2">
+
+      <label class="text-sm font-bold">
+        Foto Lokasi
+      </label>
+
+      <span
+        id="photoStatus"
+        class="text-[11px] font-semibold text-slate-400">
+        Wajib
+      </span>
+
+    </div>
+
+
+    <!-- OLD PHOTO WHEN EDIT -->
+
+    <div
+      id="existingPhotoWrap"
+      class="hidden mb-3">
+
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3">
+
+        <div class="flex items-center justify-between mb-2">
+
+          <p class="text-xs font-bold text-slate-600">
+            Foto saat ini
+          </p>
+
+          <a
+            id="existingPhotoLink"
+            href="#"
+            target="_blank"
+            class="text-[11px] font-bold text-blue-600 hover:underline">
+
+            Buka foto
+
+          </a>
+
+        </div>
+
+        <img
+          id="existingPhotoPreview"
+          src=""
+          class="w-full max-h-48 object-cover rounded-xl border border-slate-200"
+          alt="Foto lokasi saat ini">
 
       </div>
 
+    </div>
 
-      <!-- BUTTON -->
 
-      <div class="pt-2 flex flex-col sm:flex-row gap-3">
+    <!-- DROP ZONE -->
 
-        <button
-          id="saveButton"
-          type="submit"
-          class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2">
+    <div
+      id="photoDrop"
+      class="border-2 border-dashed border-slate-200 rounded-2xl p-5 hover:border-slate-400 transition cursor-pointer">
+
+      <!-- CAMERA INPUT -->
+
+      <input
+        id="cameraInput"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        class="hidden">
+
+
+      <!-- FILE / GALLERY INPUT -->
+
+      <input
+        id="galleryInput"
+        type="file"
+        accept="image/*"
+        class="hidden">
+
+
+      <div class="text-center">
+
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
 
           <i
-            id="saveButtonIcon"
-            data-lucide="save"
-            class="w-4 h-4">
+            data-lucide="image-plus"
+            class="w-7 h-7 text-slate-500">
           </i>
 
-          <span id="saveButtonText">
-            Simpan Data
+        </div>
+
+
+        <p class="font-bold text-sm">
+          Tambahkan Foto Lokasi
+        </p>
+
+        <p class="text-xs text-slate-400 mt-1">
+          Ambil foto dengan kamera atau pilih dari galeri
+        </p>
+
+
+        <!-- PHOTO ACTIONS -->
+
+        <div class="grid grid-cols-2 gap-3 mt-5 max-w-md mx-auto">
+
+          <button
+            type="button"
+            id="cameraButton"
+            class="photo-option border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+            <i data-lucide="camera" class="w-4 h-4"></i>
+
+            Kamera
+
+          </button>
+
+
+          <button
+            type="button"
+            id="galleryButton"
+            class="photo-option border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-3 text-sm font-bold flex items-center justify-center gap-2">
+
+            <i data-lucide="image" class="w-4 h-4"></i>
+
+            Galeri / File
+
+          </button>
+
+        </div>
+
+
+        <div class="flex items-center gap-3 max-w-md mx-auto my-4">
+
+          <div class="h-px bg-slate-200 flex-1"></div>
+
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+            atau
           </span>
 
-        </button>
+          <div class="h-px bg-slate-200 flex-1"></div>
+
+        </div>
 
 
-        <button
-          type="button"
-          onclick="resetForm()"
-          class="px-5 py-3.5 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50">
+        <div class="text-xs text-slate-400">
 
-          Reset
+          <i data-lucide="upload-cloud" class="w-4 h-4 inline-block align-middle mr-1"></i>
 
-        </button>
+          Tarik & lepas foto di area ini
+
+        </div>
 
       </div>
 
-    </form>
+
+      <!-- PHOTO PREVIEW -->
+
+      <div
+        id="photoPreviewWrap"
+        class="hidden mt-5">
+
+        <div class="relative">
+
+          <img
+            id="photoPreview"
+            src=""
+            class="w-full max-h-72 object-cover rounded-2xl border border-slate-200"
+            alt="Preview foto lokasi">
+
+
+          <button
+            type="button"
+            onclick="removePhoto()"
+            class="absolute top-3 right-3 w-9 h-9 rounded-xl bg-white/95 shadow-lg text-red-600 flex items-center justify-center hover:bg-red-50"
+            title="Hapus foto">
+
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+
+          </button>
+
+        </div>
+
+
+        <div class="flex items-center justify-between gap-3 mt-2">
+
+          <p
+            id="photoFileName"
+            class="text-xs text-slate-500 truncate">
+            Foto dipilih
+          </p>
+
+          <button
+            type="button"
+            onclick="replacePhoto()"
+            class="text-xs font-bold text-blue-600 hover:underline shrink-0">
+
+            Ganti foto
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <p
+      id="photoHelpText"
+      class="text-xs text-slate-400 mt-2">
+
+      Maksimal 4 MB. Foto akan masuk otomatis ke folder area di Google Drive.
+
+    </p>
+
+  </div>
+
+
+  <!-- TRUCK -->
+
+  <div>
+
+    <label class="text-sm font-bold block mb-3">
+      Truk yang Beroperasi
+    </label>
+
+    <p class="text-xs text-slate-500 mb-3">
+      Pilih <b>satu jenis truk saja</b> untuk setiap catatan lokasi.
+    </p>
+
+
+    <div class="grid sm:grid-cols-2 gap-4">
+
+
+      <!-- YELLOW -->
+
+      <label
+        id="yellowOption"
+        class="border-2 border-yellow-200 bg-yellow-50 rounded-2xl p-4 cursor-pointer transition">
+
+        <input
+          type="radio"
+          name="truckType"
+          value="yellow"
+          class="sr-only"
+          checked>
+
+        <div class="flex items-center gap-3">
+
+          <div class="w-10 h-10 rounded-xl bg-yellow-200 text-yellow-800 flex items-center justify-center">
+
+            <i data-lucide="truck" class="w-5 h-5"></i>
+
+          </div>
+
+          <div>
+
+            <p class="font-bold">
+              Truk Kuning
+            </p>
+
+            <p class="text-[11px] text-slate-500">
+              Jenis truk yang beroperasi
+            </p>
+
+          </div>
+
+          <i
+            data-lucide="check-circle-2"
+            class="truck-check-yellow ml-auto w-5 h-5 text-yellow-700">
+          </i>
+
+        </div>
+
+      </label>
+
+
+      <!-- GREEN -->
+
+      <label
+        id="greenOption"
+        class="border-2 border-slate-200 bg-slate-50 rounded-2xl p-4 cursor-pointer transition">
+
+        <input
+          type="radio"
+          name="truckType"
+          value="green"
+          class="sr-only">
+
+        <div class="flex items-center gap-3">
+
+          <div class="w-10 h-10 rounded-xl bg-emerald-200 text-emerald-800 flex items-center justify-center">
+
+            <i data-lucide="truck" class="w-5 h-5"></i>
+
+          </div>
+
+          <div>
+
+            <p class="font-bold">
+              Truk Hijau
+            </p>
+
+            <p class="text-[11px] text-slate-500">
+              Jenis truk yang beroperasi
+            </p>
+
+          </div>
+
+          <i
+            data-lucide="check-circle-2"
+            class="truck-check-green ml-auto w-5 h-5 text-slate-300">
+          </i>
+
+        </div>
+
+      </label>
+
+    </div>
+
+  </div>
+
+  <div class="mt-4">
+
+<label
+for="driverNote"
+class="block text-sm font-medium text-gray-700 mb-2"
+
+
+
+Catatan / Keterangan
+
+  </label>
+
+<input
+ type="text"
+ id="driverNote"
+ name="driverNote"
+ placeholder="Masukkan nama driver..."
+ class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm
+        focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+        outline-none transition"
+/>
+
+</div>
+
+  <!-- COUNT -->
+
+  <div>
+
+    <label class="text-sm font-bold block mb-2">
+      Jumlah Armada
+    </label>
+
+    <input
+      id="truckCount"
+      type="number"
+      min="1"
+      value="1"
+      required
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:border-slate-400">
+
+    <p class="text-xs text-slate-400 mt-2">
+      Jumlah unit dari jenis truk yang dipilih pada lokasi tersebut.
+    </p>
+
+  </div>
+
+
+  <!-- BUTTON -->
+
+  <div class="pt-2 flex flex-col sm:flex-row gap-3">
+
+    <button
+      id="saveButton"
+      type="submit"
+      class="flex-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl py-3.5 font-bold text-sm flex items-center justify-center gap-2">
+
+      <i
+        id="saveButtonIcon"
+        data-lucide="save"
+        class="w-4 h-4">
+      </i>
+
+      <span id="saveButtonText">
+        Simpan Data
+      </span>
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="resetForm()"
+      class="px-5 py-3.5 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50">
+
+      Reset
+
+    </button>
+
+  </div>
+
+</form>
 
   </div>
 
 </section>
-
 
 <!-- =====================================================
      REKAP
@@ -1214,526 +1169,520 @@
 
   <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
 
-    <div>
+<div>
 
-      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-        Laporan Operasional
-      </p>
+  <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+    Laporan Operasional
+  </p>
 
-      <h2 class="text-2xl sm:text-3xl font-extrabold">
-        Laporan Armada
-      </h2>
+  <h2 class="text-2xl sm:text-3xl font-extrabold">
+    Laporan Armada
+  </h2>
 
-      <p class="text-sm text-slate-500 mt-1">
-        Ringkasan dan detail aktivitas armada berdasarkan periode yang dipilih.
-      </p>
+  <p class="text-sm text-slate-500 mt-1">
+    Ringkasan dan detail aktivitas armada berdasarkan periode yang dipilih.
+  </p>
 
-    </div>
+</div>
 
-    <div class="flex flex-col sm:flex-row gap-2">
+<div class="flex flex-col sm:flex-row gap-2">
 
-      <button
-        onclick="exportReportPDF()"
-        class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
+  <button
+    onclick="exportReportPDF()"
+    class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg">
 
-        <i data-lucide="file-text" class="w-4 h-4"></i>
+    <i data-lucide="file-text" class="w-4 h-4"></i>
 
-        Export PDF
+    Export PDF
 
-      </button>
+  </button>
 
-      <button
-        onclick="exportReportExcel()"
-        class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
+  <button
+    onclick="exportReportExcel()"
+    class="border border-slate-200 bg-white hover:bg-slate-50 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
 
-        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
 
-        Export Excel
+    Export Excel
 
-      </button>
+  </button>
 
-    </div>
+</div>
 
   </div>
-
 
   <!-- FILTER -->
 
   <div class="card rounded-3xl p-5 sm:p-6">
 
-    <div class="flex items-center gap-3 mb-5">
+<div class="flex items-center gap-3 mb-5">
 
-      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+  <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
 
-        <i data-lucide="filter" class="w-5 h-5"></i>
-
-      </div>
-
-      <div>
-
-        <h3 class="font-extrabold">
-          Filter Laporan
-        </h3>
-
-        <p class="text-xs text-slate-500">
-          Tentukan periode dan data yang ingin ditampilkan.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <!-- TANGGAL -->
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-
-      <div>
-
-        <label class="text-xs font-bold text-slate-500 block mb-2">
-          DARI TANGGAL
-        </label>
-
-        <input
-          type="date"
-          id="rekapStartDate"
-          onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-      </div>
-
-
-      <div>
-
-        <label class="text-xs font-bold text-slate-500 block mb-2">
-          SAMPAI TANGGAL
-        </label>
-
-        <input
-          type="date"
-          id="rekapEndDate"
-          onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-      </div>
-
-    </div>
-
-
-    <!-- PRESET -->
-
-    <div class="mb-5">
-
-      <label class="text-xs font-bold text-slate-500 block mb-2">
-        PERIODE CEPAT
-      </label>
-
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-
-        <button
-          type="button"
-          onclick="setRekapPreset('today')"
-          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
-
-          Hari Ini
-
-        </button>
-
-
-        <button
-          type="button"
-          onclick="setRekapPreset('7days')"
-          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
-
-          7 Hari
-
-        </button>
-
-
-        <button
-          type="button"
-          onclick="setRekapPreset('thisMonth')"
-          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
-
-          Bulan Ini
-
-        </button>
-
-
-        <button
-          type="button"
-          onclick="setRekapPreset('lastMonth')"
-          class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
-
-          Bulan Lalu
-
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <!-- FILTER LAIN -->
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-      <div>
-
-        <label class="text-xs font-bold text-slate-500 block mb-2">
-          TAMPILAN
-        </label>
-
-        <select
-          id="rekapType"
-          onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-          <option value="daily">
-            Harian
-          </option>
-
-          <option value="weekly">
-            Mingguan
-          </option>
-
-          <option value="monthly">
-            Bulanan
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div>
-
-        <label class="text-xs font-bold text-slate-500 block mb-2">
-          AREA
-        </label>
-
-        <select
-          id="rekapArea"
-          onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-          <option value="all">
-            Semua Area
-          </option>
-
-          <option value="Karawang">
-            Karawang
-          </option>
-
-          <option value="Purwakarta">
-            Purwakarta
-          </option>
-
-          <option value="Subang">
-            Subang
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div>
-
-        <label class="text-xs font-bold text-slate-500 block mb-2">
-          JENIS TRUK
-        </label>
-
-        <select
-          id="rekapTruck"
-          onchange="renderRekap()"
-          class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
-
-          <option value="all">
-            Semua Jenis
-          </option>
-
-          <option value="yellow">
-            Truk Kuning
-          </option>
-
-          <option value="green">
-            Truk Hijau
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
+    <i data-lucide="filter" class="w-5 h-5"></i>
 
   </div>
 
+  <div>
+
+    <h3 class="font-extrabold">
+      Filter Laporan
+    </h3>
+
+    <p class="text-xs text-slate-500">
+      Tentukan periode dan data yang ingin ditampilkan.
+    </p>
+
+  </div>
+
+</div>
+
+
+<!-- TANGGAL -->
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+
+  <div>
+
+    <label class="text-xs font-bold text-slate-500 block mb-2">
+      DARI TANGGAL
+    </label>
+
+    <input
+      type="date"
+      id="rekapStartDate"
+      onchange="renderRekap()"
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+  </div>
+
+
+  <div>
+
+    <label class="text-xs font-bold text-slate-500 block mb-2">
+      SAMPAI TANGGAL
+    </label>
+
+    <input
+      type="date"
+      id="rekapEndDate"
+      onchange="renderRekap()"
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+  </div>
+
+</div>
+
+
+<!-- PRESET -->
+
+<div class="mb-5">
+
+  <label class="text-xs font-bold text-slate-500 block mb-2">
+    PERIODE CEPAT
+  </label>
+
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+
+    <button
+      type="button"
+      onclick="setRekapPreset('today')"
+      class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+      Hari Ini
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="setRekapPreset('7days')"
+      class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+      7 Hari
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="setRekapPreset('thisMonth')"
+      class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+      Bulan Ini
+
+    </button>
+
+
+    <button
+      type="button"
+      onclick="setRekapPreset('lastMonth')"
+      class="border border-slate-200 bg-white hover:bg-slate-50 rounded-xl px-3 py-2.5 text-xs font-bold">
+
+      Bulan Lalu
+
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- FILTER LAIN -->
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+  <div>
+
+    <label class="text-xs font-bold text-slate-500 block mb-2">
+      TAMPILAN
+    </label>
+
+    <select
+      id="rekapType"
+      onchange="renderRekap()"
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+      <option value="daily">
+        Harian
+      </option>
+
+      <option value="weekly">
+        Mingguan
+      </option>
+
+      <option value="monthly">
+        Bulanan
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div>
+
+    <label class="text-xs font-bold text-slate-500 block mb-2">
+      AREA
+    </label>
+
+    <select
+      id="rekapArea"
+      onchange="renderRekap()"
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+      <option value="all">
+        Semua Area
+      </option>
+
+      <option value="Karawang">
+        Karawang
+      </option>
+
+      <option value="Purwakarta">
+        Purwakarta
+      </option>
+
+      <option value="Subang">
+        Subang
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div>
+
+    <label class="text-xs font-bold text-slate-500 block mb-2">
+      JENIS TRUK
+    </label>
+
+    <select
+      id="rekapTruck"
+      onchange="renderRekap()"
+      class="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white text-sm">
+
+      <option value="all">
+        Semua Jenis
+      </option>
+
+      <option value="yellow">
+        Truk Kuning
+      </option>
+
+      <option value="green">
+        Truk Hijau
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
+
+  </div>
 
   <!-- SUMMARY -->
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-    <div class="card rounded-3xl p-5">
+<div class="card rounded-3xl p-5">
 
-      <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
+  <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-4">
 
-        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Total Aktivitas
-      </p>
-
-      <p
-        id="reportActivityTotal"
-        class="text-3xl font-extrabold mt-1">
-        0
-      </p>
-
-      <p class="text-[11px] text-slate-400 mt-1">
-        Catatan operasional
-      </p>
-
-    </div>
-
-
-    <div class="card rounded-3xl p-5">
-
-      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
-
-        <i data-lucide="truck" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Total Armada
-      </p>
-
-      <p
-        id="reportTruckTotal"
-        class="text-3xl font-extrabold mt-1">
-        0
-      </p>
-
-      <p class="text-[11px] text-slate-400 mt-1">
-        Seluruh unit tercatat
-      </p>
-
-    </div>
-
-
-    <div class="card rounded-3xl p-5">
-
-      <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
-
-        <i data-lucide="truck" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Truk Kuning
-      </p>
-
-      <p
-        id="reportYellowTotal"
-        class="text-3xl font-extrabold mt-1">
-        0
-      </p>
-
-    </div>
-
-
-    <div class="card rounded-3xl p-5">
-
-      <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-
-        <i data-lucide="truck" class="w-5 h-5"></i>
-
-      </div>
-
-      <p class="text-xs text-slate-500 font-semibold">
-        Truk Hijau
-      </p>
-
-      <p
-        id="reportGreenTotal"
-        class="text-3xl font-extrabold mt-1">
-        0
-      </p>
-
-    </div>
+    <i data-lucide="clipboard-list" class="w-5 h-5"></i>
 
   </div>
 
+  <p class="text-xs text-slate-500 font-semibold">
+    Total Aktivitas
+  </p>
+
+  <p
+    id="reportActivityTotal"
+    class="text-3xl font-extrabold mt-1">
+    0
+  </p>
+
+  <p class="text-[11px] text-slate-400 mt-1">
+    Catatan operasional
+  </p>
+
+</div>
+
+
+<div class="card rounded-3xl p-5">
+
+  <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+
+    <i data-lucide="truck" class="w-5 h-5"></i>
+
+  </div>
+
+  <p class="text-xs text-slate-500 font-semibold">
+    Total Armada
+  </p>
+
+  <p
+    id="reportTruckTotal"
+    class="text-3xl font-extrabold mt-1">
+    0
+  </p>
+
+  <p class="text-[11px] text-slate-400 mt-1">
+    Seluruh unit tercatat
+  </p>
+
+</div>
+
+
+<div class="card rounded-3xl p-5">
+
+  <div class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
+
+    <i data-lucide="truck" class="w-5 h-5"></i>
+
+  </div>
+
+  <p class="text-xs text-slate-500 font-semibold">
+    Truk Kuning
+  </p>
+
+  <p
+    id="reportYellowTotal"
+    class="text-3xl font-extrabold mt-1">
+    0
+  </p>
+
+</div>
+
+
+<div class="card rounded-3xl p-5">
+
+  <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+
+    <i data-lucide="truck" class="w-5 h-5"></i>
+
+  </div>
+
+  <p class="text-xs text-slate-500 font-semibold">
+    Truk Hijau
+  </p>
+
+  <p
+    id="reportGreenTotal"
+    class="text-3xl font-extrabold mt-1">
+    0
+  </p>
+
+</div>
+
+  </div>
 
   <!-- REKAP AREA -->
 
   <div class="card rounded-3xl p-5 sm:p-6">
 
-    <div class="flex items-center gap-3 mb-5">
+<div class="flex items-center gap-3 mb-5">
 
-      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+  <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
 
-        <i data-lucide="map" class="w-5 h-5"></i>
-
-      </div>
-
-      <div>
-
-        <h3 class="font-extrabold">
-          Rekap Area
-        </h3>
-
-        <p class="text-xs text-slate-500">
-          Aktivitas armada berdasarkan area operasional.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <div
-      id="reportAreaTable"
-      class="overflow-x-auto">
-    </div>
+    <i data-lucide="map" class="w-5 h-5"></i>
 
   </div>
 
+  <div>
+
+    <h3 class="font-extrabold">
+      Rekap Area
+    </h3>
+
+    <p class="text-xs text-slate-500">
+      Aktivitas armada berdasarkan area operasional.
+    </p>
+
+  </div>
+
+</div>
+
+
+<div
+  id="reportAreaTable"
+  class="overflow-x-auto">
+</div>
+
+  </div>
 
   <!-- REKAP PERIODE -->
 
   <div>
 
-    <div class="flex items-center justify-between mb-4">
+<div class="flex items-center justify-between mb-4">
 
-      <div>
+  <div>
 
-        <h3 class="font-extrabold">
-          Rekap Periode
-        </h3>
+    <h3 class="font-extrabold">
+      Rekap Periode
+    </h3>
 
-        <p class="text-xs text-slate-500 mt-1">
-          Ringkasan sesuai periode yang dipilih.
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <div
-      id="rekapCards"
-      class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-    </div>
+    <p class="text-xs text-slate-500 mt-1">
+      Ringkasan sesuai periode yang dipilih.
+    </p>
 
   </div>
 
+</div>
+
+
+<div
+  id="rekapCards"
+  class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+</div>
+
+  </div>
 
   <!-- DETAIL -->
 
   <div class="card rounded-3xl overflow-hidden">
 
-    <div class="p-5 sm:p-6 border-b border-slate-100">
+<div class="p-5 sm:p-6 border-b border-slate-100">
 
-      <div class="flex items-center gap-3">
+  <div class="flex items-center gap-3">
 
-        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+    <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
 
-          <i data-lucide="list" class="w-5 h-5"></i>
-
-        </div>
-
-        <div>
-
-          <h3 class="font-extrabold">
-            Detail Aktivitas
-          </h3>
-
-          <p class="text-xs text-slate-500">
-            Data aktivitas yang masuk dalam filter laporan.
-          </p>
-
-        </div>
-
-      </div>
+      <i data-lucide="list" class="w-5 h-5"></i>
 
     </div>
 
+    <div>
 
-    <div class="overflow-x-auto">
+      <h3 class="font-extrabold">
+        Detail Aktivitas
+      </h3>
 
-      <table class="w-full min-w-[1050px]">
-
-        <thead class="bg-slate-50 text-left">
-
-          <tr class="text-[11px] uppercase tracking-wider text-slate-500">
-
-            <th class="px-5 py-4">
-              Tanggal
-            </th>
-
-            <th class="px-5 py-4">
-              Jam
-            </th>
-
-            <th class="px-5 py-4">
-              Lokasi
-            </th>
-
-            <th class="px-5 py-4">
-              Area
-            </th>
-
-            <th class="px-5 py-4">
-              Truk
-            </th>
-
-            <th class="px-5 py-4">
-              Jumlah
-            </th>
-
-            <th class="px-5 py-4">
-              Keterangan
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="reportDetailTable"></tbody>
-
-      </table>
-
-    </div>
-
-
-    <div
-      id="reportEmptyState"
-      class="hidden text-center px-5 py-14">
-
-      <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-
-        <i data-lucide="file-search" class="w-6 h-6 text-slate-400"></i>
-
-      </div>
-
-      <p class="font-bold">
-        Tidak ada data
-      </p>
-
-      <p class="text-xs text-slate-500 mt-1">
-        Tidak ada aktivitas yang sesuai dengan filter laporan.
+      <p class="text-xs text-slate-500">
+        Data aktivitas yang masuk dalam filter laporan.
       </p>
 
     </div>
 
   </div>
 
-</section>
+</div>
 
+
+<div class="overflow-x-auto">
+
+  <table class="w-full min-w-[1050px]">
+
+    <thead class="bg-slate-50 text-left">
+
+      <tr class="text-[11px] uppercase tracking-wider text-slate-500">
+
+        <th class="px-5 py-4">
+          Tanggal
+        </th>
+
+        <th class="px-5 py-4">
+          Jam
+        </th>
+
+        <th class="px-5 py-4">
+          Lokasi
+        </th>
+
+        <th class="px-5 py-4">
+          Area
+        </th>
+
+        <th class="px-5 py-4">
+          Truk
+        </th>
+
+        <th class="px-5 py-4">
+          Jumlah
+        </th>
+
+        <th class="px-5 py-4">
+          Keterangan
+        </th>
+
+      </tr>
+
+    </thead>
+
+    <tbody id="reportDetailTable"></tbody>
+
+  </table>
+
+</div>
+
+
+<div
+  id="reportEmptyState"
+  class="hidden text-center px-5 py-14">
+
+  <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+
+    <i data-lucide="file-search" class="w-6 h-6 text-slate-400"></i>
+
+  </div>
+
+  <p class="font-bold">
+    Tidak ada data
+  </p>
+
+  <p class="text-xs text-slate-500 mt-1">
+    Tidak ada aktivitas yang sesuai dengan filter laporan.
+  </p>
+
+</div>
+
+  </div>
+
+</section>
 
 <!-- =====================================================
      DATA
@@ -1745,279 +1694,151 @@
 
   <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
 
-    <div>
+<div>
 
-      <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
-        Google Sheets
-      </p>
+  <p class="text-xs font-bold uppercase tracking-[.2em] text-slate-400 mb-2">
+    Google Sheets
+  </p>
 
-      <h2 class="text-2xl sm:text-3xl font-extrabold">
-        Data Armada
-      </h2>
+  <h2 class="text-2xl sm:text-3xl font-extrabold">
+    Data Armada
+  </h2>
 
-      <p class="text-sm text-slate-500 mt-1">
-        Semua catatan armada tersimpan di Google Sheets.
-      </p>
+  <p class="text-sm text-slate-500 mt-1">
+    Semua catatan armada tersimpan di Google Sheets.
+  </p>
 
-    </div>
-
-
-    <div class="flex gap-2">
-
-      <button
-        onclick="loadData()"
-        class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
-
-        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-
-        Refresh
-
-      </button>
+</div>
 
 
-      <button
-        onclick="exportCSV()"
-        class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
+<div class="flex gap-2">
 
-        <i data-lucide="download" class="w-4 h-4"></i>
+  <button
+    onclick="loadData()"
+    class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
 
-        Export CSV
+    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
 
-      </button>
+    Refresh
 
-    </div>
+  </button>
+
+
+  <button
+    onclick="exportCSV()"
+    class="border border-slate-200 bg-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-slate-50">
+
+    <i data-lucide="download" class="w-4 h-4"></i>
+
+    Export CSV
+
+  </button>
+
+</div>
 
   </div>
 
-
   <div class="card rounded-3xl overflow-hidden">
 
-    <div class="p-4 border-b border-slate-100">
+<div class="p-4 border-b border-slate-100">
 
-      <div class="relative max-w-md">
+  <div class="relative max-w-md">
 
-        <i
-          data-lucide="search"
-          class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-        </i>
+    <i
+      data-lucide="search"
+      class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+    </i>
 
-        <input
-          id="searchData"
-          oninput="renderTable()"
-          placeholder="Cari lokasi, area, tanggal..."
-          class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm">
+    <input
+      id="searchData"
+      oninput="renderTable()"
+      placeholder="Cari lokasi, area, tanggal..."
+      class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm">
 
-      </div>
+  </div>
 
-    </div>
-
-
-    <div class="overflow-x-auto">
-
-      <table class="w-full min-w-[950px]">
-
-        <thead class="bg-slate-50 text-left">
-
-          <tr class="text-[11px] uppercase tracking-wider text-slate-500">
-
-            <th class="px-5 py-4">
-              Tanggal
-            </th>
-
-            <th class="px-5 py-4">
-              Jam
-            </th>
-
-            <th class="px-5 py-4">
-              Lokasi
-            </th>
-
-            <th class="px-5 py-4">
-              Area
-            </th>
-
-            <th class="px-5 py-4">
-              Foto
-            </th>
-
-            <th class="px-5 py-4">
-              Truk
-            </th>
-
-            <th class="px-5 py-4">
-              Jumlah
-            </th>
-
-            <th class="px-5 py-4 text-right">
-              Aksi
-            </th>
-
-          </tr>
-
-        </thead>
+</div>
 
 
-        <tbody id="dataTable"></tbody>
+<div class="overflow-x-auto">
 
-      </table>
+  <table class="w-full min-w-[950px]">
 
-    </div>
+    <thead class="bg-slate-50 text-left">
+
+      <tr class="text-[11px] uppercase tracking-wider text-slate-500">
+
+        <th class="px-5 py-4">
+          Tanggal
+        </th>
+
+        <th class="px-5 py-4">
+          Jam
+        </th>
+
+        <th class="px-5 py-4">
+          Lokasi
+        </th>
+
+        <th class="px-5 py-4">
+          Area
+        </th>
+
+        <th class="px-5 py-4">
+          Foto
+        </th>
+
+        <th class="px-5 py-4">
+          Truk
+        </th>
+
+        <th class="px-5 py-4">
+          Jumlah
+        </th>
+
+        <th class="px-5 py-4 text-right">
+          Aksi
+        </th>
+
+      </tr>
+
+    </thead>
 
 
-    <div
-      id="emptyState"
-      class="hidden text-center px-5 py-16">
+    <tbody id="dataTable"></tbody>
 
-      <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+  </table>
 
-        <i
-          data-lucide="database"
-          class="w-6 h-6 text-slate-400">
-        </i>
+</div>
 
-      </div>
 
-      <p class="font-bold">
-        Belum ada data
-      </p>
+<div
+  id="emptyState"
+  class="hidden text-center px-5 py-16">
 
-      <p class="text-xs text-slate-500 mt-1">
-        Tambahkan data armada untuk mulai melihat laporan.
-      </p>
+  <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
 
-    </div>
+    <i
+      data-lucide="database"
+      class="w-6 h-6 text-slate-400">
+    </i>
+
+  </div>
+
+  <p class="font-bold">
+    Belum ada data
+  </p>
+
+  <p class="text-xs text-slate-500 mt-1">
+    Tambahkan data armada untuk mulai melihat laporan.
+  </p>
+
+</div>
 
   </div>
 
 </section>
 
-
-  </div>
-
-
-  <!-- =====================================================
-       ADMIN PANEL — TAMBAHAN
-  ====================================================== -->
-  <div id="adminModal" class="fixed inset-0 z-[90] hidden items-center justify-center p-4">
-    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm" onclick="closeAdminPanel()"></div>
-
-    <div class="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-slate-200">
-      <div class="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-100 px-5 sm:px-7 py-5 flex items-center justify-between gap-4">
-        <div>
-          <p class="text-[11px] font-bold uppercase tracking-[.2em] text-slate-400">Pengaturan</p>
-          <h2 class="text-xl sm:text-2xl font-extrabold">Admin ArmadaTrack</h2>
-          <p class="text-xs text-slate-500 mt-1">Kelola daftar kota/area dan jenis kendaraan yang tersedia pada form.</p>
-        </div>
-        <button type="button" onclick="closeAdminPanel()" class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="p-5 sm:p-7 space-y-6">
-        <div id="adminLoginBox" class="card rounded-3xl p-5 sm:p-6">
-          <div class="flex items-start gap-4">
-            <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shrink-0">
-              <i data-lucide="lock-keyhole" class="w-5 h-5"></i>
-            </div>
-            <div class="flex-1">
-              <h3 class="font-extrabold">Akses Admin</h3>
-              <p class="text-xs text-slate-500 mt-1">Masukkan PIN admin untuk membuka pengaturan.</p>
-              <div class="flex flex-col sm:flex-row gap-2 mt-4">
-                <input id="adminPinInput" type="password" inputmode="numeric" maxlength="6"
-                  class="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold tracking-[.35em]"
-                  placeholder="PIN 6 digit"
-                  onkeydown="if(event.key==='Enter') verifyAdminPin()">
-                <button type="button" onclick="verifyAdminPin()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-xl text-sm font-bold">
-                  Masuk
-                </button>
-              </div>
-              <p id="adminPinHint" class="text-[11px] text-slate-400 mt-2"></p>
-            </div>
-          </div>
-        </div>
-
-        <div id="adminContent" class="hidden space-y-6">
-          <div class="grid lg:grid-cols-2 gap-6">
-            <div class="card rounded-3xl p-5">
-              <div class="flex items-center justify-between gap-3 mb-4">
-                <div>
-                  <h3 class="font-extrabold">Kota / Area</h3>
-                  <p class="text-xs text-slate-500 mt-1">Tambah atau hapus area yang muncul di form.</p>
-                </div>
-                <span id="adminAreaCount" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600">0</span>
-              </div>
-
-              <div class="flex gap-2 mb-4">
-                <input id="newAreaName" type="text" maxlength="40"
-                  class="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm"
-                  placeholder="Contoh: Bekasi"
-                  onkeydown="if(event.key==='Enter') addAdminArea()">
-                <select id="newAreaColor" class="border border-slate-200 rounded-xl px-3 py-3 text-sm bg-white">
-                  <option value="blue">Biru</option>
-                  <option value="purple">Ungu</option>
-                  <option value="orange">Oranye</option>
-                  <option value="emerald">Hijau</option>
-                  <option value="rose">Merah</option>
-                  <option value="slate">Abu</option>
-                </select>
-                <button type="button" onclick="addAdminArea()" class="bg-slate-900 text-white rounded-xl px-4 font-bold text-sm">
-                  <i data-lucide="plus" class="w-4 h-4"></i>
-                </button>
-              </div>
-
-              <div id="adminAreaList" class="space-y-2"></div>
-            </div>
-
-            <div class="card rounded-3xl p-5">
-              <div class="flex items-center justify-between gap-3 mb-4">
-                <div>
-                  <h3 class="font-extrabold">Jenis Kendaraan</h3>
-                  <p class="text-xs text-slate-500 mt-1">Tambah atau hapus pilihan kendaraan pada form.</p>
-                </div>
-                <span id="adminVehicleCount" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600">0</span>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2 mb-4">
-                <input id="newVehicleName" type="text" maxlength="40"
-                  class="border border-slate-200 rounded-xl px-4 py-3 text-sm"
-                  placeholder="Contoh: Truk Biru"
-                  onkeydown="if(event.key==='Enter') addAdminVehicle()">
-                <select id="newVehicleColor" class="border border-slate-200 rounded-xl px-3 py-3 text-sm bg-white">
-                  <option value="blue">Biru</option>
-                  <option value="yellow">Kuning</option>
-                  <option value="green">Hijau</option>
-                  <option value="purple">Ungu</option>
-                  <option value="orange">Oranye</option>
-                  <option value="rose">Merah</option>
-                  <option value="slate">Abu</option>
-                </select>
-                <button type="button" onclick="addAdminVehicle()" class="bg-slate-900 text-white rounded-xl px-4 font-bold text-sm">
-                  <i data-lucide="plus" class="w-4 h-4"></i>
-                </button>
-              </div>
-
-              <div id="adminVehicleList" class="space-y-2"></div>
-            </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
-            <div>
-              <p class="text-sm font-bold text-amber-900">Reset pengaturan</p>
-              <p class="text-xs text-amber-700 mt-1">Mengembalikan daftar area dan kendaraan ke bawaan awal.</p>
-            </div>
-            <button type="button" onclick="resetAdminConfig()" class="border border-amber-300 bg-white text-amber-800 hover:bg-amber-100 px-4 py-2.5 rounded-xl text-xs font-bold">
-              Reset Bawaan
-            </button>
-          </div>
-
-          <div class="text-right">
-            <button type="button" onclick="closeAdminPanel()" class="bg-slate-900 text-white px-5 py-3 rounded-xl text-sm font-bold">
-              Selesai
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- =====================================================
@@ -2028,10 +1849,9 @@
     id="toast"
     class="fixed bottom-5 right-5 left-5 sm:left-auto z-50 translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
 
-
 <i
-  data-lucide="check-circle-2"
-  class="w-5 h-5 shrink-0">
+data-lucide="check-circle-2"
+class="w-5 h-5 shrink-0">
 </i>
 
 <p
@@ -2039,7 +1859,6 @@
   class="text-sm font-semibold">
   Data berhasil disimpan
 </p>
-
 
   </div>
 
@@ -2437,15 +2256,17 @@
     ),
 
   truckType:
-    String(r.truckType || "yellow").trim().toLowerCase() || "yellow",
+    String(r.truckType).toLowerCase() === "green"
+      ? "green"
+      : "yellow",
 
   yellow:
-    String(r.truckType || "").toLowerCase() === "yellow"
-      ? total
-      : 0,
+    String(r.truckType).toLowerCase() === "green"
+      ? 0
+      : total,
 
   green:
-    String(r.truckType || "").toLowerCase() === "green"
+    String(r.truckType).toLowerCase() === "green"
       ? total
       : 0,
 
@@ -4944,7 +4765,7 @@ if (
         <tbody>
 
           ${
-            getAdminAreas()
+            ["Karawang","Purwakarta","Subang"]
               .map(
                 name => {
 
@@ -5296,11 +5117,15 @@ if (
               <td class="px-5 py-4">
 
                 <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
-                  adminVehicleClasses(r.truckType)
+                  r.truckType === "yellow"
+                    ? "bg-yellow-50 text-yellow-700"
+                    : "bg-emerald-50 text-emerald-700"
                 }">
 
                   ${
-                    adminVehicleLabel(r.truckType)
+                    r.truckType === "yellow"
+                      ? "Kuning"
+                      : "Hijau"
                   }
 
                 </span>
@@ -5673,11 +5498,15 @@ function toInputDate(
                 <td class="px-5 py-4">
 
                   <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
-                    adminVehicleClasses(r.truckType)
+                    r.truckType === "yellow"
+                      ? "bg-yellow-50 text-yellow-700"
+                      : "bg-emerald-50 text-emerald-700"
                   }">
 
                     ${
-                      adminVehicleLabel(r.truckType)
+                      r.truckType === "yellow"
+                        ? "Kuning"
+                        : "Hijau"
                     }
 
                   </span>
@@ -6041,7 +5870,9 @@ function toInputDate(
       r.driverName
         ? r.driverName
         : "",
-      adminVehicleLabel(r.truckType),
+      r.truckType === "yellow"
+        ? "Kuning"
+        : "Hijau",
       r.total,
       r.photo
         ? "Ada"
@@ -6185,7 +6016,9 @@ a.download =
 
             r.area,
 
-            adminVehicleLabel(r.truckType),
+            r.truckType === "yellow"
+              ? "Kuning"
+              : "Hijau",
 
             r.total,
 
@@ -6713,7 +6546,9 @@ function exportReportPDF() {
 
             r.area,
 
-            adminVehicleLabel(r.truckType),
+            r.truckType === "yellow"
+              ? "Kuning"
+              : "Hijau",
 
             r.total,
 
@@ -7177,7 +7012,9 @@ function exportReportExcel() {
 
             r.area,
 
-            adminVehicleLabel(r.truckType),
+            r.truckType === "yellow"
+              ? "Kuning"
+              : "Hijau",
 
             r.total,
 
@@ -7386,597 +7223,6 @@ function exportReportExcel() {
     loadData();
 
   </script>
-
-
-<script>
-/* =========================================================
-   ADMIN EXTENSION — area & vehicle master (local browser)
-   Tidak mengubah backend/API yang sudah ada.
-========================================================= */
-(() => {
-  const ADMIN_AREA_KEY = "armadatrack_admin_areas_v1";
-  const ADMIN_VEHICLE_KEY = "armadatrack_admin_vehicles_v1";
-  const ADMIN_PIN_KEY = "armadatrack_admin_pin_v1";
-
-  const DEFAULT_AREAS = [
-    { name: "Karawang", color: "blue" },
-    { name: "Purwakarta", color: "purple" },
-    { name: "Subang", color: "orange" }
-  ];
-
-  const DEFAULT_VEHICLES = [
-    { id: "yellow", name: "Truk Kuning", color: "yellow" },
-    { id: "green", name: "Truk Hijau", color: "green" }
-  ];
-
-  const AREA_CLASSES = {
-    blue: "bg-blue-50 text-blue-700",
-    purple: "bg-purple-50 text-purple-700",
-    orange: "bg-orange-50 text-orange-700",
-    emerald: "bg-emerald-50 text-emerald-700",
-    rose: "bg-rose-50 text-rose-700",
-    slate: "bg-slate-50 text-slate-700"
-  };
-
-  const VEHICLE_CLASSES = {
-    yellow: "bg-yellow-50 text-yellow-700",
-    green: "bg-emerald-50 text-emerald-700",
-    blue: "bg-blue-50 text-blue-700",
-    purple: "bg-purple-50 text-purple-700",
-    orange: "bg-orange-50 text-orange-700",
-    rose: "bg-rose-50 text-rose-700",
-    slate: "bg-slate-50 text-slate-700"
-  };
-
-  function cloneDefaults(value) {
-    return JSON.parse(JSON.stringify(value));
-  }
-
-  function readConfig(key, fallback) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) return cloneDefaults(fallback);
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length
-        ? parsed
-        : cloneDefaults(fallback);
-    } catch {
-      return cloneDefaults(fallback);
-    }
-  }
-
-  function saveConfig() {
-    localStorage.setItem(ADMIN_AREA_KEY, JSON.stringify(window.adminAreas));
-    localStorage.setItem(ADMIN_VEHICLE_KEY, JSON.stringify(window.adminVehicles));
-  }
-
-  window.adminAreas = readConfig(ADMIN_AREA_KEY, DEFAULT_AREAS);
-  window.adminVehicles = readConfig(ADMIN_VEHICLE_KEY, DEFAULT_VEHICLES);
-
-  window.getAdminAreas = function() {
-    return window.adminAreas.map(x => x.name);
-  };
-
-  window.getAdminVehicle = function(id) {
-    return window.adminVehicles.find(
-      x => String(x.id).toLowerCase() === String(id).toLowerCase()
-    );
-  };
-
-  window.adminVehicleLabel = function(id) {
-    const item = window.getAdminVehicle(id);
-    if (item) return item.name.replace(/^Truk\s+/i, "") || item.name;
-    if (String(id) === "yellow") return "Kuning";
-    if (String(id) === "green") return "Hijau";
-    return String(id || "-");
-  };
-
-  window.adminVehicleClasses = function(id) {
-    const item = window.getAdminVehicle(id);
-    return VEHICLE_CLASSES[item?.color] || "bg-slate-50 text-slate-700";
-  };
-
-  window.adminAreaClasses = function(name) {
-    const item = window.adminAreas.find(
-      x => x.name.toLowerCase() === String(name).toLowerCase()
-    );
-    return AREA_CLASSES[item?.color] || "bg-slate-50 text-slate-700";
-  };
-
-  function slugify(value) {
-    return String(value || "")
-      .toLowerCase()
-      .trim()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .substring(0, 35);
-  }
-
-  function uniqueId(base) {
-    let id = slugify(base) || "kendaraan";
-    let n = 2;
-    while (window.adminVehicles.some(v => v.id === id)) {
-      id = `${slugify(base) || "kendaraan"}-${n++}`;
-    }
-    return id;
-  }
-
-  function adminEscape(value) {
-    return typeof escapeHtml === "function"
-      ? escapeHtml(value)
-      : String(value ?? "").replace(/[&<>"']/g, c => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-        }[c]));
-  }
-
-  window.renderAdminLists = function() {
-    const areaList = document.getElementById("adminAreaList");
-    const vehicleList = document.getElementById("adminVehicleList");
-    const areaCount = document.getElementById("adminAreaCount");
-    const vehicleCount = document.getElementById("adminVehicleCount");
-
-    if (!areaList || !vehicleList) return;
-
-    areaCount.textContent = window.adminAreas.length;
-    vehicleCount.textContent = window.adminVehicles.length;
-
-    areaList.innerHTML = window.adminAreas.map((area, i) => `
-      <div class="flex items-center gap-3 border border-slate-100 rounded-2xl px-3 py-3">
-        <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${adminAreaClasses(area.name)}">
-          ${adminEscape(area.name)}
-        </span>
-        <span class="text-xs text-slate-400 flex-1">${adminEscape(area.color)}</span>
-        <button type="button" onclick="removeAdminArea(${i})"
-          class="w-8 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center"
-          title="Hapus area">
-          <i data-lucide="trash-2" class="w-4 h-4"></i>
-        </button>
-      </div>
-    `).join("");
-
-    vehicleList.innerHTML = window.adminVehicles.map((vehicle, i) => `
-      <div class="flex items-center gap-3 border border-slate-100 rounded-2xl px-3 py-3">
-        <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-          <i data-lucide="truck" class="w-4 h-4"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-bold truncate">${adminEscape(vehicle.name)}</p>
-          <p class="text-[10px] text-slate-400">${adminEscape(vehicle.id)}</p>
-        </div>
-        <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${VEHICLE_CLASSES[vehicle.color] || VEHICLE_CLASSES.slate}">
-          ${adminEscape(vehicle.color)}
-        </span>
-        <button type="button" onclick="removeAdminVehicle(${i})"
-          class="w-8 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center"
-          title="Hapus kendaraan">
-          <i data-lucide="trash-2" class="w-4 h-4"></i>
-        </button>
-      </div>
-    `).join("");
-
-    if (window.lucide) lucide.createIcons();
-  };
-
-  window.applyAdminConfig = function() {
-    const areaSelect = document.getElementById("area");
-    const rekapArea = document.getElementById("rekapArea");
-    const rekapTruck = document.getElementById("rekapTruck");
-
-    if (areaSelect) {
-      const current = areaSelect.value;
-      areaSelect.innerHTML =
-        `<option value="">Pilih Area</option>` +
-        window.adminAreas.map(a =>
-          `<option value="${adminEscape(a.name)}">${adminEscape(a.name)}</option>`
-        ).join("");
-      if (window.adminAreas.some(a => a.name === current)) areaSelect.value = current;
-    }
-
-    if (rekapArea) {
-      const current = rekapArea.value || "all";
-      rekapArea.innerHTML =
-        `<option value="all">Semua Area</option>` +
-        window.adminAreas.map(a =>
-          `<option value="${adminEscape(a.name)}">${adminEscape(a.name)}</option>`
-        ).join("");
-      rekapArea.value = window.adminAreas.some(a => a.name === current) ? current : "all";
-    }
-
-    if (rekapTruck) {
-      const current = rekapTruck.value || "all";
-      rekapTruck.innerHTML =
-        `<option value="all">Semua Jenis</option>` +
-        window.adminVehicles.map(v =>
-          `<option value="${adminEscape(v.id)}">${adminEscape(v.name)}</option>`
-        ).join("");
-      rekapTruck.value = window.adminVehicles.some(v => v.id === current) ? current : "all";
-    }
-
-    renderTruckChoices();
-  };
-
-  function renderTruckChoices(preferredType) {
-    const yellow = document.getElementById("yellowOption");
-    const green = document.getElementById("greenOption");
-    if (!yellow || !green) return;
-
-    const container = yellow.parentElement;
-    if (!container) return;
-
-    let selected = preferredType ||
-      document.querySelector('input[name="truckType"]:checked')?.value ||
-      "yellow";
-
-    if (!window.adminVehicles.some(v => v.id === selected)) {
-      selected = window.adminVehicles[0]?.id || "";
-    }
-
-    container.innerHTML = window.adminVehicles.map(v => {
-      const active = v.id === selected;
-      const tone = v.color === "yellow"
-        ? { border:"border-yellow-300", bg:"bg-yellow-50", icon:"bg-yellow-200 text-yellow-800", check:"text-yellow-700" }
-        : v.color === "green"
-        ? { border:"border-emerald-300", bg:"bg-emerald-50", icon:"bg-emerald-200 text-emerald-800", check:"text-emerald-700" }
-        : { border:"border-slate-300", bg:"bg-slate-50", icon:"bg-slate-200 text-slate-700", check:"text-slate-700" };
-
-      return `
-        <label id="adminTruck_${adminEscape(v.id)}"
-          class="border-2 ${active ? tone.border + " " + tone.bg : "border-slate-200 bg-slate-50"} rounded-2xl p-4 cursor-pointer transition">
-          <input type="radio" name="truckType" value="${adminEscape(v.id)}"
-            class="sr-only" ${active ? "checked" : ""}>
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl ${tone.icon} flex items-center justify-center">
-              <i data-lucide="truck" class="w-5 h-5"></i>
-            </div>
-            <div class="min-w-0">
-              <p class="font-bold truncate">${adminEscape(v.name)}</p>
-              <p class="text-[11px] text-slate-500">Jenis kendaraan yang beroperasi</p>
-            </div>
-            <i data-lucide="check-circle-2"
-              class="admin-truck-check ml-auto w-5 h-5 ${active ? tone.check : "text-slate-300"}"></i>
-          </div>
-        </label>
-      `;
-    }).join("");
-
-    if (window.lucide) lucide.createIcons();
-  }
-
-  // Override styling function used by the existing form.
-  window.updateTruckChoice = function() {
-    const type = document.querySelector('input[name="truckType"]:checked')?.value;
-    renderTruckChoices(type);
-  };
-
-  // Event delegation for dynamically-created vehicle cards.
-  document.addEventListener("change", e => {
-    if (e.target.matches('input[name="truckType"]')) {
-      renderTruckChoices(e.target.value);
-    }
-  });
-
-  window.addAdminArea = function() {
-    const input = document.getElementById("newAreaName");
-    const color = document.getElementById("newAreaColor")?.value || "blue";
-    const name = input?.value.trim();
-
-    if (!name) {
-      showToast("Masukkan nama kota/area terlebih dahulu.");
-      return;
-    }
-
-    if (window.adminAreas.some(a => a.name.toLowerCase() === name.toLowerCase())) {
-      showToast("Kota/area tersebut sudah ada.");
-      return;
-    }
-
-    window.adminAreas.push({ name, color });
-    saveConfig();
-    input.value = "";
-    renderAdminLists();
-    applyAdminConfig();
-    renderRekap();
-    showToast(`Area "${name}" berhasil ditambahkan.`);
-  };
-
-  window.removeAdminArea = function(index) {
-    const area = window.adminAreas[index];
-    if (!area) return;
-
-    const used = records.some(r => String(r.area).toLowerCase() === area.name.toLowerCase());
-    const message = used
-      ? `Area "${area.name}" sudah dipakai oleh data yang tersimpan.\n\nHapus dari daftar pilihan baru? Data lama tetap aman.`
-      : `Hapus area "${area.name}" dari daftar?`;
-
-    if (!confirm(message)) return;
-
-    window.adminAreas.splice(index, 1);
-    if (!window.adminAreas.length) {
-      showToast("Minimal harus ada satu area.");
-      window.adminAreas.push(area);
-      return;
-    }
-
-    saveConfig();
-    renderAdminLists();
-    applyAdminConfig();
-    renderRekap();
-    showToast(`Area "${area.name}" berhasil dihapus dari daftar.`);
-  };
-
-  window.addAdminVehicle = function() {
-    const input = document.getElementById("newVehicleName");
-    const color = document.getElementById("newVehicleColor")?.value || "slate";
-    const name = input?.value.trim();
-
-    if (!name) {
-      showToast("Masukkan nama kendaraan terlebih dahulu.");
-      return;
-    }
-
-    if (window.adminVehicles.some(v => v.name.toLowerCase() === name.toLowerCase())) {
-      showToast("Jenis kendaraan tersebut sudah ada.");
-      return;
-    }
-
-    const id = uniqueId(name);
-    window.adminVehicles.push({ id, name, color });
-    saveConfig();
-    input.value = "";
-    renderAdminLists();
-    applyAdminConfig();
-    renderDashboard();
-    renderRekap();
-    showToast(`Kendaraan "${name}" berhasil ditambahkan.`);
-  };
-
-  window.removeAdminVehicle = function(index) {
-    const vehicle = window.adminVehicles[index];
-    if (!vehicle) return;
-
-    const used = records.some(r => String(r.truckType).toLowerCase() === String(vehicle.id).toLowerCase());
-    const message = used
-      ? `Kendaraan "${vehicle.name}" sudah dipakai oleh data tersimpan.\n\nHapus dari daftar pilihan baru? Data lama tetap aman.`
-      : `Hapus "${vehicle.name}" dari daftar kendaraan?`;
-
-    if (!confirm(message)) return;
-
-    window.adminVehicles.splice(index, 1);
-    if (!window.adminVehicles.length) {
-      showToast("Minimal harus ada satu jenis kendaraan.");
-      window.adminVehicles.push(vehicle);
-      return;
-    }
-
-    saveConfig();
-    renderAdminLists();
-    applyAdminConfig();
-    renderDashboard();
-    renderRekap();
-    showToast(`Kendaraan "${vehicle.name}" berhasil dihapus dari daftar.`);
-  };
-
-  window.resetAdminConfig = function() {
-    if (!confirm("Kembalikan daftar kota/area dan kendaraan ke pengaturan awal?")) return;
-
-    window.adminAreas = cloneDefaults(DEFAULT_AREAS);
-    window.adminVehicles = cloneDefaults(DEFAULT_VEHICLES);
-    saveConfig();
-    renderAdminLists();
-    applyAdminConfig();
-    renderDashboard();
-    renderRekap();
-    renderTable();
-    showToast("Pengaturan admin berhasil dikembalikan.");
-  };
-
-  window.openAdminPanel = function() {
-    const modal = document.getElementById("adminModal");
-    if (!modal) return;
-
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-
-    const loggedIn = sessionStorage.getItem("armadatrack_admin_auth") === "1";
-    document.getElementById("adminLoginBox")?.classList.toggle("hidden", loggedIn);
-    document.getElementById("adminContent")?.classList.toggle("hidden", !loggedIn);
-
-    if (loggedIn) renderAdminLists();
-    else {
-      const hint = document.getElementById("adminPinHint");
-      if (hint) hint.textContent = "PIN ini dapat diubah langsung dari kode aplikasi.";
-      setTimeout(() => document.getElementById("adminPinInput")?.focus(), 100);
-    }
-
-    if (window.lucide) lucide.createIcons();
-  };
-
-  window.closeAdminPanel = function() {
-    const modal = document.getElementById("adminModal");
-    if (!modal) return;
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
-  };
-
-  window.verifyAdminPin = function() {
-    const input = document.getElementById("adminPinInput");
-    const pin = input?.value || "";
-    const savedPin = localStorage.getItem(ADMIN_PIN_KEY) || "123456";
-
-    if (pin !== savedPin) {
-      showToast("PIN admin salah.");
-      if (input) {
-        input.value = "";
-        input.focus();
-      }
-      return;
-    }
-
-    sessionStorage.setItem("armadatrack_admin_auth", "1");
-    document.getElementById("adminLoginBox")?.classList.add("hidden");
-    document.getElementById("adminContent")?.classList.remove("hidden");
-    renderAdminLists();
-    showToast("Akses admin berhasil dibuka.");
-  };
-
-  // Generic chart so newly-added vehicles are also visible.
-  window.renderTruckChart = function() {
-    const grouped = {};
-    window.adminVehicles.forEach(v => grouped[v.id] = 0);
-
-    records.forEach(r => {
-      const id = String(r.truckType || "").toLowerCase();
-      if (!(id in grouped)) grouped[id] = Number(r.total || 0);
-      else grouped[id] += Number(r.total || 0);
-    });
-
-    const entries = Object.entries(grouped).filter(([, value]) => Number(value) > 0);
-    if (truckChart) truckChart.destroy();
-
-    const canvas = document.getElementById("truckChart");
-    if (!canvas) return;
-
-    const labels = entries.map(([id]) => adminVehicleLabel(id));
-    const data = entries.map(([, value]) => value);
-
-    const colors = entries.map(([id]) => {
-      const v = getAdminVehicle(id);
-      const map = {
-        yellow: "#facc15",
-        green: "#10b981",
-        blue: "#3b82f6",
-        purple: "#8b5cf6",
-        orange: "#f97316",
-        rose: "#f43f5e",
-        slate: "#64748b"
-      };
-      return map[v?.color] || "#64748b";
-    });
-
-    truckChart = new Chart(canvas, {
-      type: "doughnut",
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: colors,
-          borderWidth: 0,
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: "72%",
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: {
-              usePointStyle: true,
-              boxWidth: 8,
-              font: { family: "Plus Jakarta Sans", size: 11 }
-            }
-          }
-        }
-      }
-    });
-  };
-
-  // Preserve the existing loader but make the record normalization compatible
-  // with custom vehicle IDs. The original API contract remains unchanged.
-  window.loadData = async function() {
-    try {
-      setLoading(true, "Mengambil data dari Google Sheets...");
-
-      const raw = await apiGet();
-
-      records = raw.map(r => {
-        const total = Number(r.total || 0);
-        const truckType = String(r.truckType || "yellow").trim().toLowerCase() || "yellow";
-
-        return {
-          id: String(r.id || ""),
-          timestamp: r.timestamp || "",
-          date: String(r.date || ""),
-          time: String(r.time || "").substring(0, 5),
-          location: String(r.location || ""),
-          area: String(r.area || ""),
-          truckType,
-          yellow: truckType === "yellow" ? total : 0,
-          green: truckType === "green" ? total : 0,
-          total,
-          driverName: String(r.driverName || r.namaDriver || r.keterangan || ""),
-          photo: r.photo || "",
-          photoFileId: r.photoFileId || "",
-          folder: r.folder || ""
-        };
-      });
-
-      applyAdminConfig();
-      renderDashboard();
-      renderRekap();
-      renderTable();
-    } catch (error) {
-      console.error(error);
-      showToast(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Make reset safe if a custom vehicle is active.
-  const originalResetForm = window.resetForm;
-  window.resetForm = function() {
-    originalResetForm();
-    applyAdminConfig();
-    const first = window.adminVehicles[0]?.id;
-    const radio = first
-      ? document.querySelector(`input[name="truckType"][value="${CSS.escape(first)}"]`)
-      : null;
-    if (radio) {
-      radio.checked = true;
-      renderTruckChoices(first);
-    }
-  };
-
-  // When editing a vehicle that was removed from the master list,
-  // temporarily show it so the old record remains editable.
-  const originalEditRecord = window.editRecord;
-  window.editRecord = function(id) {
-    const record = records.find(r => String(r.id) === String(id));
-    if (record && !window.getAdminVehicle(record.truckType)) {
-      window.adminVehicles.push({
-        id: record.truckType,
-        name: record.truckType,
-        color: "slate",
-        temporary: true
-      });
-      applyAdminConfig();
-    }
-    return originalEditRecord(id);
-  };
-
-  // Keep the original area/truck report structure, while ensuring new
-  // areas/vehicles are reflected in its filters.
-  const originalShowView = window.showView;
-  window.showView = function(name) {
-    applyAdminConfig();
-    return originalShowView(name);
-  };
-
-  // Initial setup after the original HTML has loaded.
-  applyAdminConfig();
-  renderAdminLists();
-
-  // The original file starts loadData() before this extension script.
-  // Run once more so custom master data is used from the beginning.
-  setTimeout(() => {
-    try { loadData(); } catch (e) { console.error(e); }
-  }, 50);
-})();
-</script>
 
 </body>
 </html>
