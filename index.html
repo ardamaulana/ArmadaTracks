@@ -7803,7 +7803,7 @@ function exportReportExcel() {
   window.verifyAdminPin = function() {
     const input = document.getElementById("adminPinInput");
     const pin = input?.value || "";
-    const savedPin = localStorage.getItem(ADMIN_PIN_KEY) || "minumairku";
+    const savedPin = localStorage.getItem(ADMIN_PIN_KEY) || "123456";
 
     if (pin !== savedPin) {
       showToast("PIN admin salah.");
