@@ -7799,7 +7799,7 @@ function exportReportExcel() {
     if (loggedIn) renderAdminLists();
     else {
       const hint = document.getElementById("adminPinHint");
-      if (hint) hint.textContent = "PIN bawaan: 123456. PIN ini dapat diubah langsung dari kode aplikasi.";
+      if (hint) hint.textContent = "PIN ini dapat diubah langsung dari kode aplikasi.";
       setTimeout(() => document.getElementById("adminPinInput")?.focus(), 100);
     }
 
