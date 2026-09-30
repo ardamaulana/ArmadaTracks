@@ -7786,7 +7786,7 @@ function exportReportExcel() {
     if (loggedIn) renderAdminLists();
     else {
       const hint = document.getElementById("adminPinHint");
-      if (hint) hint.textContent = "PIN bawaan: 123456. PIN ini dapat diubah langsung dari kode aplikasi.";
+      if (hint) hint.textContent = "PIN ini dapat diubah langsung dari kode aplikasi.";
       setTimeout(() => document.getElementById("adminPinInput")?.focus(), 100);
     }
 
@@ -7803,7 +7803,7 @@ function exportReportExcel() {
   window.verifyAdminPin = function() {
     const input = document.getElementById("adminPinInput");
     const pin = input?.value || "";
-    const savedPin = localStorage.getItem(ADMIN_PIN_KEY) || "123456";
+    const savedPin = localStorage.getItem(ADMIN_PIN_KEY) || "minumairku";
 
     if (pin !== savedPin) {
       showToast("PIN admin salah.");
