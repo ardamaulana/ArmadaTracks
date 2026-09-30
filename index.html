@@ -2402,7 +2402,11 @@
 
       const total =
         Number(
-          r.total || 0
+          r.total ??
+          r.jumlahArmada ??
+          r.jumlah ??
+          r.JumlahArmada ??
+          0
         );
 
 
@@ -7390,7 +7394,8 @@ function exportReportExcel() {
      * saat halaman pertama kali dibuka.
      */
 
-    loadData();
+    // loadData() dipanggil setelah Admin Extension siap.
+
 
   </script>
 
@@ -7892,48 +7897,6 @@ function exportReportExcel() {
     });
   };
 
-  // Preserve the existing loader but make the record normalization compatible
-  // with custom vehicle IDs. The original API contract remains unchanged.
-  window.loadData = async function() {
-    try {
-      setLoading(true, "Mengambil data dari Google Sheets...");
-
-      const raw = await apiGet();
-
-      records = raw.map(r => {
-        const total = Number(r.total || 0);
-        const truckType = String(r.truckType || "yellow").trim().toLowerCase() || "yellow";
-
-        return {
-          id: String(r.id || ""),
-          timestamp: r.timestamp || "",
-          date: String(r.date || ""),
-          time: String(r.time || "").substring(0, 5),
-          location: String(r.location || ""),
-          area: String(r.area || ""),
-          truckType,
-          yellow: truckType === "yellow" ? total : 0,
-          green: truckType === "green" ? total : 0,
-          total,
-          driverName: String(r.driverName || r.namaDriver || r.keterangan || ""),
-          photo: r.photo || "",
-          photoFileId: r.photoFileId || "",
-          folder: r.folder || ""
-        };
-      });
-
-      applyAdminConfig();
-      renderDashboard();
-      renderRekap();
-      renderTable();
-    } catch (error) {
-      console.error(error);
-      showToast(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Make reset safe if a custom vehicle is active.
   const originalResetForm = window.resetForm;
   window.resetForm = function() {
@@ -7978,11 +7941,9 @@ function exportReportExcel() {
   applyAdminConfig();
   renderAdminLists();
 
-  // The original file starts loadData() before this extension script.
-  // Run once more so custom master data is used from the beginning.
-  setTimeout(() => {
-    try { loadData(); } catch (e) { console.error(e); }
-  }, 50);
+  // Jalankan loader asli hanya sekali, setelah konfigurasi Admin siap.
+  // Ini mencegah dua request GET ke Google Sheets saat halaman dibuka.
+  loadData();
 })();
 </script>
 
