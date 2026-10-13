@@ -124,6 +124,13 @@
     }
   
     /* ADMIN EXTENSION */
+    #adminModal > div:last-child { animation: adminPanelIn .22s ease-out; }
+    @keyframes adminPanelIn { from { opacity: .7; transform: translateY(8px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    #adminModal .card { transition: box-shadow .2s ease, transform .2s ease; }
+    #adminModal .card:hover { box-shadow: 0 12px 34px rgba(15,23,42,.07); }
+    #adminAreaList > div, #adminVehicleList > div { transition: opacity .2s ease, background-color .2s ease, border-color .2s ease; }
+    #adminModal button { transition: background-color .18s ease, color .18s ease, transform .18s ease; }
+    #adminModal button:active { transform: scale(.98); }
     #adminModal input:focus, #adminModal select:focus {
       border-color: #94a3b8;
       box-shadow: 0 0 0 3px rgba(148,163,184,.15);
@@ -3927,6 +3934,45 @@
        DASHBOARD
     ====================================================== */
 
+    function refreshAdminOutputLabels() {
+      const vehicles = (window.adminVehicles || []).filter(v => v.active !== false);
+      const first = vehicles[0] || { id: "yellow", name: "Truk Kuning" };
+      const second = vehicles[1] || { id: "green", name: "Truk Hijau" };
+      const labels = [
+        ["todayYellow", first.name],
+        ["todayGreen", second.name],
+        ["allYellow", first.name],
+        ["allGreen", second.name],
+        ["reportYellowTotal", first.name],
+        ["reportGreenTotal", second.name]
+      ];
+      labels.forEach(([id, label]) => {
+        const value = document.getElementById(id);
+        const title = value?.previousElementSibling;
+        if (title) title.textContent = label;
+      });
+      const allIds = [
+        ["todayYellow", "today", first.id],
+        ["todayGreen", "today", second.id],
+        ["allYellow", "all", first.id],
+        ["allGreen", "all", second.id],
+        ["reportYellowTotal", "report", first.id],
+        ["reportGreenTotal", "report", second.id]
+      ];
+      allIds.forEach(([id, scope, vehicleId]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const source = scope === "today"
+          ? records.filter(r => r.date === localDateString())
+          : scope === "report"
+          ? (window.__currentRekapFiltered || records)
+          : records;
+        el.textContent = source
+          .filter(r => String(r.truckType || "").toLowerCase() === String(vehicleId).toLowerCase())
+          .reduce((sum, r) => sum + Number(r.total || 0), 0);
+      });
+    }
+
     function renderDashboard() {
 
       const today =
@@ -4033,6 +4079,7 @@
         );
 
 
+      refreshAdminOutputLabels();
       renderWeeklyChart();
 
       renderTruckChart();
@@ -4904,119 +4951,70 @@ if (
   );
 
 
-  const areaColors = {
+  window.__currentRekapFiltered = filtered;
+  refreshAdminOutputLabels();
 
-    Karawang:
-      "bg-blue-50 text-blue-700",
-
-    Purwakarta:
-      "bg-purple-50 text-purple-700",
-
-    Subang:
-      "bg-orange-50 text-orange-700"
-
+  const areaColorFallback = {
+    blue: "bg-blue-50 text-blue-700",
+    purple: "bg-purple-50 text-purple-700",
+    orange: "bg-orange-50 text-orange-700",
+    emerald: "bg-emerald-50 text-emerald-700",
+    rose: "bg-rose-50 text-rose-700",
+    slate: "bg-slate-50 text-slate-700",
+    yellow: "bg-yellow-50 text-yellow-700",
+    green: "bg-emerald-50 text-emerald-700"
   };
+  const activeAreas = window.adminAreas
+    ? window.adminAreas.filter(a => a.active !== false)
+    : getAdminAreas().map(name => ({ name, color: "slate" }));
+  const activeVehicles = window.adminVehicles
+    ? window.adminVehicles.filter(v => v.active !== false)
+    : [
+        { id: "yellow", name: "Truk Kuning", color: "yellow" },
+        { id: "green", name: "Truk Hijau", color: "green" }
+      ];
 
+  const areaStatsDynamic = {};
+  activeAreas.forEach(a => {
+    areaStatsDynamic[a.name] = { activity: 0, total: 0, vehicles: {} };
+    activeVehicles.forEach(v => areaStatsDynamic[a.name].vehicles[v.id] = 0);
+  });
+  filtered.forEach(r => {
+    const name = String(r.area || "");
+    if (!areaStatsDynamic[name]) {
+      areaStatsDynamic[name] = { activity: 0, total: 0, vehicles: {} };
+      activeVehicles.forEach(v => areaStatsDynamic[name].vehicles[v.id] = 0);
+    }
+    const v = areaStatsDynamic[name];
+    v.activity += 1;
+    v.total += Number(r.total || 0);
+    const id = String(r.truckType || "").toLowerCase();
+    v.vehicles[id] = Number(v.vehicles[id] || 0) + Number(r.total || 0);
+  });
 
-  document
-    .getElementById("reportAreaTable")
-    .innerHTML = `
-
-      <table class="w-full min-w-[700px]">
-
-        <thead>
-
-          <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-100">
-
-            <th class="text-left px-4 py-3">
-              Area
-            </th>
-
-            <th class="text-right px-4 py-3">
-              Aktivitas
-            </th>
-
-            <th class="text-right px-4 py-3">
-              Kuning
-            </th>
-
-            <th class="text-right px-4 py-3">
-              Hijau
-            </th>
-
-            <th class="text-right px-4 py-3">
-              Total Armada
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          ${
-            getAdminAreas()
-              .map(
-                name => {
-
-                  const v =
-                    areaStats[name];
-
-                  return `
-
-                    <tr class="border-b border-slate-50 last:border-0">
-
-                      <td class="px-4 py-4">
-
-                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold ${
-                          areaColors[name]
-                        }">
-
-                          ${name}
-
-                        </span>
-
-                      </td>
-
-                      <td class="px-4 py-4 text-right text-sm font-semibold">
-
-                        ${v.activity}
-
-                      </td>
-
-                      <td class="px-4 py-4 text-right text-sm font-semibold text-yellow-700">
-
-                        ${v.yellow}
-
-                      </td>
-
-                      <td class="px-4 py-4 text-right text-sm font-semibold text-emerald-700">
-
-                        ${v.green}
-
-                      </td>
-
-                      <td class="px-4 py-4 text-right text-sm font-extrabold">
-
-                        ${v.total}
-
-                      </td>
-
-                    </tr>
-
-                  `;
-
-                }
-              )
-              .join("")
-          }
-
-        </tbody>
-
-      </table>
-
-    `;
-
+  document.getElementById("reportAreaTable").innerHTML = `
+    <table class="w-full min-w-[${Math.max(620, 420 + activeVehicles.length * 105)}px]">
+      <thead>
+        <tr class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-100">
+          <th class="text-left px-4 py-3">Area</th>
+          <th class="text-right px-4 py-3">Aktivitas</th>
+          ${activeVehicles.map(v => `<th class="text-right px-4 py-3">${escapeHtml(v.name)}</th>`).join("")}
+          <th class="text-right px-4 py-3">Total Armada</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${activeAreas.map(area => {
+          const v = areaStatsDynamic[area.name] || { activity: 0, total: 0, vehicles: {} };
+          return `<tr class="border-b border-slate-50 last:border-0 hover:bg-slate-50/70 transition-colors">
+            <td class="px-4 py-4"><span class="px-2.5 py-1 rounded-lg text-xs font-bold ${areaColorFallback[area.color] || areaColorFallback.slate}">${escapeHtml(area.name)}</span></td>
+            <td class="px-4 py-4 text-right text-sm font-semibold">${v.activity}</td>
+            ${activeVehicles.map(vehicle => `<td class="px-4 py-4 text-right text-sm font-semibold">${Number(v.vehicles[vehicle.id] || 0)}</td>`).join("")}
+            <td class="px-4 py-4 text-right text-sm font-extrabold">${v.total}</td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>`;
+  if (window.lucide) lucide.createIcons();
 
   /* =====================================================
      REKAP PERIODE
@@ -6501,9 +6499,7 @@ function exportReportPDF() {
       `Jenis Truk: ${
         truckFilter === "all"
           ? "Semua Jenis"
-          : truckFilter === "yellow"
-          ? "Kuning"
-          : "Hijau"
+          : adminVehicleLabel(truckFilter)
       }`,
       pageWidth - 14,
       26,
@@ -6544,15 +6540,16 @@ function exportReportPDF() {
       head: [[
         "Total Aktivitas",
         "Total Armada",
-        "Truk Kuning",
-        "Truk Hijau"
+        ...((window.adminVehicles || []).filter(v => v.active !== false).map(v => v.name))
       ]],
 
       body: [[
         totalActivity,
         totalTruck,
-        totalYellow,
-        totalGreen
+        ...((window.adminVehicles || []).filter(v => v.active !== false).map(v =>
+          filtered.filter(r => String(r.truckType || "").toLowerCase() === String(v.id).toLowerCase())
+            .reduce((n, r) => n + Number(r.total || 0), 0)
+        ))
       ]],
 
       theme: "grid",
@@ -6635,35 +6632,24 @@ function exportReportPDF() {
       head: [[
         "Area",
         "Aktivitas",
-        "Kuning",
-        "Hijau",
+        ...((window.adminVehicles || []).filter(v => v.active !== false).map(v => v.name)),
         "Total Armada"
       ]],
 
       body:
-        ["Karawang","Purwakarta","Subang"]
-          .map(
-            name => {
-
-              const v =
-                areaRows[name] ||
-                {
-                  activity: 0,
-                  yellow: 0,
-                  green: 0,
-                  total: 0
-                };
-
-              return [
-                name,
-                v.activity,
-                v.yellow,
-                v.green,
-                v.total
-              ];
-
-            }
-          ),
+        getAdminAreas()
+          .map(name => {
+            const rows = filtered.filter(r => String(r.area) === String(name));
+            return [
+              name,
+              rows.length,
+              ...((window.adminVehicles || []).filter(v => v.active !== false).map(vehicle =>
+                rows.filter(r => String(r.truckType || "").toLowerCase() === String(vehicle.id).toLowerCase())
+                  .reduce((n, r) => n + Number(r.total || 0), 0)
+              )),
+              rows.reduce((n, r) => n + Number(r.total || 0), 0)
+            ];
+          }),
 
       theme: "grid",
 
@@ -7001,9 +6987,7 @@ function exportReportExcel() {
         "Jenis Truk",
         truckFilter === "all"
           ? "Semua Jenis"
-          : truckFilter === "yellow"
-          ? "Kuning"
-          : "Hijau"
+          : adminVehicleLabel(truckFilter)
       ],
 
       [],
@@ -7023,15 +7007,11 @@ function exportReportExcel() {
         sum(filtered, "total")
       ],
 
-      [
-        "Truk Kuning",
-        sum(filtered, "yellow")
-      ],
-
-      [
-        "Truk Hijau",
-        sum(filtered, "green")
-      ],
+      ...((window.adminVehicles || []).filter(v => v.active !== false).map(v => [
+        v.name,
+        filtered.filter(r => String(r.truckType || "").toLowerCase() === String(v.id).toLowerCase())
+          .reduce((n, r) => n + Number(r.total || 0), 0)
+      ])),
 
       [],
 
@@ -7042,8 +7022,7 @@ function exportReportExcel() {
       [
         "Area",
         "Aktivitas",
-        "Kuning",
-        "Hijau",
+        ...((window.adminVehicles || []).filter(v => v.active !== false).map(v => v.name)),
         "Total Armada"
       ]
 
@@ -7085,30 +7064,18 @@ function exportReportExcel() {
     );
 
 
-    ["Karawang","Purwakarta","Subang"]
-      .forEach(
-        name => {
-
-          const v =
-            areaStats[name] ||
-            {
-              activity: 0,
-              yellow: 0,
-              green: 0,
-              total: 0
-            };
-
-
-          summary.push([
-            name,
-            v.activity,
-            v.yellow,
-            v.green,
-            v.total
-          ]);
-
-        }
-      );
+    getAdminAreas().forEach(name => {
+      const rows = filtered.filter(r => String(r.area) === String(name));
+      summary.push([
+        name,
+        rows.length,
+        ...((window.adminVehicles || []).filter(v => v.active !== false).map(vehicle =>
+          rows.filter(r => String(r.truckType || "").toLowerCase() === String(vehicle.id).toLowerCase())
+            .reduce((n, r) => n + Number(r.total || 0), 0)
+        )),
+        rows.reduce((n, r) => n + Number(r.total || 0), 0)
+      ]);
+    });
 
 
     const wsSummary =
@@ -7411,14 +7378,14 @@ function exportReportExcel() {
   const ADMIN_PIN_KEY = "armadatrack_admin_pin_v1";
 
   const DEFAULT_AREAS = [
-    { name: "Karawang", color: "blue" },
-    { name: "Purwakarta", color: "purple" },
-    { name: "Subang", color: "orange" }
+    { name: "Karawang", color: "blue", active: true },
+    { name: "Purwakarta", color: "purple", active: true },
+    { name: "Subang", color: "orange", active: true }
   ];
 
   const DEFAULT_VEHICLES = [
-    { id: "yellow", name: "Truk Kuning", color: "yellow" },
-    { id: "green", name: "Truk Hijau", color: "green" }
+    { id: "yellow", name: "Truk Kuning", color: "yellow", active: true },
+    { id: "green", name: "Truk Hijau", color: "green", active: true }
   ];
 
   const AREA_CLASSES = {
@@ -7449,8 +7416,8 @@ function exportReportExcel() {
       const raw = localStorage.getItem(key);
       if (!raw) return cloneDefaults(fallback);
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) && parsed.length
-        ? parsed
+      return Array.isArray(parsed)
+        ? parsed.map(item => ({ ...item, active: item.active !== false }))
         : cloneDefaults(fallback);
     } catch {
       return cloneDefaults(fallback);
@@ -7466,7 +7433,7 @@ function exportReportExcel() {
   window.adminVehicles = readConfig(ADMIN_VEHICLE_KEY, DEFAULT_VEHICLES);
 
   window.getAdminAreas = function() {
-    return window.adminAreas.map(x => x.name);
+    return window.adminAreas.filter(x => x.active !== false).map(x => x.name);
   };
 
   window.getAdminVehicle = function(id) {
@@ -7531,15 +7498,21 @@ function exportReportExcel() {
 
     if (!areaList || !vehicleList) return;
 
-    areaCount.textContent = window.adminAreas.length;
-    vehicleCount.textContent = window.adminVehicles.length;
+    areaCount.textContent = `${window.adminAreas.filter(x => x.active !== false).length} aktif / ${window.adminAreas.length}`;
+    vehicleCount.textContent = `${window.adminVehicles.filter(x => x.active !== false).length} aktif / ${window.adminVehicles.length}`;
 
     areaList.innerHTML = window.adminAreas.map((area, i) => `
-      <div class="flex items-center gap-3 border border-slate-100 rounded-2xl px-3 py-3">
+      <div class="flex items-center gap-3 border ${area.active === false ? "border-dashed border-slate-200 bg-slate-50 opacity-75" : "border-slate-100"} rounded-2xl px-3 py-3 transition-all duration-200">
         <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${adminAreaClasses(area.name)}">
           ${adminEscape(area.name)}
         </span>
-        <span class="text-xs text-slate-400 flex-1">${adminEscape(area.color)}</span>
+        <span class="text-xs text-slate-400 flex-1">${area.active === false ? "Disembunyikan" : "Aktif"} · ${adminEscape(area.color)}</span>
+        <button type="button" onclick="toggleAdminArea(${i})"
+          class="h-8 px-2 rounded-lg ${area.active === false ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "hover:bg-amber-50 text-slate-500 hover:text-amber-700"} text-[11px] font-bold flex items-center gap-1"
+          title="${area.active === false ? "Tampilkan area" : "Sembunyikan area"}">
+          <i data-lucide="${area.active === false ? "eye" : "eye-off"}" class="w-3.5 h-3.5"></i>
+          ${area.active === false ? "Tampilkan" : "Hide"}
+        </button>
         <button type="button" onclick="removeAdminArea(${i})"
           class="w-8 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center"
           title="Hapus area">
@@ -7549,17 +7522,23 @@ function exportReportExcel() {
     `).join("");
 
     vehicleList.innerHTML = window.adminVehicles.map((vehicle, i) => `
-      <div class="flex items-center gap-3 border border-slate-100 rounded-2xl px-3 py-3">
+      <div class="flex items-center gap-3 border ${vehicle.active === false ? "border-dashed border-slate-200 bg-slate-50 opacity-75" : "border-slate-100"} rounded-2xl px-3 py-3 transition-all duration-200">
         <div class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
           <i data-lucide="truck" class="w-4 h-4"></i>
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-bold truncate">${adminEscape(vehicle.name)}</p>
-          <p class="text-[10px] text-slate-400">${adminEscape(vehicle.id)}</p>
+          <p class="text-[10px] text-slate-400">${adminEscape(vehicle.id)} · ${vehicle.active === false ? "Disembunyikan" : "Aktif"}</p>
         </div>
         <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold ${VEHICLE_CLASSES[vehicle.color] || VEHICLE_CLASSES.slate}">
           ${adminEscape(vehicle.color)}
         </span>
+        <button type="button" onclick="toggleAdminVehicle(${i})"
+          class="h-8 px-2 rounded-lg ${vehicle.active === false ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "hover:bg-amber-50 text-slate-500 hover:text-amber-700"} text-[11px] font-bold flex items-center gap-1"
+          title="${vehicle.active === false ? "Tampilkan kendaraan" : "Sembunyikan kendaraan"}">
+          <i data-lucide="${vehicle.active === false ? "eye" : "eye-off"}" class="w-3.5 h-3.5"></i>
+          ${vehicle.active === false ? "Tampilkan" : "Hide"}
+        </button>
         <button type="button" onclick="removeAdminVehicle(${i})"
           class="w-8 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center"
           title="Hapus kendaraan">
@@ -7580,7 +7559,7 @@ function exportReportExcel() {
       const current = areaSelect.value;
       areaSelect.innerHTML =
         `<option value="">Pilih Area</option>` +
-        window.adminAreas.map(a =>
+        window.adminAreas.filter(a => a.active !== false).map(a =>
           `<option value="${adminEscape(a.name)}">${adminEscape(a.name)}</option>`
         ).join("");
       if (window.adminAreas.some(a => a.name === current)) areaSelect.value = current;
@@ -7590,7 +7569,7 @@ function exportReportExcel() {
       const current = rekapArea.value || "all";
       rekapArea.innerHTML =
         `<option value="all">Semua Area</option>` +
-        window.adminAreas.map(a =>
+        window.adminAreas.filter(a => a.active !== false).map(a =>
           `<option value="${adminEscape(a.name)}">${adminEscape(a.name)}</option>`
         ).join("");
       rekapArea.value = window.adminAreas.some(a => a.name === current) ? current : "all";
@@ -7600,7 +7579,7 @@ function exportReportExcel() {
       const current = rekapTruck.value || "all";
       rekapTruck.innerHTML =
         `<option value="all">Semua Jenis</option>` +
-        window.adminVehicles.map(v =>
+        window.adminVehicles.filter(v => v.active !== false).map(v =>
           `<option value="${adminEscape(v.id)}">${adminEscape(v.name)}</option>`
         ).join("");
       rekapTruck.value = window.adminVehicles.some(v => v.id === current) ? current : "all";
@@ -7622,11 +7601,11 @@ function exportReportExcel() {
       document.querySelector('input[name="truckType"]:checked')?.value ||
       "yellow";
 
-    if (!window.adminVehicles.some(v => v.id === selected)) {
-      selected = window.adminVehicles[0]?.id || "";
+    if (!window.adminVehicles.some(v => v.id === selected && v.active !== false)) {
+      selected = window.adminVehicles.find(v => v.active !== false)?.id || "";
     }
 
-    container.innerHTML = window.adminVehicles.map(v => {
+    container.innerHTML = window.adminVehicles.filter(v => v.active !== false).map(v => {
       const active = v.id === selected;
       const tone = v.color === "yellow"
         ? { border:"border-yellow-300", bg:"bg-yellow-50", icon:"bg-yellow-200 text-yellow-800", check:"text-yellow-700" }
@@ -7685,7 +7664,7 @@ function exportReportExcel() {
       return;
     }
 
-    window.adminAreas.push({ name, color });
+    window.adminAreas.push({ name, color, active: true });
     saveConfig();
     input.value = "";
     renderAdminLists();
@@ -7694,9 +7673,30 @@ function exportReportExcel() {
     showToast(`Area "${name}" berhasil ditambahkan.`);
   };
 
+  window.toggleAdminArea = function(index) {
+    const area = window.adminAreas[index];
+    if (!area) return;
+    if (area.active !== false && window.adminAreas.filter(x => x.active !== false).length <= 1) {
+      showToast("Minimal satu area harus tetap aktif.");
+      return;
+    }
+    area.active = area.active === false;
+    saveConfig();
+    renderAdminLists();
+    applyAdminConfig();
+    renderRekap();
+    renderDashboard();
+    renderTable();
+    showToast(`Area "${area.name}" ${area.active ? "ditampilkan" : "disembunyikan"} dari pilihan baru.`);
+  };
+
   window.removeAdminArea = function(index) {
     const area = window.adminAreas[index];
     if (!area) return;
+    if (area.active !== false && window.adminAreas.filter(x => x.active !== false).length <= 1) {
+      showToast("Minimal satu area harus tetap aktif. Sembunyikan atau hapus area lain terlebih dahulu.");
+      return;
+    }
 
     const used = records.some(r => String(r.area).toLowerCase() === area.name.toLowerCase());
     const message = used
@@ -7735,7 +7735,7 @@ function exportReportExcel() {
     }
 
     const id = uniqueId(name);
-    window.adminVehicles.push({ id, name, color });
+    window.adminVehicles.push({ id, name, color, active: true });
     saveConfig();
     input.value = "";
     renderAdminLists();
@@ -7745,9 +7745,30 @@ function exportReportExcel() {
     showToast(`Kendaraan "${name}" berhasil ditambahkan.`);
   };
 
+  window.toggleAdminVehicle = function(index) {
+    const vehicle = window.adminVehicles[index];
+    if (!vehicle) return;
+    if (vehicle.active !== false && window.adminVehicles.filter(x => x.active !== false).length <= 1) {
+      showToast("Minimal satu jenis kendaraan harus tetap aktif.");
+      return;
+    }
+    vehicle.active = vehicle.active === false;
+    saveConfig();
+    renderAdminLists();
+    applyAdminConfig();
+    renderDashboard();
+    renderRekap();
+    renderTable();
+    showToast(`Kendaraan "${vehicle.name}" ${vehicle.active ? "ditampilkan" : "disembunyikan"} dari pilihan baru.`);
+  };
+
   window.removeAdminVehicle = function(index) {
     const vehicle = window.adminVehicles[index];
     if (!vehicle) return;
+    if (vehicle.active !== false && window.adminVehicles.filter(x => x.active !== false).length <= 1) {
+      showToast("Minimal satu jenis kendaraan harus tetap aktif.");
+      return;
+    }
 
     const used = records.some(r => String(r.truckType).toLowerCase() === String(vehicle.id).toLowerCase());
     const message = used
